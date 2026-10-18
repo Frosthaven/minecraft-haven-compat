@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "dev.frosthaven.havencompat.mixin",
+  "plugin": "dev.frosthaven.havencompat.mixin.PortalsMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "PortalStencilHoldMixin",
+    "PortalDepthCopyMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,61 @@
+# haven-compat (`haven_compat`)
+
+Client-only NeoForge 1.21.1 mod for the Haven pack (minecraft-haven-pack): fixes between other mods, one package per
+fix. Read README.md first. Rules: every fix is off when its mods are absent; other mods are reached by class name only
+(`@Mixin(targets = "...")`, reflection), never as a compile dependency; nothing logs per frame (`Log.once`); a fix that
+cannot apply logs it and leaves the game as it was, never a crash of its own.
+
+## Layout (`src/main/java/dev/frosthaven/havencompat`)
+
+- `HavenCompat`: the entry point, registers each fix.
+- `Log`: once-per-key logger (logger `haven_compat`), one channel prefix per fix.
+- `portals/PortalDepth`: the portal fix's state and GL work. `noCopyImage()` decides once on the render thread
+  (`GL.getCapabilities().glCopyImageSubData == 0`, or the flag `-Dhaven_compat.assumeNoCopyImage=true`);
+  `keepMainStencil` (the stencil hold), `blitDepthStencil` / `blitColor` (the copies; the stencil bit only when both
+  framebuffers have one; read/draw bindings restored; the first failure logged with both depth formats);
+  `patched()` = both mixins applied (recorded by the mixin plugin's `postApply`).
+- `portals/PortalShaderGuard`: the fallback, a client tick every 10: where the call is missing and `patched()` is false,
+  `IPGlobal.renderMode` is held at `none` while `Iris.getCurrentPack()` is present (reflection), the player is told
+  once (`haven_compat.portals.shaders_off`), the mode comes back when shaders go off. `register` defines the two target
+  classes (`Class.forName(name, false, ...)`) so the mixins apply before the first tick asks.
+- `mixin/PortalStencilHoldMixin`: `@ModifyVariable` on the boolean of `IPPortingLibCompat.setIsStencilEnabled`.
+- `mixin/PortalDepthCopyMixin`: `@Inject(HEAD, cancellable)` on `IPIrisHelper.newCopyDepthStencil` and `copyColor`.
+- `mixin/PortalsMixinPlugin`: applies only with `immersive_portals_core` in `LoadingModList`; `postApply` ->
+  `PortalDepth.patched(target)`. The config is `required: false` with `defaultRequire: 1`: a target that moved fails
+  that one mixin loudly in the log and the guard takes over.
+
+## Why the portal fix is shaped this way (Immersive Portals: Aeronautics 2.2.4, read from its jar)
+
+`PortalRenderer.switchToCorrectRenderer`: Iris present and shaders on -> `IPGlobal.renderMode` normal =
+`IrisPortalRenderer`, compatibility = `IrisCompatibilityPortalRenderer`, none = `rendererDummy`. Every Iris renderer's
+`prepareRendering` ends with `IPPortingLibCompat.setIsStencilEnabled(mainRenderTarget, false)`, after giving its own
+`SecondaryFrameBuffer`s a stencil (`MixinRenderTarget.modifyTexImage2D`: `GL_DEPTH24_STENCIL8`, or
+`GL_DEPTH32F_STENCIL8` when `IPCGlobal.useSeparatedStencilFormat`, chosen from the GPU vendor and the main depth
+format; `MixinMainTarget` does the same for the main framebuffer when its flag is on). `IrisPortalRenderer.doMainRenderings`
+then blits depth main -> deferred; on `glGetError() != 0` it logs "[ImmPtl] Depth blit ... failed with GL error 0x{}",
+sets `renderMode = compatibility` and chats "Switched to compatibility portal rendering mode". The Mac log of
+2026-10-17: main depth `0x8cac` (GL_DEPTH_COMPONENT32F, Apple's choice for an unsized depth texture), deferred
+`0x88f0` (GL_DEPTH24_STENCIL8), error `0x502`. `IPIrisDepthFormatFix.matchDeferredDepthFormat` would convert the
+deferred texture but gives up unless both are packed depth+stencil, hence the hold on the main one. Fourteen seconds
+later `IrisCompatibilityPortalRenderer.onBeforeHandRendering` -> `IPIrisHelper.newCopyDepthStencil` ->
+`GL43C.glCopyImageSubData` aborted the JVM. The jar's only OpenGL 4.x call is that one (`javap` over every class);
+`IPIrisHelper` even has an unused `isCopyImageSubDataSupported()` and a blit-based `copyDepthStencil`. Iris itself
+handles a stencil main framebuffer (`DepthCopyStrategy.Gl30BlitFbCombinedDepthStencil`, an integration-test mixin for it).
+
+## Testing
+
+No Mac here. The fallback path runs on any machine with `-Dhaven_compat.assumeNoCopyImage=true`: Prism instance
+"Haven Portals Test" (a Haven client with the snapshot world "Haven Snapshot 2026-10-16", the player standing at
+-992 63 554 facing the lit portal at -987 64 554, Iris on with Complementary Unbound, `pauseOnLostFocus:false`),
+this jar in `mods/`, `OverrideJavaArgs=true` + the flag in `instance.cfg`, then
+`prismlauncher -l "Haven Portals Test" -w "Haven Snapshot 2026-10-16"` and a screenshot (`grim`). Pass = the log has
+`[portal depth]` "copied by blit" or the stencil hold line, "switched to renderer class ...IrisPortalRenderer" and no
+"Switched to compatibility" / "Depth blit ... failed", and the screenshot shows the other side through the portal.
+Close the game by working folder (`/proc/<pid>/cwd`), never by name; close Prism before editing `instance.cfg`.
+A real Mac check (shaders on, walk through a portal, portal-in-portal) is still owed after each Immersive Portals update.
+
+## Release
+
+Push to `main`: CI publishes `haven-compat.jar` as the rolling `latest` release and `haven-compat-<version>.jar` as an
+immutable `v<mod_version>-<sha7>` release (the Haven pack pins one with `just bump-mod haven-compat`). Bump
+`mod_version` in `gradle.properties`. Commits: author `Frosthaven <shane@thedragon.dev>`, no Co-Authored-By trailer.

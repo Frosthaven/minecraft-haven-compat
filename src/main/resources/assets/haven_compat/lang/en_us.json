@@ -1,0 +1,3 @@
+{
+  "haven_compat.portals.shaders_off": "Shaders are on, but this computer's OpenGL cannot run Immersive Portals' shader path and Haven Compat could not patch it. Portals still teleport but show as empty frames until shaders are off."
+}

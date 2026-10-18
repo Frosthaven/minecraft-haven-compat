@@ -1,0 +1,25 @@
+package dev.frosthaven.havencompat;
+
+import dev.frosthaven.havencompat.portals.PortalShaderGuard;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
+
+/**
+ * Client only. Fixes between mods of the Haven pack that belong to none of them, one package per fix, each one off
+ * when the mods it is about are absent:
+ *  - {@code portals}: Immersive Portals with Iris shaders on a driver without OpenGL 4.3 (macOS): the main framebuffer
+ *    keeps its stencil so the depth blit is legal, and the 4.3-only copy is replaced by a blit (the mixins); if those
+ *    patches are not in place, {@link PortalShaderGuard} holds Immersive Portals off while shaders are on instead of
+ *    letting the JVM abort.
+ */
+@Mod(value = HavenCompat.ID, dist = Dist.CLIENT)
+public final class HavenCompat {
+    public static final String ID = "haven_compat";
+
+    public HavenCompat(IEventBus modBus, ModContainer container) {
+        PortalShaderGuard.register(NeoForge.EVENT_BUS);
+    }
+}

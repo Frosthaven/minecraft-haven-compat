@@ -1,0 +1,45 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+description='''
+Client-side fixes between mods of the Haven pack. Immersive Portals with Iris shaders on a computer without
+OpenGL 4.3 (macOS): portals render through instead of aborting the game.
+'''
+
+# Targets Immersive Portals, so optional: its plugin applies nothing without it.
+[[mixins]]
+config="${mod_id}.mixins.json"
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="CLIENT"
+
+# The portal fix is about these two; without either it does nothing.
+[[dependencies.${mod_id}]]
+    modId="immersive_portals_core"
+    type="optional"
+    versionRange="*"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="iris"
+    type="optional"
+    versionRange="*"
+    ordering="NONE"
+    side="CLIENT"
