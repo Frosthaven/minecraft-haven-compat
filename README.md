@@ -86,6 +86,17 @@ On macOS, on the first client tick, the box moves to `macos` while it still stan
 stays (`force: true` moves it every launch). Other systems: nothing. `-Dhaven_compat.assumeMac=true` runs the macOS path
 elsewhere, for testing. `latest.log`: `[jade notch]` lines.
 
+## Pack defaults
+
+The pack's one-time defaults, moved here from Create UI Remix (an optional mod; this one is required). On the first
+title screen of a session: the resource packs listed in `config/haven-pack-defaults.json` (`resourcePacks`) are enabled
+once, in order, and the first run sets Iris's shader pack per OS (`shader`). At mod construction, before Iris loads its
+pack, per-OS shader pack options (`shaderOptions`) are written into `shaderpacks/<pack>.txt`: a key the file lacks, or
+one that still holds the value written before, gets the pack's value; a value the player changed stays. First use:
+Apple's OpenGL stops at 16 texture units, and with Create Deep Seas 3.4's hull sampler Complementary at Block Reflection
+Quality High overflows (Iris: "No more available texture units", shaders off), so macOS runs it at Low. State in
+`config/haven-pack-defaults.state.json`, the same file and keys as before, so existing installs apply nothing again.
+
 ## Development
 
 `./gradlew build` (Gradle on JDK 17 or 21, mod on Java 21). Other mods are reached by class name only (mixin targets,

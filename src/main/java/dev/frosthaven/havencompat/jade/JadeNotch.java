@@ -2,13 +2,13 @@ package dev.frosthaven.havencompat.jade;
 
 import com.google.gson.JsonObject;
 import dev.frosthaven.havencompat.Log;
+import dev.frosthaven.havencompat.Os;
 import dev.frosthaven.havencompat.PackDefaults;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 import java.nio.file.Path;
-import java.util.Locale;
 
 /**
  * Jade's "what am I looking at" box sits at the top centre of the screen. A MacBook with a camera notch draws a full
@@ -21,7 +21,6 @@ import java.util.Locale;
  * {@code -Dhaven_compat.assumeMac=true} runs the macOS path elsewhere, for testing.
  */
 public final class JadeNotch {
-    static final String FLAG = "haven_compat.assumeMac";
     private static final Log LOG = new Log("[jade notch] ");
     private static boolean done;
 
@@ -47,7 +46,7 @@ public final class JadeNotch {
     }
 
     static boolean macOS() {
-        return Boolean.getBoolean(FLAG) || System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("mac");
+        return Os.macOS();
     }
 
     static void apply(Path file) throws Exception {

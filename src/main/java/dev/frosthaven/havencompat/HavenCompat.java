@@ -1,5 +1,7 @@
 package dev.frosthaven.havencompat;
 
+import dev.frosthaven.havencompat.defaults.ShaderOptions;
+import dev.frosthaven.havencompat.defaults.TitleDefaults;
 import dev.frosthaven.havencompat.jade.JadeNotch;
 import dev.frosthaven.havencompat.portals.PortalShaderGuard;
 import dev.frosthaven.havencompat.servers.ServerListSync;
@@ -21,6 +23,9 @@ import net.neoforged.neoforge.common.NeoForge;
  *  - {@code updates}: mods' own "update available" screens are off (Create Deep Seas): the pack manages mod versions.
  *  - {@code jade}: on macOS, Jade's box moves below the camera notch (the pack's {@code jade} defaults), unless the
  *    player moved it themselves.
+ *  - {@code defaults}: the pack's one-time defaults (moved here from haven-create-ui-ux, an optional mod): the listed
+ *    resource packs enabled once, the first-run shader pack per OS, and per-OS shader pack options (macOS: Complementary
+ *    at Block Reflection Quality Low, so Apple's 16 texture units hold Deep Seas' hull sampler too).
  */
 @Mod(value = HavenCompat.ID, dist = Dist.CLIENT)
 public final class HavenCompat {
@@ -30,5 +35,7 @@ public final class HavenCompat {
         PortalShaderGuard.register(NeoForge.EVENT_BUS);
         ServerListSync.register(NeoForge.EVENT_BUS);
         JadeNotch.register(NeoForge.EVENT_BUS);
+        ShaderOptions.apply();   // before Iris loads its pack
+        TitleDefaults.register(NeoForge.EVENT_BUS);
     }
 }

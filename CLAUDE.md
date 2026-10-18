@@ -19,7 +19,13 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   once (`haven_compat.portals.shaders_off`), the mode comes back when shaders go off. `register` defines the two target
   classes (`Class.forName(name, false, ...)`) so the mixins apply before the first tick asks.
 - `PackDefaults`: the pack's `config/haven-pack-defaults.json` (`file()`, `section(file, key)`, `root(file)`); each fix
-  reads its own key.
+  reads its own key. `Os.macOS()`: the OS check (`os.name`, or `-Dhaven_compat.assumeMac=true`).
+- `defaults/`: the pack's one-time defaults (from haven-create-ui-ux up to 1.3.0). `DefaultsState`: `config/
+  haven-pack-defaults.state.json` (keys `seen`, `shaderApplied`, `shaderOptions`, unchanged). `TitleDefaults`: first title
+  screen, `resourcePacks` enabled once in order (`above`/`below`), `shader` set per OS on the first run (Iris by reflection:
+  `getIrisConfig().setShaderPackName/setShadersEnabled/save`, `reload`). `ShaderOptions`: at mod construction (before Iris
+  loads its pack), `shaderOptions.<macos|default>.<pack>.<KEY>` written into `shaderpacks/<pack>.txt` (java.util.Properties);
+  `OptionChoice.decide(have, before, want)` (pure, unit tested): unset or still ours -> write, the player's -> stays.
 - `jade/JadeNotch`: macOS only (`os.name`, or `-Dhaven_compat.assumeMac=true`): first client tick, reads `jade`
   (`packValue`, `macos`, `force`), `jade/NotchMove.shouldMove` (pure, unit tested) decides, Jade's API by reflection through its
   interfaces (`IWailaConfig.get().getOverlay()`, `IWailaConfig$IConfigOverlay.get/setOverlayPosY`, `Jade.CONFIG` a
