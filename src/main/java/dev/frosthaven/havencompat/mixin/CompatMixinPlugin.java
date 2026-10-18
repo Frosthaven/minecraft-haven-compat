@@ -19,7 +19,8 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
     private static final Map<String, String> MOD_OF = Map.of(
             "PortalStencilHoldMixin", "immersive_portals_core",
             "PortalDepthCopyMixin", "immersive_portals_core",
-            "DeepSeasUpdateCheckMixin", "create_submarine");
+            "DeepSeasUpdateCheckMixin", "create_submarine",
+            "IrisPipelinePrewarmMixin", "iris");
 
     @Override public void onLoad(String mixinPackage) {}
 

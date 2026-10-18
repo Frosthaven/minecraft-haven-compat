@@ -54,13 +54,15 @@ path on a computer that has the function, for testing.
 
 ## The portal first-look jitter
 
-Iris builds one shader pipeline per dimension, on first use. With Immersive Portals that first use is the first frame a
-portal into that dimension is in view: shader linking on the render thread, then a full chunk rebuild because the
-new pipeline's block maps differ (Immersive Portals holds that rebuild until the portal frame ends). Once per
-dimension per session. This mod builds the overworld, Nether and End pipelines right after Iris built the one the
-player arrived in, behind the loading screen, and makes the player's current again (a lookup, no rebuild). A shader
-pack reload clears Iris's pipelines; they are built again on the next tick in a level. `[iris prewarm]` lines in
-`latest.log` give the time each one took. Off without Iris, or with no shader pack in use.
+Iris builds one shader pipeline per dimension, on first use. With Immersive Portals that first use was the first frame a
+portal into that dimension was in view: seconds of shader linking on the render thread (4 s for the Nether and 6 s for
+the End with Complementary on an M1 Pro), then a full chunk rebuild. Once per dimension per session. This mod hooks the
+moment Iris builds the pipeline of the dimension the player is in and builds the other two right there, then leaves the
+player's active (a lookup, no rebuild). With Immersive Portals that moment is the rebuild after its switch to the Iris
+renderer on the first world frame, behind the "Loading terrain" screen: the join takes those seconds longer, play does
+not hitch. A shader pack reload builds them again the same way. `[iris prewarm]` lines in `latest.log` give each build's
+time. Off without Iris or a shader pack; off by choice with `"portals": {"prewarmPipelines": false}` in
+`config/haven-pack-defaults.json`.
 
 ## The server list fix
 
