@@ -1,6 +1,7 @@
 package dev.frosthaven.havencompat;
 
 import dev.frosthaven.havencompat.portals.PortalShaderGuard;
+import dev.frosthaven.havencompat.servers.ServerListSync;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -14,6 +15,8 @@ import net.neoforged.neoforge.common.NeoForge;
  *    keeps its stencil so the depth blit is legal, and the 4.3-only copy is replaced by a blit (the mixins); if those
  *    patches are not in place, {@link PortalShaderGuard} holds Immersive Portals off while shaders are on instead of
  *    letting the JVM abort.
+ *  - {@code servers}: the pack's server entries stay current in the player's server list (address changes reach
+ *    instances that already had the list, which Default Options' first-launch copy never does).
  */
 @Mod(value = HavenCompat.ID, dist = Dist.CLIENT)
 public final class HavenCompat {
@@ -21,5 +24,6 @@ public final class HavenCompat {
 
     public HavenCompat(IEventBus modBus, ModContainer container) {
         PortalShaderGuard.register(NeoForge.EVENT_BUS);
+        ServerListSync.register(NeoForge.EVENT_BUS);
     }
 }

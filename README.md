@@ -7,6 +7,7 @@ pack. Nothing to configure.
 | Fix | Mods | What it does |
 |---|---|---|
 | Portals with shaders on macOS | Immersive Portals (Aeronautics fork), Iris | Portals render through with shaders on, on a computer whose OpenGL has no `glCopyImageSubData` (OpenGL 4.3; macOS stops at 4.1). Without it the game aborts near a portal the moment shaders go on. |
+| Server list stays current | the pack's `config/haven-pack-defaults.json` | The pack's server entries in the player's server list get the pack's current address: a port spelled out, a new host name. Default Options copies the pack's list on a first launch only, so an address change never reached existing players. |
 
 ## Download
 
@@ -47,6 +48,20 @@ real fix belongs upstream (Immersive Portals: Aeronautics); this mod carries it 
 `latest.log` tells what happened under `haven_compat`: `[portal depth]` lines for the capability check, the stencil
 hold and each blit; `[portal guard]` lines for the fallback. `-Dhaven_compat.assumeNoCopyImage=true` runs the fallback
 path on a computer that has the function, for testing.
+
+## The server list fix
+
+The pack declares its servers in `config/haven-pack-defaults.json`:
+
+```json
+{"servers": [{"name": "Haven", "address": "minecraft.thedragon.dev:9205", "previous": ["minecraft.thedragon.dev"]}]}
+```
+
+On the first client tick of a session, every entry of the player's list that is that server gets the current
+address: an entry whose address is the current or a previous one, or that carries the pack's entry name. A server with
+no entry is added at the top; an entry that became a duplicate goes. Other entries, the names and the order stay the
+player's. To move the server to a new host or port, change `address` and put the old one into `previous`; the players'
+entries follow on their next launch. No file or no `servers` key: nothing happens. `latest.log`: `[servers]` lines.
 
 ## Development
 

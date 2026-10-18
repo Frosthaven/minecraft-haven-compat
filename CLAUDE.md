@@ -18,6 +18,13 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `IPGlobal.renderMode` is held at `none` while `Iris.getCurrentPack()` is present (reflection), the player is told
   once (`haven_compat.portals.shaders_off`), the mode comes back when shaders go off. `register` defines the two target
   classes (`Class.forName(name, false, ...)`) so the mixins apply before the first tick asks.
+- `servers/ServerMatch`: the server list fix's decisions, pure (unit tested, `./gradlew test`): `plan(have, want)` =
+  sets (an entry that is the pack's server by current or previous address or by the pack's entry name, with another
+  address), removes (duplicates after the sets, highest index first), adds (no entry at all). `host:25565` = `host`.
+- `servers/ServerListSync`: reads `servers` of `config/haven-pack-defaults.json`, applies the plan to Minecraft's
+  `ServerList` on the first client tick (`ClientTickEvent.Post`; the title screen is not a given: a quick-play launch,
+  or a mod's own screen first, as Create: Submarine's update screen in the test instance), saves only on a change; any error is logged and
+  the list stays as it was.
 - `mixin/PortalStencilHoldMixin`: `@ModifyVariable` on the boolean of `IPPortingLibCompat.setIsStencilEnabled`.
 - `mixin/PortalDepthCopyMixin`: `@Inject(HEAD, cancellable)` on `IPIrisHelper.newCopyDepthStencil` and `copyColor`.
 - `mixin/PortalsMixinPlugin`: applies only with `immersive_portals_core` in `LoadingModList`; `postApply` ->
@@ -53,6 +60,11 @@ this jar in `mods/`, `OverrideJavaArgs=true` + the flag in `instance.cfg`, then
 "Switched to compatibility" / "Depth blit ... failed", and the screenshot shows the other side through the portal.
 Close the game by working folder (`/proc/<pid>/cwd`), never by name; close Prism before editing `instance.cfg`.
 A real Mac check (shaders on, walk through a portal, portal-in-portal) is still owed after each Immersive Portals update.
+
+Server list: the "Haven Portals Test" instance has the bare `minecraft.thedragon.dev` entry in its `servers.dat`
+(the old default); with this jar and `servers` in its `config/haven-pack-defaults.json`, a launch to the title screen
+logs `[servers] "Haven": minecraft.thedragon.dev -> minecraft.thedragon.dev:9205` and the file carries the port
+(checked 2026-10-18, 0.2.0).
 
 ## Release
 
