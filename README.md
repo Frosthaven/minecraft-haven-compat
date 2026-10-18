@@ -8,6 +8,7 @@ pack. Nothing to configure.
 |---|---|---|
 | Portals with shaders on macOS | Immersive Portals (Aeronautics fork), Iris | Portals render through with shaders on, on a computer whose OpenGL has no `glCopyImageSubData` (OpenGL 4.3; macOS stops at 4.1). Without it the game aborts near a portal the moment shaders go on. |
 | Server list stays current | the pack's `config/haven-pack-defaults.json` | The pack's server entries in the player's server list get the pack's current address: a port spelled out, a new host name. Default Options copies the pack's list on a first launch only, so an address change never reached existing players. |
+| No update popups from mods | Create Deep Seas | The mod's own "Deep Seas Update" screen, shown in front of the title screen whenever Modrinth has a newer build (alphas included), is off, and so is its request to Modrinth at start. The pack manages mod versions. |
 
 ## Download
 
@@ -62,6 +63,13 @@ address: an entry whose address is the current or a previous one, or that carrie
 no entry is added at the top; an entry that became a duplicate goes. Other entries, the names and the order stay the
 player's. To move the server to a new host or port, change `address` and put the old one into `previous`; the players'
 entries follow on their next launch. No file or no `servers` key: nothing happens. `latest.log`: `[servers]` lines.
+
+## Update popups
+
+A mod that checks for its own updates nags a modpack player about something they cannot do (the pack pins the version)
+and, as with Create Deep Seas' alpha 3.4.1 shown to everyone on 3.3.0, about builds the pack would not take. Haven Compat
+cancels such a check at its start, one mixin per mod, applied only when that mod is installed. `latest.log`:
+`[update nags]` lines.
 
 ## Development
 

@@ -17,6 +17,7 @@ import net.neoforged.neoforge.common.NeoForge;
  *    letting the JVM abort.
  *  - {@code servers}: the pack's server entries stay current in the player's server list (address changes reach
  *    instances that already had the list, which Default Options' first-launch copy never does).
+ *  - {@code updates}: mods' own "update available" screens are off (Create Deep Seas): the pack manages mod versions.
  */
 @Mod(value = HavenCompat.ID, dist = Dist.CLIENT)
 public final class HavenCompat {

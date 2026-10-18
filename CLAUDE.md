@@ -27,8 +27,11 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   the list stays as it was.
 - `mixin/PortalStencilHoldMixin`: `@ModifyVariable` on the boolean of `IPPortingLibCompat.setIsStencilEnabled`.
 - `mixin/PortalDepthCopyMixin`: `@Inject(HEAD, cancellable)` on `IPIrisHelper.newCopyDepthStencil` and `copyColor`.
-- `mixin/PortalsMixinPlugin`: applies only with `immersive_portals_core` in `LoadingModList`; `postApply` ->
-  `PortalDepth.patched(target)`. The config is `required: false` with `defaultRequire: 1`: a target that moved fails
+- `updates/UpdateNags`: the update-popup fix's log and the Create Deep Seas target class name; `mixin/DeepSeasUpdateCheckMixin`
+  cancels `UpdateChecker.check()` at HEAD (no Modrinth request, `updateAvailable` stays false, `DeepSeasUpdateScreen`
+  never opens).
+- `mixin/CompatMixinPlugin`: each mixin applies only with its mod in `LoadingModList` (`MOD_OF`: mixin simple name ->
+  mod id); `postApply` -> `PortalDepth.patched(target)`. The config is `required: false` with `defaultRequire: 1`: a target that moved fails
   that one mixin loudly in the log and the guard takes over.
 
 ## Why the portal fix is shaped this way (Immersive Portals: Aeronautics 2.2.4, read from its jar)
@@ -65,6 +68,10 @@ Server list: the "Haven Portals Test" instance has the bare `minecraft.thedragon
 (the old default); with this jar and `servers` in its `config/haven-pack-defaults.json`, a launch to the title screen
 logs `[servers] "Haven": minecraft.thedragon.dev -> minecraft.thedragon.dev:9205` and the file carries the port
 (checked 2026-10-18, 0.2.0).
+
+Update popups: the same instance (Create Deep Seas 3.3.0, Modrinth has 3.4.x) logs `[update nags] Create Deep Seas:
+its own update check is off` and reaches the title screen with no `DeepSeasUpdateScreen` frame in the log (without the
+mixin that screen sat in front of the title screen; checked 2026-10-18, 0.3.0).
 
 ## Release
 
