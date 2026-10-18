@@ -9,6 +9,7 @@ pack. Nothing to configure.
 | Portals with shaders on macOS | Immersive Portals (Aeronautics fork), Iris | Portals render through with shaders on, on a computer whose OpenGL has no `glCopyImageSubData` (OpenGL 4.3; macOS stops at 4.1). Without it the game aborts near a portal the moment shaders go on. |
 | Server list stays current | the pack's `config/haven-pack-defaults.json` | The pack's server entries in the player's server list get the pack's current address: a port spelled out, a new host name. Default Options copies the pack's list on a first launch only, so an address change never reached existing players. |
 | No update popups from mods | Create Deep Seas | The mod's own "Deep Seas Update" screen, shown in front of the title screen whenever Modrinth has a newer build (alphas included), is off, and so is its request to Modrinth at start. The pack manages mod versions. |
+| Jade below the macOS notch | Jade, the pack's `config/haven-pack-defaults.json` | On a Mac, Jade's "what am I looking at" box moves down from the top edge (the pack's `jade.macos` value) so a MacBook's camera notch does not hide it, unless the player moved the box themselves. |
 
 ## Download
 
@@ -70,6 +71,20 @@ A mod that checks for its own updates nags a modpack player about something they
 and, as with Create Deep Seas' alpha 3.4.1 shown to everyone on 3.3.0, about builds the pack would not take. Haven Compat
 cancels such a check at its start, one mixin per mod, applied only when that mod is installed. `latest.log`:
 `[update nags]` lines.
+
+## Jade below the notch
+
+A full screen game on a MacBook with a camera notch draws under the notch, and Jade's box sits at the top centre, behind
+it. Jade keeps the position per player in `config/jade/jade.json` (`overlay.overlayPosY`, 1.0 = top edge), which the pack
+ships. The pack declares in `config/haven-pack-defaults.json`:
+
+```json
+{"jade": {"packValue": 1.0, "macos": 0.94, "force": false}}
+```
+
+On macOS, on the first client tick, the box moves to `macos` while it still stands at `packValue`; a box the player moved
+stays (`force: true` moves it every launch). Other systems: nothing. `-Dhaven_compat.assumeMac=true` runs the macOS path
+elsewhere, for testing. `latest.log`: `[jade notch]` lines.
 
 ## Development
 

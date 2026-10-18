@@ -3,8 +3,8 @@ package dev.frosthaven.havencompat.servers;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import dev.frosthaven.havencompat.Log;
+import dev.frosthaven.havencompat.PackDefaults;
 import dev.frosthaven.havencompat.servers.ServerMatch.Change;
 import dev.frosthaven.havencompat.servers.ServerMatch.Entry;
 import dev.frosthaven.havencompat.servers.ServerMatch.PackServer;
@@ -12,12 +12,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +35,6 @@ import java.util.List;
  * {@code servers} key: nothing happens. Nothing here can stop the game: an error is logged and the list is left as it was.
  */
 public final class ServerListSync {
-    static final String FILE = "haven-pack-defaults.json";
     private static final Log LOG = new Log("[servers] ");
     private static boolean done;
 
@@ -55,7 +51,7 @@ public final class ServerListSync {
         }
         done = true;
         try {
-            apply(FMLPaths.CONFIGDIR.get().resolve(FILE));
+            apply(PackDefaults.file());
         } catch (Throwable t) {
             LOG.error("apply", "server list left as it was", t);
         }
@@ -104,11 +100,8 @@ public final class ServerListSync {
     /** The {@code servers} of the pack defaults file; empty when the file or the key is absent. */
     static List<PackServer> read(Path file) throws IOException {
         List<PackServer> servers = new ArrayList<>();
-        if (!Files.exists(file)) {
-            return servers;
-        }
-        JsonObject root = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
-        if (!root.has("servers")) {
+        JsonObject root = PackDefaults.root(file);
+        if (root == null || !root.has("servers")) {
             return servers;
         }
         for (JsonElement element : root.getAsJsonArray("servers")) {

@@ -18,6 +18,12 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `IPGlobal.renderMode` is held at `none` while `Iris.getCurrentPack()` is present (reflection), the player is told
   once (`haven_compat.portals.shaders_off`), the mode comes back when shaders go off. `register` defines the two target
   classes (`Class.forName(name, false, ...)`) so the mixins apply before the first tick asks.
+- `PackDefaults`: the pack's `config/haven-pack-defaults.json` (`file()`, `section(file, key)`, `root(file)`); each fix
+  reads its own key.
+- `jade/JadeNotch`: macOS only (`os.name`, or `-Dhaven_compat.assumeMac=true`): first client tick, reads `jade`
+  (`packValue`, `macos`, `force`), `jade/NotchMove.shouldMove` (pure, unit tested) decides, Jade's API by reflection through its
+  interfaces (`IWailaConfig.get().getOverlay()`, `IWailaConfig$IConfigOverlay.get/setOverlayPosY`, `Jade.CONFIG` a
+  `JsonConfig`, `save()`), registered only with `jade` loaded.
 - `servers/ServerMatch`: the server list fix's decisions, pure (unit tested, `./gradlew test`): `plan(have, want)` =
   sets (an entry that is the pack's server by current or previous address or by the pack's entry name, with another
   address), removes (duplicates after the sets, highest index first), adds (no entry at all). `host:25565` = `host`.
@@ -72,6 +78,11 @@ logs `[servers] "Haven": minecraft.thedragon.dev -> minecraft.thedragon.dev:9205
 Update popups: the same instance (Create Deep Seas 3.3.0, Modrinth has 3.4.x) logs `[update nags] Create Deep Seas:
 its own update check is off` and reaches the title screen with no `DeepSeasUpdateScreen` frame in the log (without the
 mixin that screen sat in front of the title screen; checked 2026-10-18, 0.3.0).
+
+Jade notch: no Mac here; `-Dhaven_compat.assumeMac=true` in the test instance's JVM args with `jade.macos` in its
+`config/haven-pack-defaults.json`: the log gets `[jade notch] macOS: Jade overlay Y 1.0 -> 0.94 (camera notch)` and
+`config/jade/jade.json` carries `overlayPosY: 0.94`; a second launch logs "left alone" (already there); set 0.8 by hand and
+it stays (checked 2026-10-18, 0.4.0). The real notch check is a Mac player's: box visible below the notch in full screen.
 
 ## Release
 

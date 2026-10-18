@@ -1,5 +1,6 @@
 package dev.frosthaven.havencompat;
 
+import dev.frosthaven.havencompat.jade.JadeNotch;
 import dev.frosthaven.havencompat.portals.PortalShaderGuard;
 import dev.frosthaven.havencompat.servers.ServerListSync;
 import net.neoforged.api.distmarker.Dist;
@@ -18,6 +19,8 @@ import net.neoforged.neoforge.common.NeoForge;
  *  - {@code servers}: the pack's server entries stay current in the player's server list (address changes reach
  *    instances that already had the list, which Default Options' first-launch copy never does).
  *  - {@code updates}: mods' own "update available" screens are off (Create Deep Seas): the pack manages mod versions.
+ *  - {@code jade}: on macOS, Jade's box moves below the camera notch (the pack's {@code jade} defaults), unless the
+ *    player moved it themselves.
  */
 @Mod(value = HavenCompat.ID, dist = Dist.CLIENT)
 public final class HavenCompat {
@@ -26,5 +29,6 @@ public final class HavenCompat {
     public HavenCompat(IEventBus modBus, ModContainer container) {
         PortalShaderGuard.register(NeoForge.EVENT_BUS);
         ServerListSync.register(NeoForge.EVENT_BUS);
+        JadeNotch.register(NeoForge.EVENT_BUS);
     }
 }
