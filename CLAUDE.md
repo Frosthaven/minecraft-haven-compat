@@ -18,6 +18,11 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `IPGlobal.renderMode` is held at `none` while `Iris.getCurrentPack()` is present (reflection), the player is told
   once (`haven_compat.portals.shaders_off`), the mode comes back when shaders go off. `register` defines the two target
   classes (`Class.forName(name, false, ...)`) so the mixins apply before the first tick asks.
+- `portals/IrisDimensionPrewarm`: a client tick each: once Iris has built the pipeline of the dimension the player joined
+  (`PipelineManager.getPipelineNullable()` not vanilla), `preparePipeline` for the other two of overworld, the_nether, the_end,
+  then the player's again (an existing id is a map lookup, no `allChanged()`), one log line per build with its ms; done
+  until `getVersionCounterForSodiumShaderReload()` changes (a shader reload cleared the pipelines), then once more.
+  Registered only with `iris` loaded; reflection, cached method handles.
 - `PackDefaults`: the pack's `config/haven-pack-defaults.json` (`file()`, `section(file, key)`, `root(file)`); each fix
   reads its own key. `Os.macOS()`: the OS check (`os.name`, or `-Dhaven_compat.assumeMac=true`).
 - `defaults/`: the pack's one-time defaults (from haven-create-ui-ux up to 1.3.0). `DefaultsState`: `config/

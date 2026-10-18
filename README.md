@@ -7,6 +7,7 @@ pack. Nothing to configure.
 | Fix | Mods | What it does |
 |---|---|---|
 | Portals with shaders on macOS | Immersive Portals (Aeronautics fork), Iris | Portals render through with shaders on, on a computer whose OpenGL has no `glCopyImageSubData` (OpenGL 4.3; macOS stops at 4.1). Without it the game aborts near a portal the moment shaders go on. |
+| First look through a portal | Immersive Portals, Iris | The other dimensions' shader pipelines are built while the player joins, not at the first look through a portal (which cost about a second of shader linking and a full chunk rebuild: several seconds of jitter). |
 | Server list stays current | the pack's `config/haven-pack-defaults.json` | The pack's server entries in the player's server list get the pack's current address: a port spelled out, a new host name. Default Options copies the pack's list on a first launch only, so an address change never reached existing players. |
 | No update popups from mods | Create Deep Seas | The mod's own "Deep Seas Update" screen, shown in front of the title screen whenever Modrinth has a newer build (alphas included), is off, and so is its request to Modrinth at start. The pack manages mod versions. |
 | Jade below the macOS notch | Jade, the pack's `config/haven-pack-defaults.json` | On a Mac, Jade's "what am I looking at" box moves down from the top edge (the pack's `jade.macos` value) so a MacBook's camera notch does not hide it, unless the player moved the box themselves. |
@@ -50,6 +51,16 @@ real fix belongs upstream (Immersive Portals: Aeronautics); this mod carries it 
 `latest.log` tells what happened under `haven_compat`: `[portal depth]` lines for the capability check, the stencil
 hold and each blit; `[portal guard]` lines for the fallback. `-Dhaven_compat.assumeNoCopyImage=true` runs the fallback
 path on a computer that has the function, for testing.
+
+## The portal first-look jitter
+
+Iris builds one shader pipeline per dimension, on first use. With Immersive Portals that first use is the first frame a
+portal into that dimension is in view: shader linking on the render thread, then a full chunk rebuild because the
+new pipeline's block maps differ (Immersive Portals holds that rebuild until the portal frame ends). Once per
+dimension per session. This mod builds the overworld, Nether and End pipelines right after Iris built the one the
+player arrived in, behind the loading screen, and makes the player's current again (a lookup, no rebuild). A shader
+pack reload clears Iris's pipelines; they are built again on the next tick in a level. `[iris prewarm]` lines in
+`latest.log` give the time each one took. Off without Iris, or with no shader pack in use.
 
 ## The server list fix
 
