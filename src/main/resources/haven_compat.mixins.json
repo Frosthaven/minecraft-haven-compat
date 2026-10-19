@@ -11,7 +11,9 @@
     "PortalStencilHoldMixin",
     "PortalDepthCopyMixin",
     "DeepSeasUpdateCheckMixin",
-    "IrisPipelinePrewarmMixin"
+    "IrisPipelinePrewarmMixin",
+    "OldPacksOptionsMixin",
+    "OldPacksEntryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

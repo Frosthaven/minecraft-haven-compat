@@ -21,7 +21,9 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             "PortalDepthCopyMixin", List.of("immersive_portals_core"),
             "DeepSeasUpdateCheckMixin", List.of("create_submarine"),
             "IrisPipelinePrewarmMixin", List.of("iris"),
-            "MekanismChunkTrackingMixin", List.of("mekanism", "immersive_portals_core"));
+            "MekanismChunkTrackingMixin", List.of("mekanism", "immersive_portals_core"),
+            "OldPacksOptionsMixin", List.of(),   // vanilla only
+            "OldPacksEntryMixin", List.of());
 
     @Override public void onLoad(String mixinPackage) {}
 

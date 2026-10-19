@@ -28,6 +28,8 @@ import net.neoforged.neoforge.common.NeoForge;
  *    player moved it themselves.
  *  - {@code mekanism} (server): Mekanism's block update packets (a fluid tank's level, a machine's state) reach the
  *    players again under Immersive Portals' chunk tracking ({@link dev.frosthaven.havencompat.mekanism.ChunkWatchers}).
+ *  - {@code packs}: resource packs made for another pack format count as compatible (no warning, no confirmation,
+ *    kept when enabled by the pack defaults); see {@link dev.frosthaven.havencompat.packs.OldPacks}.
  *  - {@code defaults}: the pack's one-time defaults (moved here from haven-create-ui-ux, an optional mod): the listed
  *    resource packs enabled once, the first-run shader pack per OS, and per-OS shader pack options (macOS: Complementary
  *    at Block Reflection Quality Low, so Apple's 16 texture units hold Deep Seas' hull sampler too).
