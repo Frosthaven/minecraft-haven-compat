@@ -7,8 +7,8 @@ modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 description='''
-Client-side fixes between mods of the Haven pack. Immersive Portals with Iris shaders on a computer without
-OpenGL 4.3 (macOS): portals render through instead of aborting the game.
+Fixes between mods of the Haven pack. Client: Immersive Portals with Iris shaders on macOS, server list, update
+popups, Jade below the notch, pack defaults. Server: Mekanism's block updates reach players under Immersive Portals.
 '''
 
 # Targets Immersive Portals, so optional: its plugin applies nothing without it.
@@ -20,14 +20,22 @@ config="${mod_id}.mixins.json"
     type="required"
     versionRange="[${neo_version},)"
     ordering="NONE"
-    side="CLIENT"
+    side="BOTH"
 
 [[dependencies.${mod_id}]]
     modId="minecraft"
     type="required"
     versionRange="${minecraft_version_range}"
     ordering="NONE"
-    side="CLIENT"
+    side="BOTH"
+
+# Mekanism's update fix (server side) is about Mekanism and Immersive Portals together.
+[[dependencies.${mod_id}]]
+    modId="mekanism"
+    type="optional"
+    versionRange="*"
+    ordering="NONE"
+    side="BOTH"
 
 # The portal fix is about these two; without either it does nothing.
 [[dependencies.${mod_id}]]
@@ -35,7 +43,7 @@ config="${mod_id}.mixins.json"
     type="optional"
     versionRange="*"
     ordering="NONE"
-    side="CLIENT"
+    side="BOTH"
 
 [[dependencies.${mod_id}]]
     modId="iris"

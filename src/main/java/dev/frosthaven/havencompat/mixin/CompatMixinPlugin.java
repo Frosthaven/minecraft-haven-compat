@@ -10,17 +10,18 @@ import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 /**
- * Each mixin applies only when the mod it patches is installed (its mod id in the loading mod list), so the jar is
- * safe in any pack. The Immersive Portals ones are also recorded in {@link PortalDepth#patched(String)} so
+ * Each mixin applies only when the mods it is about are installed (their mod ids in the loading mod list), so the jar
+ * is safe in any pack. The Immersive Portals ones are also recorded in {@link PortalDepth#patched(String)} so
  * {@code PortalShaderGuard} knows whether that fix is in place or it must fall back to holding portals off.
  */
 public final class CompatMixinPlugin implements IMixinConfigPlugin {
-    /** Mixin class (simple name) -> the mod id it needs. */
-    private static final Map<String, String> MOD_OF = Map.of(
-            "PortalStencilHoldMixin", "immersive_portals_core",
-            "PortalDepthCopyMixin", "immersive_portals_core",
-            "DeepSeasUpdateCheckMixin", "create_submarine",
-            "IrisPipelinePrewarmMixin", "iris");
+    /** Mixin class (simple name) -> the mod ids it needs, all of them. */
+    private static final Map<String, List<String>> MODS_OF = Map.of(
+            "PortalStencilHoldMixin", List.of("immersive_portals_core"),
+            "PortalDepthCopyMixin", List.of("immersive_portals_core"),
+            "DeepSeasUpdateCheckMixin", List.of("create_submarine"),
+            "IrisPipelinePrewarmMixin", List.of("iris"),
+            "MekanismChunkTrackingMixin", List.of("mekanism", "immersive_portals_core"));
 
     @Override public void onLoad(String mixinPackage) {}
 
@@ -28,8 +29,8 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        String mod = MOD_OF.get(mixinClassName.substring(mixinClassName.lastIndexOf('.') + 1));
-        return mod != null && LoadingModList.get().getModFileById(mod) != null;
+        List<String> mods = MODS_OF.get(mixinClassName.substring(mixinClassName.lastIndexOf('.') + 1));
+        return mods != null && mods.stream().allMatch(mod -> LoadingModList.get().getModFileById(mod) != null);
     }
 
     @Override public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {}

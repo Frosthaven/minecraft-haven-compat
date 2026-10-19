@@ -4,6 +4,9 @@
   "package": "dev.frosthaven.havencompat.mixin",
   "plugin": "dev.frosthaven.havencompat.mixin.CompatMixinPlugin",
   "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "MekanismChunkTrackingMixin"
+  ],
   "client": [
     "PortalStencilHoldMixin",
     "PortalDepthCopyMixin",

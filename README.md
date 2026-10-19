@@ -1,8 +1,8 @@
 # Haven Compat
 
-Client-side fixes between mods of the Haven server's modpack (Minecraft 1.21.1, NeoForge) that belong to none of the
+Fixes between mods of the Haven server's modpack (Minecraft 1.21.1, NeoForge) that belong to none of the
 mods themselves. Each fix switches itself off when the mods it is about are not installed, so the jar is safe in any
-pack. Nothing to configure.
+pack. Nothing to configure. All fixes run in the game client except the Mekanism one, which runs on the server.
 
 | Fix | Mods | What it does |
 |---|---|---|
@@ -10,13 +10,14 @@ pack. Nothing to configure.
 | First look through a portal | Immersive Portals, Iris | The other dimensions' shader pipelines are built while the player joins, not at the first look through a portal (which cost about a second of shader linking and a full chunk rebuild: several seconds of jitter). |
 | Server list stays current | the pack's `config/haven-pack-defaults.json` | The pack's server entries in the player's server list get the pack's current address: a port spelled out, a new host name. Default Options copies the pack's list on a first launch only, so an address change never reached existing players. |
 | No update popups from mods | Create Deep Seas | The mod's own "Deep Seas Update" screen, shown in front of the title screen whenever Modrinth has a newer build (alphas included), is off, and so is its request to Modrinth at start. The pack manages mod versions. |
+| Mekanism blocks update again (server) | Mekanism, Immersive Portals | Mekanism's block updates (a fluid tank's level, a machine's state) reach the players again. Immersive Portals keeps its own chunk tracking, Mekanism asked the empty vanilla one, so it sent nothing: tanks looked empty although they held fluid. |
 | Jade below the macOS notch | Jade, the pack's `config/haven-pack-defaults.json` | On a Mac, Jade's "what am I looking at" box moves down from the top edge (the pack's `jade.macos` value) so a MacBook's camera notch does not hide it, unless the player moved the box themselves. |
 
 ## Download
 
 **[Latest build](https://github.com/Frosthaven/minecraft-haven-compat/releases/latest)**: drop `haven-compat.jar` into
-`mods/` in the client instance. The Haven pack delivers it by itself (`mods/haven-compat.pw.toml`); nothing goes on the
-server.
+`mods/` in the client instance, and on the server for the Mekanism fix. The Haven pack delivers it to both by itself
+(`mods/haven-compat.pw.toml`, side both).
 
 ## The portal fix
 
@@ -109,6 +110,16 @@ one that still holds the value written before, gets the pack's value; a value th
 Apple's OpenGL stops at 16 texture units, and with Create Deep Seas 3.4's hull sampler Complementary at Block Reflection
 Quality High overflows (Iris: "No more available texture units", shaders off), so macOS runs it at Low. State in
 `config/haven-pack-defaults.state.json`, the same file and keys as before, so existing installs apply nothing again.
+
+## Mekanism block updates
+
+Mekanism sends a block's update packet (`PacketUpdateTile`: a fluid tank's fill level, machine states) only when
+`PacketUtils.hasPlayersTracking` finds a player whose vanilla chunk tracking view holds the chunk
+(`ChunkMap.isChunkTracked`). Immersive Portals cancels vanilla's `applyChunkTrackingView` and tracks chunks itself, so
+every view stays empty and Mekanism sent nothing. The client kept the tank's fluid from the chunk data but its fill
+level at zero, and Mekanism draws no fluid at level zero. Haven Compat answers that check from `ChunkMap.getPlayers`,
+which Immersive Portals overwrites with its own tracking and which NeoForge sends the packet through. Server side, only
+when both mods are installed; in single player the built-in server takes it from the client's copy.
 
 ## Development
 

@@ -12,8 +12,9 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 
 /**
- * Client only. Fixes between mods of the Haven pack that belong to none of them, one package per fix, each one off
- * when the mods it is about are absent:
+ * Fixes between mods of the Haven pack that belong to none of them, one package per fix, each one off when the mods
+ * it is about are absent. Client side, except {@code mekanism} (a server mixin; on a dedicated server this class is not
+ * built, only the mixins in the "mixins" list apply):
  *  - {@code portals}: Immersive Portals with Iris shaders on a driver without OpenGL 4.3 (macOS): the main framebuffer
  *    keeps its stencil so the depth blit is legal, and the 4.3-only copy is replaced by a blit (the mixins); if those
  *    patches are not in place, {@link PortalShaderGuard} holds Immersive Portals off while shaders are on instead of
@@ -25,6 +26,8 @@ import net.neoforged.neoforge.common.NeoForge;
  *  - {@code updates}: mods' own "update available" screens are off (Create Deep Seas): the pack manages mod versions.
  *  - {@code jade}: on macOS, Jade's box moves below the camera notch (the pack's {@code jade} defaults), unless the
  *    player moved it themselves.
+ *  - {@code mekanism} (server): Mekanism's block update packets (a fluid tank's level, a machine's state) reach the
+ *    players again under Immersive Portals' chunk tracking ({@link dev.frosthaven.havencompat.mekanism.ChunkWatchers}).
  *  - {@code defaults}: the pack's one-time defaults (moved here from haven-create-ui-ux, an optional mod): the listed
  *    resource packs enabled once, the first-run shader pack per OS, and per-OS shader pack options (macOS: Complementary
  *    at Block Reflection Quality Low, so Apple's 16 texture units hold Deep Seas' hull sampler too).

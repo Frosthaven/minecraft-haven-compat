@@ -1,6 +1,6 @@
 # haven-compat (`haven_compat`)
 
-Client-only NeoForge 1.21.1 mod for the Haven pack (minecraft-haven-pack): fixes between other mods, one package per
+NeoForge 1.21.1 mod for the Haven pack, client side except one server mixin (`mekanism`) (minecraft-haven-pack): fixes between other mods, one package per
 fix. Read README.md first. Rules: every fix is off when its mods are absent; other mods are reached by class name only
 (`@Mixin(targets = "...")`, reflection), never as a compile dependency; nothing logs per frame (`Log.once`); a fix that
 cannot apply logs it and leaves the game as it was, never a crash of its own.
@@ -49,8 +49,12 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
 - `updates/UpdateNags`: the update-popup fix's log and the Create Deep Seas target class name; `mixin/DeepSeasUpdateCheckMixin`
   cancels `UpdateChecker.check()` at HEAD (no Modrinth request, `updateAvailable` stays false, `DeepSeasUpdateScreen`
   never opens).
-- `mixin/CompatMixinPlugin`: each mixin applies only with its mod in `LoadingModList` (`MOD_OF`: mixin simple name ->
-  mod id); `postApply` -> `PortalDepth.patched(target)`. The config is `required: false` with `defaultRequire: 1`: a target that moved fails
+- `mekanism/ChunkWatchers` + `mixin/MekanismChunkTrackingMixin` (the only server mixin, in the config's `mixins` list; the
+  `@Mod` class is `dist = CLIENT`, so a dedicated server builds no class of ours but applies this mixin):
+  `PacketUtils.hasPlayersTracking` answers `!chunkMap.getPlayers(chunk, false).isEmpty()` (Immersive Portals' tracking).
+  Test: a Mekanism fluid tank with fluid shows it (single player applies it through the built-in server).
+- `mixin/CompatMixinPlugin`: each mixin applies only with all its mods in `LoadingModList` (`MODS_OF`: mixin simple name ->
+  mod ids); `postApply` -> `PortalDepth.patched(target)`. The config is `required: false` with `defaultRequire: 1`: a target that moved fails
   that one mixin loudly in the log and the guard takes over.
 
 ## Why the portal fix is shaped this way (Immersive Portals: Aeronautics 2.2.4, read from its jar)
