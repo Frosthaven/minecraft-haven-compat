@@ -23,11 +23,14 @@ import java.util.List;
  * <pre>
  * {"resourcePacks": [{"id": "file/FA+All_Extensions-v1.8.1.zip", "above": "file/FreshAnimations_v1.10.4.zip"},
  *                    {"id": "file/Some Pack.zip"}],
+ *  "resourcePackOrder": [{"id": "file/FreshAnimations_v1.10.4.zip", "above": "file/Vanilla Experience.zip"}],
  *  "shader": {"default": "ComplementaryUnbound_r5.9.zip", "macos": "BSL_v10.1.1.zip", "enabled": true}}
  * </pre>
  * Resource packs: a listed pack is enabled when it is first seen installed, or when it is installed again after it was
  * removed; "above" / "below" place it right above (higher priority) or below another selected pack. A pack the player
- * turned off while it stayed installed is never turned back on. Shader: on the first run only, Iris gets the
+ * turned off while it stayed installed is never turned back on. Order fixes ({@code resourcePackOrder}): each rule
+ * moves {@code id} right above {@code above} once, when both are selected ({@link PackOrder}); the player's later
+ * order stays (state {@code ordered}). Shader: on the first run only, Iris gets the
  * OS-specific shader pack (macOS: "macos", else "default") and shaders on or off, by reflection; Iris absent or the
  * file missing: skipped. The player's later choices always win ({@link DefaultsState}).
  */
@@ -56,6 +59,9 @@ public final class TitleDefaults {
             DefaultsState state = DefaultsState.load();
             if (spec.has("resourcePacks")) {
                 resourcePacks(spec.getAsJsonArray("resourcePacks"), state.object("seen"));
+            }
+            if (spec.has("resourcePackOrder")) {
+                resourcePackOrder(spec.getAsJsonArray("resourcePackOrder"), state.object("ordered"));
             }
             if (spec.has("shader") && !state.root().has("shaderApplied")) {
                 shader(spec.getAsJsonObject("shader"));
@@ -103,6 +109,32 @@ public final class TitleDefaults {
         if (changed) {
             repository.setSelected(selected);
             mc.options.updateResourcePacks(repository);   // saves options.txt, reloads resources if the list changed
+        }
+    }
+
+    /** Applies each order rule once (both packs selected), then saves options if the order changed. */
+    static void resourcePackOrder(JsonArray rules, JsonObject ordered) {
+        Minecraft mc = Minecraft.getInstance();
+        var repository = mc.getResourcePackRepository();
+        List<String> selected = new ArrayList<>(repository.getSelectedIds());   // bottom (lowest priority) first
+        boolean changed = false;
+        for (JsonElement el : rules) {
+            JsonObject rule = el.getAsJsonObject();
+            String id = rule.get("id").getAsString();
+            String anchor = rule.get("above").getAsString();
+            String key = id + " above " + anchor;
+            if (ordered.has(key) || !PackOrder.settled(selected, id, anchor)) {
+                continue;   // done before (the player's order stands), or a pack is not selected
+            }
+            if (PackOrder.moveAbove(selected, id, anchor)) {
+                changed = true;
+                LOG.once("ordered:" + key, "moved {}", key);
+            }
+            ordered.addProperty(key, true);
+        }
+        if (changed) {
+            repository.setSelected(selected);
+            mc.options.updateResourcePacks(repository);   // saves options.txt, reloads resources
         }
     }
 

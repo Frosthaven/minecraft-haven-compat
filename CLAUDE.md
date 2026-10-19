@@ -29,7 +29,8 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   reads its own key. `Os.macOS()`: the OS check (`os.name`, or `-Dhaven_compat.assumeMac=true`).
 - `defaults/`: the pack's one-time defaults (from haven-create-ui-ux up to 1.3.0). `DefaultsState`: `config/
   haven-pack-defaults.state.json` (keys `seen`, `shaderApplied`, `shaderOptions`, unchanged). `TitleDefaults`: first title
-  screen, `resourcePacks` enabled once in order (`above`/`below`), `shader` set per OS on the first run (Iris by reflection:
+  screen, `resourcePacks` enabled once in order (`above`/`below`), `resourcePackOrder` rules applied once each (state `ordered`,
+  `PackOrder` pure, unit tested), `shader` set per OS on the first run (Iris by reflection:
   `getIrisConfig().setShaderPackName/setShadersEnabled/save`, `reload`). `ShaderOptions`: at mod construction (before Iris
   loads its pack), `shaderOptions.<macos|default>.<pack>.<KEY>` written into `shaderpacks/<pack>.txt` (java.util.Properties);
   `OptionChoice.decide(have, before, want)` (pure, unit tested): unset or still ours -> write, the player's -> stays.
