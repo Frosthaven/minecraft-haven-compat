@@ -31,7 +31,8 @@ import net.neoforged.neoforge.common.NeoForge;
  *  - {@code packs}: resource packs made for another pack format count as compatible (no warning, no confirmation,
  *    kept when enabled by the pack defaults); see {@link dev.frosthaven.havencompat.packs.OldPacks}.
  *  - {@code defaults}: the pack's one-time defaults (moved here from haven-create-ui-ux, an optional mod): the listed
- *    resource packs enabled once, the first-run shader pack per OS, and per-OS shader pack options (macOS: Complementary
+ *    resource packs enabled once and order fixes, before the first resource load (no extra reload), the loading
+ *    screens black (Monochrome Logo, once), the first-run shader pack per OS, and per-OS shader pack options (macOS: Complementary
  *    at Block Reflection Quality Low, so Apple's 16 texture units hold Deep Seas' hull sampler too).
  */
 @Mod(value = HavenCompat.ID, dist = Dist.CLIENT)

@@ -23,7 +23,8 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             "IrisPipelinePrewarmMixin", List.of("iris"),
             "MekanismChunkTrackingMixin", List.of("mekanism", "immersive_portals_core"),
             "OldPacksOptionsMixin", List.of(),   // vanilla only
-            "OldPacksEntryMixin", List.of());
+            "OldPacksEntryMixin", List.of(),
+            "LoadDefaultsMixin", List.of());
 
     @Override public void onLoad(String mixinPackage) {}
 

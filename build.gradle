@@ -95,6 +95,7 @@ dependencies {
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'com.google.code.gson:gson:2.11.0'   // the version Minecraft 1.21.1 ships
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

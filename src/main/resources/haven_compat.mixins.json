@@ -13,7 +13,8 @@
     "DeepSeasUpdateCheckMixin",
     "IrisPipelinePrewarmMixin",
     "OldPacksOptionsMixin",
-    "OldPacksEntryMixin"
+    "OldPacksEntryMixin",
+    "LoadDefaultsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -31,9 +31,12 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
 - `PackDefaults`: the pack's `config/haven-pack-defaults.json` (`file()`, `section(file, key)`, `root(file)`); each fix
   reads its own key. `Os.macOS()`: the OS check (`os.name`, or `-Dhaven_compat.assumeMac=true`).
 - `defaults/`: the pack's one-time defaults (from haven-create-ui-ux up to 1.3.0). `DefaultsState`: `config/
-  haven-pack-defaults.state.json` (keys `seen`, `shaderApplied`, `shaderOptions`, unchanged). `TitleDefaults`: first title
-  screen, `resourcePacks` enabled once in order (`above`/`below`), `resourcePackOrder` rules applied once each (state `ordered`,
-  `PackOrder` pure, unit tested), `shader` set per OS on the first run (Iris by reflection:
+  haven-pack-defaults.state.json` (keys `seen`, `shaderApplied`, `shaderOptions`, `ordered`, `darkLoadingScreen`). `LoadDefaults`
+  (`mixin/LoadDefaultsMixin`, TAIL of `Options.loadSelectedResourcePacks`, once; before the first resource load, so no
+  reload): `resourcePacks` enabled once in order (`PackList` pure, unit tested), `resourcePackOrder` rules once each (state
+  `ordered`, `PackOrder` pure, unit tested), `darkLoadingScreen` sets `darkMojangStudiosBackground` once; the pack lists
+  are copied back into Options as `updateResourcePacks` does (without its reload), then `options.save()`.
+  `TitleDefaults`: first title screen, `shader` set per OS on the first run (Iris by reflection:
   `getIrisConfig().setShaderPackName/setShadersEnabled/save`, `reload`). `ShaderOptions`: at mod construction (before Iris
   loads its pack), `shaderOptions.<macos|default>.<pack>.<KEY>` written into `shaderpacks/<pack>.txt` (java.util.Properties);
   `OptionChoice.decide(have, before, want)` (pure, unit tested): unset or still ours -> write, the player's -> stays.

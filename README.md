@@ -103,10 +103,14 @@ elsewhere, for testing. `latest.log`: `[jade notch]` lines.
 
 ## Pack defaults
 
-The pack's one-time defaults, moved here from Haven Create UI Remix (an optional mod; this one is required). On the first
-title screen of a session: the resource packs listed in `config/haven-pack-defaults.json` (`resourcePacks`) are enabled
-once, in order; order fixes (`resourcePackOrder`: `id` right above `above`) move a pack once, when both are on, and the
-player's later order stays; the first run sets Iris's shader pack per OS (`shader`). At mod construction, before Iris loads its
+The pack's one-time defaults, moved here from Haven Create UI Remix (an optional mod; this one is required). While the
+game starts, right after Minecraft reads the selected resource packs and before it loads them: the resource packs listed
+in `config/haven-pack-defaults.json` (`resourcePacks`) are enabled once, in order; order fixes (`resourcePackOrder`: `id`
+right above `above`) move a pack once, when both are on, and the player's later order stays; `darkLoadingScreen: true`
+switches the Monochrome Logo option on once, so NeoForge's early loading window (it reads `darkMojangStudiosBackground`
+from options.txt) and Mojang's loading screen are black, not red, from the next launch. Done there, a pack change costs
+no extra resource reload (up to 0.10.0 these ran on the title screen, and Minecraft reloaded every resource behind a
+third progress bar). On the first title screen of a session, the first run sets Iris's shader pack per OS (`shader`). At mod construction, before Iris loads its
 pack, per-OS shader pack options (`shaderOptions`) are written into `shaderpacks/<pack>.txt`: a key the file lacks, or
 one that still holds the value written before, gets the pack's value; a value the player changed stays. First use:
 Apple's OpenGL stops at 16 texture units, and with Create Deep Seas 3.4's hull sampler Complementary at Block Reflection
