@@ -44,6 +44,9 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   (`packValue`, `macos`, `force`), `jade/NotchMove.shouldMove` (pure, unit tested) decides, Jade's API by reflection through its
   interfaces (`IWailaConfig.get().getOverlay()`, `IWailaConfig$IConfigOverlay.get/setOverlayPosY`, `Jade.CONFIG` a
   `JsonConfig`, `save()`), registered only with `jade` loaded.
+- `keys/MacDropStack` + `mixin/MacDropStackMixin` / `MacDropStackScreenMixin` (client, vanilla only, macOS only: the plugin's
+  `MAC_ONLY` skips them unless `Os.macOS()`): `Screen.hasControlDown()` (Cmd on macOS) in `Minecraft.handleKeybinds` and
+  `AbstractContainerScreen.keyPressed` (the drop key's whole-stack choice) also reads true with a Control key held.
 - `servers/ServerMatch`: the server list fix's decisions, pure (unit tested, `./gradlew test`): `plan(have, want)` =
   sets (an entry that is the pack's server by current or previous address or by the pack's entry name, with another
   address), removes (duplicates after the sets, highest index first), adds (no entry at all). `host:25565` = `host`.

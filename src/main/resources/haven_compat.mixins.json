@@ -14,7 +14,9 @@
     "IrisPipelinePrewarmMixin",
     "OldPacksOptionsMixin",
     "OldPacksEntryMixin",
-    "LoadDefaultsMixin"
+    "LoadDefaultsMixin",
+    "MacDropStackMixin",
+    "MacDropStackScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,5 +1,6 @@
 package dev.frosthaven.havencompat.mixin;
 
+import dev.frosthaven.havencompat.Os;
 import dev.frosthaven.havencompat.portals.PortalDepth;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,11 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             "MekanismChunkTrackingMixin", List.of("mekanism", "immersive_portals_core"),
             "OldPacksOptionsMixin", List.of(),   // vanilla only
             "OldPacksEntryMixin", List.of(),
-            "LoadDefaultsMixin", List.of());
+            "LoadDefaultsMixin", List.of(),
+            "MacDropStackMixin", List.of(),
+            "MacDropStackScreenMixin", List.of());
+    /** Mixins that apply on macOS only ({@link Os#macOS()}): on Windows and Linux the target classes stay unchanged. */
+    private static final Set<String> MAC_ONLY = Set.of("MacDropStackMixin", "MacDropStackScreenMixin");
 
     @Override public void onLoad(String mixinPackage) {}
 
@@ -32,7 +37,11 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        List<String> mods = MODS_OF.get(mixinClassName.substring(mixinClassName.lastIndexOf('.') + 1));
+        String name = mixinClassName.substring(mixinClassName.lastIndexOf('.') + 1);
+        if (MAC_ONLY.contains(name) && !Os.macOS()) {
+            return false;
+        }
+        List<String> mods = MODS_OF.get(name);
         return mods != null && mods.stream().allMatch(mod -> LoadingModList.get().getModFileById(mod) != null);
     }
 
