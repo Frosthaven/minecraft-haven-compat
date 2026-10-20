@@ -7,8 +7,8 @@ import org.lwjgl.glfw.GLFW;
 
 /**
  * macOS only: Control + the drop key (Q) drops the whole stack, as on Windows and Linux. On macOS Minecraft's "Control"
- * ({@code Screen.hasControlDown()}) is Cmd, so the whole-stack drop was Cmd+Q, which also quits the game. Cmd+Q still
- * drops the stack (and quits); the real Control keys now count too, for the drop only. The mixins
+ * ({@code Screen.hasControlDown()}) is Cmd, so the whole-stack drop was Cmd+Q, which also quits the game (unless MacOS
+ * Input Fixes blocks the quit). Cmd+Q still drops the stack; the real Control keys now count too, for the drop only. The mixins
  * ({@code MacDropStackMixin}, {@code MacDropStackScreenMixin}) apply only on macOS ({@code CompatMixinPlugin}).
  */
 public final class MacDropStack {
@@ -17,7 +17,7 @@ public final class MacDropStack {
     private MacDropStack() {
     }
 
-    /** The whole-stack decision of a drop: vanilla's (Cmd on macOS), or a Control key held. */
+    /** The whole-stack decision of a drop: the one before (vanilla: Cmd; MacOS Input Fixes: its modifier), or a Control key held. */
     public static boolean wholeStack(boolean vanilla) {
         if (vanilla) {
             return true;

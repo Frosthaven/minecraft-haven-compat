@@ -4,6 +4,7 @@ import dev.frosthaven.havencompat.defaults.ShaderOptions;
 import dev.frosthaven.havencompat.defaults.TitleDefaults;
 import dev.frosthaven.havencompat.jade.JadeNotch;
 import dev.frosthaven.havencompat.keys.MacInputLogs;
+import dev.frosthaven.havencompat.keys.MacInputOptions;
 import dev.frosthaven.havencompat.portals.PortalShaderGuard;
 import dev.frosthaven.havencompat.servers.ServerListSync;
 import net.neoforged.api.distmarker.Dist;
@@ -28,7 +29,7 @@ import net.neoforged.neoforge.common.NeoForge;
  *  - {@code jade}: on macOS, Jade's box moves below the camera notch (the pack's {@code jade} defaults), unless the
  *    player moved it themselves.
  *  - {@code keys}: on macOS, Control + the drop key drops the whole stack (two macOS-only mixins); MacOS Input Fixes'
- *    per-scroll INFO logging is set to WARN.
+ *    per-scroll INFO logging is set to WARN, and its options get the pack's values once (Cmd for shortcuts).
  *  - {@code mekanism} (server): Mekanism's block update packets (a fluid tank's level, a machine's state) reach the
  *    players again under Immersive Portals' chunk tracking ({@link dev.frosthaven.havencompat.mekanism.ChunkWatchers}).
  *  - {@code packs}: resource packs made for another pack format count as compatible (no warning, no confirmation,
@@ -49,5 +50,6 @@ public final class HavenCompat {
         ShaderOptions.apply();   // before Iris loads its pack
         TitleDefaults.register(NeoForge.EVENT_BUS);
         MacInputLogs.quiet();
+        MacInputOptions.apply();   // before MacOS Input Fixes reads its options at client setup
     }
 }

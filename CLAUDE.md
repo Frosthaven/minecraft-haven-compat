@@ -45,10 +45,14 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   interfaces (`IWailaConfig.get().getOverlay()`, `IWailaConfig$IConfigOverlay.get/setOverlayPosY`, `Jade.CONFIG` a
   `JsonConfig`, `save()`), registered only with `jade` loaded.
 - `keys/MacDropStack` + `mixin/MacDropStackMixin` / `MacDropStackScreenMixin` (client, vanilla only, macOS only: the plugin's
-  `MAC_ONLY` skips them unless `Os.macOS()`): `Screen.hasControlDown()` (Cmd on macOS) in `Minecraft.handleKeybinds` and
-  `AbstractContainerScreen.keyPressed` (the drop key's whole-stack choice) also reads true with a Control key held.
+  `MAC_ONLY` skips them unless `Os.macOS()`): the whole-stack choice of a drop also reads true with a Control key held:
+  `LocalPlayer.drop(Z)`'s argument in `Minecraft.handleKeybinds` (`@ModifyArg`, mixin priority 1100: MacOS Input Fixes
+  replaces that argument with its own modifier, so ours must apply after it) and `hasControlDown()` in
+  `AbstractContainerScreen.keyPressed`.
   `keys/MacInputLogs`: with `macos_input_fixes` loaded, log4j `Configurator.setLevel("com.hamarb123.macos_input_fixes", WARN)`
-  at construction (that mod logs INFO per scroll event).
+  at construction (that mod logs INFO per scroll event). `keys/MacInputOptions` (macOS, that mod loaded): pack key
+  `macosInputFixes` (`{"useCommandKey": "true"}`) into `config/macos_input_fixes.txt` (`key:value` lines, read by that mod
+  at client setup) at construction; the first time it replaces the mod's own value, then `keys/OptionLines` (pure, unit tested; then `OptionChoice`).
 - `servers/ServerMatch`: the server list fix's decisions, pure (unit tested, `./gradlew test`): `plan(have, want)` =
   sets (an entry that is the pack's server by current or previous address or by the pack's entry name, with another
   address), removes (duplicates after the sets, highest index first), adds (no entry at all). `host:25565` = `host`.
