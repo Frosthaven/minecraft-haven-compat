@@ -28,6 +28,13 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
 - `packs/OldPacks` + `OldPacksOptionsMixin` / `OldPacksEntryMixin` (client, vanilla only): `PackCompatibility.isCompatible()`
   reads true in `Options.updateResourcePacks/loadSelectedResourcePacks` and `TransferableSelectionList$PackEntry.render/
   handlePackSelection` (MixinExtras `@ModifyExpressionValue`).
+- `schematics/` (both sides: `HavenCompatCommon`, a second `@Mod` class without `dist`, since `HavenCompat` is client
+  only): `SchematicFixes` registers at common setup when `create` and `ae2` are loaded; `AeCableBus` (the only class
+  linked against them: `compileOnly` Create 6.0.10 slim and AE2 19.2.17 in build.gradle, never shipped) registers
+  `SafeNbtWriterRegistry` for `AEBlockEntities.CABLE_BUS` (copies `facade*` keys and each part's `id` only) and
+  `SchematicRequirementRegistries.BLOCKS` for `AEBlocks.CABLE_BUS` (one item per part, facades strict). Cause: Create's
+  `BlockHelper.prepareBlockEntityData` copies block entity data only for safe-marked blocks; an empty cable bus breaks
+  itself on its first tick (`CableBusBlockEntity.onReady`).
 - `PackDefaults`: the pack's `config/haven-pack-defaults.json` (`file()`, `section(file, key)`, `root(file)`); each fix
   reads its own key. `Os.macOS()`: the OS check (`os.name`, or `-Dhaven_compat.assumeMac=true`).
 - `defaults/`: the pack's one-time defaults (from haven-create-ui-ux up to 1.3.0). `DefaultsState`: `config/

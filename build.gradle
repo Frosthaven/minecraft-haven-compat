@@ -27,7 +27,9 @@ sourceSets.main.resources {
 }
 
 repositories {
-    // Nothing beyond NeoForge's: other mods are reached by class name (mixin targets, reflection), never on the classpath.
+    // Other mods are reached by class name (mixin targets, reflection) where possible. A fix that must call a mod's API
+    // compiles against it (compileOnly, never shipped) and lives in a class loaded only when that mod is present.
+    maven { url 'https://maven.createmod.net' }   // Create
 }
 
 base {
@@ -92,6 +94,9 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+    compileOnly('com.simibubi.create:create-1.21.1:6.0.10-226:slim') { transitive = false }   // schematics/: the pack's Create
+    compileOnly('org.appliedenergistics:appliedenergistics2:19.2.17') { transitive = false }   // schematics/: the pack's AE2
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
