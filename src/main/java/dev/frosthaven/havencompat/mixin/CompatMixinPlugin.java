@@ -17,17 +17,19 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
  */
 public final class CompatMixinPlugin implements IMixinConfigPlugin {
     /** Mixin class (simple name) -> the mod ids it needs, all of them. */
-    private static final Map<String, List<String>> MODS_OF = Map.of(
-            "PortalStencilHoldMixin", List.of("immersive_portals_core"),
-            "PortalDepthCopyMixin", List.of("immersive_portals_core"),
-            "DeepSeasUpdateCheckMixin", List.of("create_submarine"),
-            "IrisPipelinePrewarmMixin", List.of("iris"),
-            "MekanismChunkTrackingMixin", List.of("mekanism", "immersive_portals_core"),
-            "OldPacksOptionsMixin", List.of(),   // vanilla only
-            "OldPacksEntryMixin", List.of(),
-            "LoadDefaultsMixin", List.of(),
-            "MacDropStackMixin", List.of(),
-            "MacDropStackScreenMixin", List.of());
+    private static final Map<String, List<String>> MODS_OF = Map.ofEntries(
+            Map.entry("PortalStencilHoldMixin", List.of("immersive_portals_core")),
+            Map.entry("PortalDepthCopyMixin", List.of("immersive_portals_core")),
+            Map.entry("DeepSeasUpdateCheckMixin", List.of("create_submarine")),
+            Map.entry("IrisPipelinePrewarmMixin", List.of("iris")),
+            Map.entry("MekanismChunkTrackingMixin", List.of("mekanism", "immersive_portals_core")),
+            Map.entry("OldPacksOptionsMixin", List.of()),   // vanilla only
+            Map.entry("OldPacksEntryMixin", List.of()),
+            Map.entry("LoadDefaultsMixin", List.of()),
+            Map.entry("MacDropStackMixin", List.of()),
+            Map.entry("MacDropStackScreenMixin", List.of()),
+            Map.entry("RefusedCrossingMixin", List.of("immersive_portals_core")),
+            Map.entry("PortalPipesTfmgMixin", List.of("immersive_portals_core", "tfmg", "create")));
     /** Mixins that apply on macOS only ({@link Os#macOS()}): on Windows and Linux the target classes stay unchanged. */
     private static final Set<String> MAC_ONLY = Set.of("MacDropStackMixin", "MacDropStackScreenMixin");
 

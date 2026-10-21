@@ -5,7 +5,8 @@
   "plugin": "dev.frosthaven.havencompat.mixin.CompatMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "MekanismChunkTrackingMixin"
+    "MekanismChunkTrackingMixin",
+    "RefusedCrossingMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",
@@ -16,7 +17,8 @@
     "OldPacksEntryMixin",
     "LoadDefaultsMixin",
     "MacDropStackMixin",
-    "MacDropStackScreenMixin"
+    "MacDropStackScreenMixin",
+    "PortalPipesTfmgMixin"
   ],
   "injectors": {
     "defaultRequire": 1

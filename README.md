@@ -2,7 +2,7 @@
 
 Fixes between mods of the Haven server's modpack (Minecraft 1.21.1, NeoForge) that belong to none of the
 mods themselves. Each fix switches itself off when the mods it is about are not installed, so the jar is safe in any
-pack. Nothing to configure. All fixes run in the game client except the Mekanism and schematic ones, which run on the server.
+pack. Nothing to configure. All fixes run in the game client except the Mekanism, schematic and portal crossing ones, which run on the server.
 
 | Fix | Mods | What it does |
 |---|---|---|
@@ -13,6 +13,8 @@ pack. Nothing to configure. All fixes run in the game client except the Mekanism
 | Mekanism blocks update again (server) | Mekanism, Immersive Portals | Mekanism's block updates (a fluid tank's level, a machine's state) reach the players again. Immersive Portals keeps its own chunk tracking, Mekanism asked the empty vanilla one, so it sent nothing: tanks looked empty although they held fluid. |
 | No outdated resource pack warnings | vanilla | Resource packs made for another pack format (many work across versions but rarely bump the number) show and load like any other: no red "made for an older version" entry, no confirmation, and Minecraft no longer drops such a pack from the enabled list at start. Like the Fabric mod No Resource Pack Warnings, whose NeoForge port excludes 1.21.1. |
 | Ctrl+Q drops a stack on macOS | vanilla | On a Mac, Control + the drop key (Q) drops the whole stack, as on Windows and Linux. Minecraft's whole-stack drop on macOS is Cmd+Q, which also quits the game. Cmd+Q stays as it was. The fix is not applied at all on Windows and Linux. With MacOS Input Fixes installed, its logging drops to warnings (it writes two lines per scroll step), its options get the pack's values once (`macosInputFixes` in `config/haven-pack-defaults.json`: Cmd for game shortcuts) and Ctrl+Q still drops the stack in its Cmd mode. |
+| Portal exits on the right side (server) | Immersive Portals | When the server refuses a player's portal crossing because it still waits for the client to confirm an earlier position correction (frequent with a high ping), the player goes back in front of the portal, not into its plane. From the plane, a small step back went through the frame's reverse portal and out of the wrong side of the destination portal. |
+| Pipes into portals keep their look | Immersive Portals (Aeronautics fork), Create, TFMG | A Create fluid pipe that opens onto a portal draws Immersive Portals' connection piece and its filler pieces up to the portal plane, not an open rim with a gap. TFMG replaces the pipe model's methods, so Immersive Portals' own model mixin cannot apply; Haven Compat makes the same calls after TFMG's. |
 | AE2 cables in Create schematics (server) | Create, Applied Energistics 2 | A Schematicannon or creative printing places AE2 cables, buses, terminals and facades again; before, they broke at once with a glass sound ([Create issue 5966](https://github.com/Creators-of-Create/Create/issues/5966)). Copied: which parts and facades sit where, nothing else (no filters, patterns, P2P frequencies or stored items, as for any Create-placed block). The Schematicannon charges one item for each part and each facade (before, it asked for an item no one can get). |
 | Jade below the macOS notch | Jade, the pack's `config/haven-pack-defaults.json` | On a Mac, Jade's "what am I looking at" box moves down from the top edge (the pack's `jade.macos` value) so a MacBook's camera notch does not hide it, unless the player moved the box themselves. |
 
@@ -128,6 +130,17 @@ every view stays empty and Mekanism sent nothing. The client kept the tank's flu
 level at zero, and Mekanism draws no fluid at level zero. Haven Compat answers that check from `ChunkMap.getPlayers`,
 which Immersive Portals overwrites with its own tracking and which NeoForge sends the packet through. Server side, only
 when both mods are installed; in single player the built-in server takes it from the client's copy.
+
+## Refused portal crossings
+
+The client teleports itself when its eye crosses a portal, then sends the crossing to the server. Immersive Portals'
+`ServerTeleportationManager.onPlayerTeleportedInClient` refuses it while the server waits for the client to confirm a
+position correction (`has awaiting teleport`) and puts the player at the server's position. That position is the
+client's last move, 1 to 3 cm behind the portal plane. Each frame holds two portals, one for each side, so the player
+now stands in front of the reverse one, and a small step back takes it: the player arrives on the other side of the
+destination portal. Haven Compat wraps that call: for this reason only, in the same dimension, the player goes back to
+the eye position the client sent from before the crossing, 5 cm further out of the front, when no block is in the way.
+Server side, only with Immersive Portals installed.
 
 ## Development
 

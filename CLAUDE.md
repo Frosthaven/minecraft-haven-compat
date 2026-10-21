@@ -1,6 +1,6 @@
 # haven-compat (`haven_compat`)
 
-NeoForge 1.21.1 mod for the Haven pack, client side except one server mixin (`mekanism`) (minecraft-haven-pack): fixes between other mods, one package per
+NeoForge 1.21.1 mod for the Haven pack, client side except two server mixins (`mekanism`, `portals/RefusedCrossing`) (minecraft-haven-pack): fixes between other mods, one package per
 fix. Read README.md first. Rules: every fix is off when its mods are absent; other mods are reached by class name only
 (`@Mixin(targets = "...")`, reflection), never as a compile dependency; nothing logs per frame (`Log.once`); a fix that
 cannot apply logs it and leaves the game as it was, never a crash of its own.
@@ -76,6 +76,18 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `@Mod` class is `dist = CLIENT`, so a dedicated server builds no class of ours but applies this mixin):
   `PacketUtils.hasPlayersTracking` answers `!chunkMap.getPlayers(chunk, false).isEmpty()` (Immersive Portals' tracking).
   Test: a Mekanism fluid tank with fluid shows it (single player applies it through the built-in server).
+- `portals/RefusedCrossing` + `CrossingBack` (pure math, unit test) + `mixin/RefusedCrossingMixin` (server, `mixins` list):
+  `@WrapOperation` on `teleportEntityGeneral` in IP's `onPlayerTeleportedInClient`, `@Local` args and the `failReason`
+  String. Only for the reason text "has awaiting teleport" (an upstream rename turns the fix off, IP's own behaviour stays).
+  Test (2026-10-21): a throwaway server mod held the client's confirmation and set the server position 2 cm past the
+  plane on the crossing request, then nudged the player 0.15 back; without the fix the nudge crossed the reverse portal.
+- `portals/PortalPipeModel` + `mixin/PortalPipesTfmgMixin` (client, priority 1500; needs `immersive_portals_core`, `tfmg`,
+  `create`): TFMG `@Overwrite`s Create's `PipeAttachmentModel.gatherModelData` and redefines `getQuads`, and Mixin refuses
+  IP's injections into methods merged at the same priority (1000), so IP 2.4.15's `MixinPipeAttachmentModel_PortalPipes`
+  fails as a whole. Ours repeats its three hooks (rim attachment wrap, portal faces at RETURN, filler quads at RETURN) and
+  calls IP's public `IPCreatePortalPipeModel` through method handles; it does nothing when the target has an
+  `ip$portalFillers` handler (IP's mixin applied after all). Test: a fluid pipe ending at a portal shows a connection
+  piece reaching the plane, not a rim (screenshots 2026-10-21).
 - `mixin/CompatMixinPlugin`: each mixin applies only with all its mods in `LoadingModList` (`MODS_OF`: mixin simple name ->
   mod ids); `postApply` -> `PortalDepth.patched(target)`. The config is `required: false` with `defaultRequire: 1`: a target that moved fails
   that one mixin loudly in the log and the guard takes over.

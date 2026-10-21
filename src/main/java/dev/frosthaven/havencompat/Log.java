@@ -22,6 +22,11 @@ public final class Log {
         if (SEEN.add(prefix + "once:" + key)) LOGGER.info(prefix + msg, args);
     }
 
+    /** Logs msg (info) every time: for rare events only (one per player action at most). */
+    public void info(String msg, Object... args) {
+        LOGGER.info(prefix + msg, args);
+    }
+
     /** Logs msg (warn) the first time key is seen on this channel. */
     public void warnOnce(String key, String msg, Object... args) {
         if (SEEN.add(prefix + "warn:" + key)) LOGGER.warn(prefix + msg, args);
