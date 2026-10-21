@@ -78,15 +78,18 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   Test: a Mekanism fluid tank with fluid shows it (single player applies it through the built-in server).
 - `portals/RefusedCrossing` + `CrossingBack` (pure math, unit test) + `mixin/RefusedCrossingMixin` (server, `mixins` list):
   `@WrapOperation` on `teleportEntityGeneral` in IP's `onPlayerTeleportedInClient`, `@Local` args and the `failReason`
-  String. Only for the reason text "has awaiting teleport" (an upstream rename turns the fix off, IP's own behaviour stays).
+  String; the portal comes from the `portalId` argument, its plane from public `getOriginPos()`/`getNormal()` (reflection).
+  The eye moves along the normal to 0.1 in front (front = the side the normal points to: IP teleports on front -> back).
+  The packet's "eye before teleportation" is the eye at the end of the crossing tick, already behind the plane: never use it
+  as the way back. Only for the reason text "has awaiting teleport" (an upstream rename turns the fix off).
   Test (2026-10-21): a throwaway server mod held the client's confirmation and set the server position 2 cm past the
   plane on the crossing request, then nudged the player 0.15 back; without the fix the nudge crossed the reverse portal.
 - `portals/PortalPipeModel` + `mixin/PortalPipesTfmgMixin` (client, priority 1500; needs `immersive_portals_core`, `tfmg`,
   `create`): TFMG `@Overwrite`s Create's `PipeAttachmentModel.gatherModelData` and redefines `getQuads`, and Mixin refuses
   IP's injections into methods merged at the same priority (1000), so IP 2.4.15's `MixinPipeAttachmentModel_PortalPipes`
   fails as a whole. Ours repeats its three hooks (rim attachment wrap, portal faces at RETURN, filler quads at RETURN) and
-  calls IP's public `IPCreatePortalPipeModel` through method handles; it does nothing when the target has an
-  `ip$portalFillers` handler (IP's mixin applied after all). Test: a fluid pipe ending at a portal shows a connection
+  calls IP's public `IPCreatePortalPipeModel` through method handles; it does nothing when `Mixins.getMixinsForClass` lists
+  IP's mixin (a failed one still leaves its `ip$...` handler methods merged, so their presence proves nothing). Test: a fluid pipe ending at a portal shows a connection
   piece reaching the plane, not a rim (screenshots 2026-10-21).
 - `mixin/CompatMixinPlugin`: each mixin applies only with all its mods in `LoadingModList` (`MODS_OF`: mixin simple name ->
   mod ids); `postApply` -> `PortalDepth.patched(target)`. The config is `required: false` with `defaultRequire: 1`: a target that moved fails

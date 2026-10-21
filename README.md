@@ -138,8 +138,8 @@ The client teleports itself when its eye crosses a portal, then sends the crossi
 position correction (`has awaiting teleport`) and puts the player at the server's position. That position is the
 client's last move, 1 to 3 cm behind the portal plane. Each frame holds two portals, one for each side, so the player
 now stands in front of the reverse one, and a small step back takes it: the player arrives on the other side of the
-destination portal. Haven Compat wraps that call: for this reason only, in the same dimension, the player goes back to
-the eye position the client sent from before the crossing, 5 cm further out of the front, when no block is in the way.
+destination portal. Haven Compat wraps that call: for this reason only, in the same dimension, the player moves along the
+portal's normal until the eye is 10 cm in front of the plane, when no block is in the way.
 Server side, only with Immersive Portals installed.
 
 ## Development

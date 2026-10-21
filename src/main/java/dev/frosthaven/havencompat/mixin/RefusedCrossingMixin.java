@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.frosthaven.havencompat.portals.RefusedCrossing;
+import java.util.UUID;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,7 +22,7 @@ public abstract class RefusedCrossingMixin {
     private Entity haven_compat$backInFront(Entity entity, Vec3 pos, ServerLevel level, Operation<Entity> original,
                                             @Local(argsOnly = true) ServerPlayer player,
                                             @Local(argsOnly = true) ResourceKey<Level> dimensionBefore,
-                                            @Local(argsOnly = true) Vec3 eyeBefore, @Local String failReason) {
-        return original.call(entity, RefusedCrossing.target(player, dimensionBefore, eyeBefore, failReason, pos), level);
+                                            @Local(argsOnly = true) UUID portalId, @Local String failReason) {
+        return original.call(entity, RefusedCrossing.target(player, dimensionBefore, portalId, failReason, pos), level);
     }
 }

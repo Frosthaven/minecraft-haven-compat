@@ -7,7 +7,6 @@ import dev.frosthaven.havencompat.Log;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Method;
 import java.util.List;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -17,6 +16,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.spongepowered.asm.mixin.Mixins;
+import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 /**
  * Client side. Immersive Portals: Aeronautics 2.4.15 draws Create fluid pipes that open onto a portal (a connection
@@ -25,8 +26,8 @@ import net.neoforged.neoforge.client.model.data.ModelData;
  * {@code getQuads}; Mixin refuses to inject into methods another mixin of the same priority merged, so Immersive
  * Portals' whole pipe-model mixin is skipped ("Mixin apply ... failed" in the client log) and those pipes show an open
  * rim with a gap. {@code mixin/PortalPipesTfmgMixin} (priority 1500, after TFMG's) makes the same three calls into
- * Immersive Portals' own {@code IPCreatePortalPipeModel}. It does nothing when Immersive Portals' mixin applied after
- * all (a later TFMG or IP release), so the pieces are never drawn twice.
+ * Immersive Portals' own {@code IPCreatePortalPipeModel}. It does nothing when Mixin lists Immersive Portals' mixin as
+ * applied (a later TFMG or IP release), so the pieces are never drawn twice.
  */
 public final class PortalPipeModel {
     private static final String HELPER = "qouteall.imm_ptl.core.compat.create_integration.IPCreatePortalPipeModel";
@@ -51,8 +52,9 @@ public final class PortalPipeModel {
 
     private static Handles resolve() {
         Handles none = new Handles(null, null, null);
-        for (Method m : PipeAttachmentModel.class.getDeclaredMethods()) {
-            if (m.getName().contains("ip$portalFillers")) {
+        // Mixin's record of what applied: a failed mixin is left out (its handler methods may still be merged).
+        for (IMixinInfo m : Mixins.getMixinsForClass(PipeAttachmentModel.class.getName())) {
+            if (m.getClassName().endsWith(".MixinPipeAttachmentModel_PortalPipes")) {
                 LOG.once("own", "Immersive Portals' pipe model mixin applied: nothing to do");
                 return none;
             }

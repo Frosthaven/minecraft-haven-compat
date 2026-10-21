@@ -2,22 +2,24 @@ package dev.frosthaven.havencompat.portals;
 
 /**
  * Where a refused portal crossing puts the player back ({@link RefusedCrossing}), as plain numbers so it is testable
- * without the game: the eye position before the crossing, moved a little further away from the eye position after it.
- * The crossing went from {@code before} (in front of the portal) to {@code now} (behind its plane), so that direction
- * points back out of the portal's front.
+ * without the game. Immersive Portals teleports when the eye moves from the portal's front (the side its normal
+ * points to) to its back. The refused player's eye stands a few centimetres behind the plane; it moves along the
+ * normal to {@code margin} in front of it.
  */
 public final class CrossingBack {
     private CrossingBack() {
     }
 
-    /** The eye point {@code margin} blocks beyond {@code before}, away from {@code now}; {@code before} when they are equal. */
-    public static double[] eye(double[] now, double[] before, double margin) {
-        double dx = before[0] - now[0], dy = before[1] - now[1], dz = before[2] - now[2];
-        double len = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        if (len < 1e-6) {
-            return before.clone();
+    /**
+     * The eye point {@code margin} in front of the plane through {@code origin} with unit {@code normal}; null when
+     * the eye is already that far in front, or more than a block behind (not a fresh crossing).
+     */
+    public static double[] eye(double[] eye, double[] origin, double[] normal, double margin) {
+        double d = (eye[0] - origin[0]) * normal[0] + (eye[1] - origin[1]) * normal[1] + (eye[2] - origin[2]) * normal[2];
+        if (d >= margin || d < -1.0) {
+            return null;
         }
-        double k = margin / len;
-        return new double[]{before[0] + dx * k, before[1] + dy * k, before[2] + dz * k};
+        double k = margin - d;
+        return new double[]{eye[0] + normal[0] * k, eye[1] + normal[1] * k, eye[2] + normal[2] * k};
     }
 }
