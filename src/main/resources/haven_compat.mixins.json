@@ -18,7 +18,8 @@
     "LoadDefaultsMixin",
     "MacDropStackMixin",
     "MacDropStackScreenMixin",
-    "PortalPipesTfmgMixin"
+    "PortalPipesTfmgMixin",
+    "NtglProjectileSyncMixin"
   ],
   "injectors": {
     "defaultRequire": 1

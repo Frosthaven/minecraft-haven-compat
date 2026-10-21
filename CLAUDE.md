@@ -91,6 +91,10 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   calls IP's public `IPCreatePortalPipeModel` through method handles; it does nothing when `Mixins.getMixinsForClass` lists
   IP's mixin (a failed one still leaves its `ip$...` handler methods merged, so their presence proves nothing). Test: a fluid pipe ending at a portal shows a connection
   piece reaching the plane, not a rim (screenshots 2026-10-21).
+- `mixin/NtglProjectileSyncMixin` (client; `ntgl`): NTGL 3.2.0 makes `NetworkProjectileManager` only in the server's
+  `AddReloadListenerEvent`, so `ClientPlayHandler.handleUpdateProjectile` hit null on every dedicated-server join. HEAD
+  inject without target args (no NTGL types on the classpath), `Class.forName` + `get()` by reflection, cancel when null.
+  `getConfig` has no callers, so the client loses nothing. Test: no "NetworkProjectileManager" NPE in a client log on join.
 - `mixin/CompatMixinPlugin`: each mixin applies only with all its mods in `LoadingModList` (`MODS_OF`: mixin simple name ->
   mod ids); `postApply` -> `PortalDepth.patched(target)`. The config is `required: false` with `defaultRequire: 1`: a target that moved fails
   that one mixin loudly in the log and the guard takes over.
