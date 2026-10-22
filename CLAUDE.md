@@ -40,7 +40,9 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   orientation strategy front and top, `PatternProviderBlock.PUSH_DIRECTION`). Vanilla `StructureTemplate.placeInWorld`
   turns states through `rotate`/`mirror`, Create's `SchematicPrinter` then runs `StructureTransform.apply` on each block
   entity. Test: a throwaway server mod that builds the blocks, saves the template to `schematics/uploaded/<owner>/`,
-  prints it through `SchematicPrinter` for all 12 rotation x mirror pairs and compares sides (0.17.0: 0/12, 0.18.0: 12/12).
+  prints it through `SchematicPrinter` for all 12 rotation x mirror pairs and compares sides (0.17.0: 0/12, 0.18.0: 5/12, 0.18.1: 12/12). The
+  spin for a turned front and top is searched (`AeBlockTurn.spin`): `BlockOrientation.get(front, up)` can return a spin
+  whose top is not `up`.
 - `defaults/LoadDefaults` writes options.txt as text (`OptionsFile`), never `Options.save()`: at
   `Options.loadSelectedResourcePacks` only vanilla key mappings exist, and a save there dropped every mod key binding.
 - `PackDefaults`: the pack's `config/haven-pack-defaults.json` (`file()`, `section(file, key)`, `root(file)`); each fix

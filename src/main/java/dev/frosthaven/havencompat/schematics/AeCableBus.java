@@ -74,7 +74,7 @@ final class AeCableBus {
                 CompoundTag moved = part.copy();
                 if (moved.contains(SPIN, Tag.TAG_BYTE)) {
                     Direction up = BlockOrientation.get(side, moved.getByte(SPIN)).getSide(RelativeSide.TOP);
-                    moved.putByte(SPIN, (byte) BlockOrientation.get(to, turn.apply(up)).getSpin());
+                    moved.putByte(SPIN, (byte) AeBlockTurn.spin(to, turn.apply(up)));
                 }
                 out.put(to.getSerializedName(), moved);
             }

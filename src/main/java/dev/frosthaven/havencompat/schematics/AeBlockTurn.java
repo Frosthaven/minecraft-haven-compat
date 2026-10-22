@@ -1,5 +1,6 @@
 package dev.frosthaven.havencompat.schematics;
 
+import appeng.api.orientation.BlockOrientation;
 import appeng.api.orientation.IOrientationStrategy;
 import appeng.api.orientation.RelativeSide;
 import appeng.block.crafting.PatternProviderBlock;
@@ -26,7 +27,7 @@ public final class AeBlockTurn {
         if (!strategy.getProperties().isEmpty()) {
             Direction front = strategy.getFacing(state);
             Direction top = strategy.getSide(state, RelativeSide.TOP);
-            out = strategy.setOrientation(state, turn.apply(front), turn.apply(top));
+            out = strategy.setOrientation(state, turn.apply(front), spin(turn.apply(front), turn.apply(top)));
         }
         if (out.hasProperty(PatternProviderBlock.PUSH_DIRECTION)) {
             Direction push = out.getValue(PatternProviderBlock.PUSH_DIRECTION).getDirection();
@@ -35,5 +36,18 @@ public final class AeBlockTurn {
             }
         }
         return out;
+    }
+
+    /**
+     * The spin whose orientation has {@code top} on top. AE2's {@code BlockOrientation.get(front, up)} does not always
+     * return such an orientation (a drive printed with a quarter turn came out upside down), so each spin is tried.
+     */
+    public static int spin(Direction front, Direction top) {
+        for (int spin = 0; spin < 4; spin++) {
+            if (BlockOrientation.get(front, spin).getSide(RelativeSide.TOP) == top) {
+                return spin;
+            }
+        }
+        return 0;   // top along the front's axis: no spin fits
     }
 }
