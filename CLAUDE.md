@@ -34,7 +34,15 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `SafeNbtWriterRegistry` for `AEBlockEntities.CABLE_BUS` (copies `facade*` keys and each part's `id` only) and
   `SchematicRequirementRegistries.BLOCKS` for `AEBlocks.CABLE_BUS` (one item per part, facades strict). Cause: Create's
   `BlockHelper.prepareBlockEntityData` copies block entity data only for safe-marked blocks; an empty cable bus breaks
-  itself on its first tick (`CableBusBlockEntity.onReady`).
+  itself on its first tick (`CableBusBlockEntity.onReady`). Turns: `MovedBlockTransformerRegistries.BLOCK_ENTITY_TRANSFORMERS` for the
+  cable bus moves part keys (`north`...) and facade keys (`facadeNorth`...) to the turned side and turns a reporting part's
+  `spin` (`BlockOrientation.get(side, spin)`); `AeBlockTurnMixin` adds `rotate`/`mirror` to `AEBaseBlock` (`AeBlockTurn`:
+  orientation strategy front and top, `PatternProviderBlock.PUSH_DIRECTION`). Vanilla `StructureTemplate.placeInWorld`
+  turns states through `rotate`/`mirror`, Create's `SchematicPrinter` then runs `StructureTransform.apply` on each block
+  entity. Test: a throwaway server mod that builds the blocks, saves the template to `schematics/uploaded/<owner>/`,
+  prints it through `SchematicPrinter` for all 12 rotation x mirror pairs and compares sides (0.17.0: 0/12, 0.18.0: 12/12).
+- `defaults/LoadDefaults` writes options.txt as text (`OptionsFile`), never `Options.save()`: at
+  `Options.loadSelectedResourcePacks` only vanilla key mappings exist, and a save there dropped every mod key binding.
 - `PackDefaults`: the pack's `config/haven-pack-defaults.json` (`file()`, `section(file, key)`, `root(file)`); each fix
   reads its own key. `Os.macOS()`: the OS check (`os.name`, or `-Dhaven_compat.assumeMac=true`).
 - `defaults/`: the pack's one-time defaults (from haven-create-ui-ux up to 1.3.0). `DefaultsState`: `config/

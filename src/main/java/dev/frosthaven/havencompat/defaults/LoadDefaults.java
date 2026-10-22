@@ -1,5 +1,6 @@
 package dev.frosthaven.havencompat.defaults;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -8,9 +9,12 @@ import dev.frosthaven.havencompat.PackDefaults;
 import net.minecraft.client.Options;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
+import net.neoforged.fml.loading.FMLPaths;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The pack defaults that change options.txt, applied while the game starts: right after Options reads the selected
@@ -27,9 +31,12 @@ import java.util.List;
  * {@code darkLoadingScreen}: the Monochrome Logo option (options.txt {@code darkMojangStudiosBackground}) is switched on
  * once (state {@code darkLoadingScreen}); NeoForge's early loading window reads it at launch and is black, not red, from
  * the next launch. The player's later choices always win ({@link DefaultsState}).
+ * <p>The changes reach options.txt as text ({@link OptionsFile}), not through {@code Options.save()}: at this point only
+ * vanilla's key mappings exist, and a save dropped every mod's key binding.
  */
 public final class LoadDefaults {
     private static final Log LOG = new Log("[pack defaults] ");
+    private static final Gson GSON = new Gson();   // options.txt writes its pack lists as compact JSON
     private static boolean done;
 
     private LoadDefaults() {
@@ -58,19 +65,23 @@ public final class LoadDefaults {
             if (spec.has("resourcePackOrder")) {
                 packs |= order(selected, spec.getAsJsonArray("resourcePackOrder"), state.object("ordered"));
             }
+            Map<String, String> lines = new LinkedHashMap<>();
             if (packs) {
                 repository.setSelected(selected);
                 keep(options, repository);
+                lines.put("resourcePacks", GSON.toJson(options.resourcePacks));
+                lines.put("incompatibleResourcePacks", GSON.toJson(options.incompatibleResourcePacks));
             }
             boolean dark = spec.has("darkLoadingScreen") && spec.get("darkLoadingScreen").getAsBoolean()
                     && !state.root().has("darkLoadingScreen");
             if (dark) {
                 options.darkMojangStudiosBackground().set(true);
                 state.root().addProperty("darkLoadingScreen", true);
+                lines.put("darkMojangStudiosBackground", "true");
                 LOG.once("dark", "loading screens set to black (Monochrome Logo on)");
             }
-            if (packs || dark) {
-                options.save();
+            if (!lines.isEmpty()) {
+                OptionsFile.write(FMLPaths.GAMEDIR.get().resolve("options.txt"), lines);
             }
             state.save();
         } catch (Throwable t) {

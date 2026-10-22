@@ -30,7 +30,8 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("MacDropStackScreenMixin", List.of()),
             Map.entry("RefusedCrossingMixin", List.of("immersive_portals_core")),
             Map.entry("PortalPipesTfmgMixin", List.of("immersive_portals_core", "tfmg", "create")),
-            Map.entry("NtglProjectileSyncMixin", List.of("ntgl")));
+            Map.entry("NtglProjectileSyncMixin", List.of("ntgl")),
+            Map.entry("AeBlockTurnMixin", List.of("ae2")));
     /** Mixins that apply on macOS only ({@link Os#macOS()}): on Windows and Linux the target classes stay unchanged. */
     private static final Set<String> MAC_ONLY = Set.of("MacDropStackMixin", "MacDropStackScreenMixin");
 

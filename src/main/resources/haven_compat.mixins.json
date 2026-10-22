@@ -6,7 +6,8 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "MekanismChunkTrackingMixin",
-    "RefusedCrossingMixin"
+    "RefusedCrossingMixin",
+    "AeBlockTurnMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",
