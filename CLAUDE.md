@@ -32,20 +32,33 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   now compatible takes it off that list but never selects it, and options.txt keeps the entry until an options save, so
   the pack never loaded (3D redstone wires, 0.18.2).
 - `schematics/` (both sides: `HavenCompatCommon`, a second `@Mod` class without `dist`, since `HavenCompat` is client
-  only): `SchematicFixes` registers at common setup when `create` and `ae2` are loaded; `AeCableBus` (the only class
-  linked against them: `compileOnly` Create 6.0.10 slim and AE2 19.2.17 in build.gradle, never shipped) registers
-  `SafeNbtWriterRegistry` for `AEBlockEntities.CABLE_BUS` (copies `facade*` keys and each part's `id` only) and
-  `SchematicRequirementRegistries.BLOCKS` for `AEBlocks.CABLE_BUS` (one item per part, facades strict). Cause: Create's
-  `BlockHelper.prepareBlockEntityData` copies block entity data only for safe-marked blocks; an empty cable bus breaks
-  itself on its first tick (`CableBusBlockEntity.onReady`). Turns: `MovedBlockTransformerRegistries.BLOCK_ENTITY_TRANSFORMERS` for the
-  cable bus moves part keys (`north`...) and facade keys (`facadeNorth`...) to the turned side and turns a reporting part's
-  `spin` (`BlockOrientation.get(side, spin)`); `AeBlockTurnMixin` adds `rotate`/`mirror` to `AEBaseBlock` (`AeBlockTurn`:
-  orientation strategy front and top, `PatternProviderBlock.PUSH_DIRECTION`). Vanilla `StructureTemplate.placeInWorld`
-  turns states through `rotate`/`mirror`, Create's `SchematicPrinter` then runs `StructureTransform.apply` on each block
-  entity. Test: a throwaway server mod that builds the blocks, saves the template to `schematics/uploaded/<owner>/`,
-  prints it through `SchematicPrinter` for all 12 rotation x mirror pairs and compares sides (0.17.0: 0/12, 0.18.0: 5/12, 0.18.1: 12/12). The
-  spin for a turned front and top is searched (`AeBlockTurn.spin`): `BlockOrientation.get(front, up)` can return a spin
-  whose top is not `up`.
+  only). Create copies block entity data into a print only for `create:safe_nbt` blocks and registered writers
+  (`BlockHelper.prepareBlockEntityData`), so other mods' blocks printed with factory settings (an empty AE2 cable bus
+  breaks itself on its first tick, `CableBusBlockEntity.onReady`). `SchematicFixes` registers at common setup, per mod
+  present; each mod is a `BlockData` (`copy`: settings and the real items they hold, never contents, owners or
+  frequencies; `items`: charged; `turn`: data kept per absolute side; `positions`: links), registered by block entity
+  id through `SchematicCopy` (Create's `SafeNbtWriterRegistry`, `SchematicRequirementRegistries.BLOCK_ENTITIES`,
+  `MovedBlockTransformerRegistries.BLOCK_ENTITY_TRANSFORMERS`; a namespace skips types with a writer of their own).
+  Only `AeCableBus` and `AeBlockTurn` link against a mod (`compileOnly` Create 6.0.10 slim and AE2 19.2.17, never
+  shipped); the others work on NBT keys and reflection (`MekanismData`: `writeSustainedData`; `RsData`:
+  `writeConfiguration`). `Obtainable`: an item no server recipe makes is not copied or charged. AE2: the cable bus
+  keeps its own `SchematicRequirementRegistries.BLOCKS` (parts, facades strict); `AeSettings` is the key whitelist for
+  parts and AE2 / ExtendedAE blocks. Turns: vanilla `StructureTemplate.placeInWorld` turns states through
+  `rotate`/`mirror`, then Create's `SchematicPrinter` runs `StructureTransform.apply` on each block entity. Blocks
+  without a right `rotate`/`mirror` get mixins (`AeBlockTurnMixin`, `PipezPipeTurnMixin`, `MagnetCoilTurnMixin`,
+  `RsDirectionTurnMixin`: RS answers every `rotate` with one wrench step, so only while `SavedPositions.placing()`;
+  `StateTurn` by property name). Links: `SchematicExportMixin` (after `fillFromWorld`) stores them relative to the
+  schematic with a marker, `StructurePlaceMixin` (`processBlockInfos` RETURN) moves them like block positions;
+  unmarked (older) ones are dropped. Client "save to file" reads the client world, whose block entities lack most
+  settings: `SchematicQuillSaveMixin` asks the server first (`ServerFill`, payloads `schematic_data_request` /
+  `schematic_data`, needs the quill in hand), `ServerFillClient` saves again with the reply merged (100 ticks at
+  most, then the plain save). Test: a throwaway server mod builds one block of each case with settings, upgrades and
+  contents, saves through `SchematicExport` to `schematics/uploaded/<owner>/`, prints through `SchematicPrinter` for
+  all 12 rotation x mirror pairs, checks settings, turns, links, no contents and the charged items (each with a
+  recipe); a client half saves with the quill and compares the file with a raw client save. AE2 alone: 0.17.0 0/12,
+  0.18.0 5/12, 0.18.1 12/12; all mods: 0.19.0 12/12. The spin for a turned front and top is searched
+  (`AeBlockTurn.spin`): `BlockOrientation.get(front, up)` can return a spin whose top is not `up`. Storage Drawers:
+  drawers beside a controller store no link (the controller finds them, `updateCache` on load); only remote upgrades do.
 - `defaults/LoadDefaults` writes options.txt as text (`OptionsFile`), never `Options.save()`: at
   `Options.loadSelectedResourcePacks` only vanilla key mappings exist, and a save there dropped every mod key binding.
 - `PackDefaults`: the pack's `config/haven-pack-defaults.json` (`file()`, `section(file, key)`, `root(file)`); each fix

@@ -7,7 +7,13 @@
   "mixins": [
     "MekanismChunkTrackingMixin",
     "RefusedCrossingMixin",
-    "AeBlockTurnMixin"
+    "AeBlockTurnMixin",
+    "StructureTemplateAccessor",
+    "SchematicExportMixin",
+    "StructurePlaceMixin",
+    "PipezPipeTurnMixin",
+    "MagnetCoilTurnMixin",
+    "RsDirectionTurnMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",
@@ -20,7 +26,8 @@
     "MacDropStackMixin",
     "MacDropStackScreenMixin",
     "PortalPipesTfmgMixin",
-    "NtglProjectileSyncMixin"
+    "NtglProjectileSyncMixin",
+    "SchematicQuillSaveMixin"
   ],
   "injectors": {
     "defaultRequire": 1
