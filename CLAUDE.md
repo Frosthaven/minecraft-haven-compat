@@ -27,7 +27,10 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   first world frame, behind the loading screen). Off: `portals.prewarmPipelines = false` in haven-pack-defaults.json.
 - `packs/OldPacks` + `OldPacksOptionsMixin` / `OldPacksEntryMixin` (client, vanilla only): `PackCompatibility.isCompatible()`
   reads true in `Options.updateResourcePacks/loadSelectedResourcePacks` and `TransferableSelectionList$PackEntry.render/
-  handlePackSelection` (MixinExtras `@ModifyExpressionValue`).
+  handlePackSelection` (MixinExtras `@ModifyExpressionValue`). HEAD of `loadSelectedResourcePacks`: `forgetIncompatible`
+  (`IncompatibleList`, pure, unit tested) takes installed packs off `incompatibleResourcePacks`; vanilla's branch for a listed pack that is
+  now compatible takes it off that list but never selects it, and options.txt keeps the entry until an options save, so
+  the pack never loaded (3D redstone wires, 0.18.2).
 - `schematics/` (both sides: `HavenCompatCommon`, a second `@Mod` class without `dist`, since `HavenCompat` is client
   only): `SchematicFixes` registers at common setup when `create` and `ae2` are loaded; `AeCableBus` (the only class
   linked against them: `compileOnly` Create 6.0.10 slim and AE2 19.2.17 in build.gradle, never shipped) registers
