@@ -37,8 +37,11 @@ final class OptionsFile {
         return out;
     }
 
+    static List<String> read(Path file) throws IOException {
+        return Files.exists(file) ? Files.readAllLines(file, StandardCharsets.UTF_8) : List.of();
+    }
+
     static void write(Path file, Map<String, String> values) throws IOException {
-        List<String> lines = Files.exists(file) ? Files.readAllLines(file, StandardCharsets.UTF_8) : List.of();
-        Files.write(file, set(lines, values), StandardCharsets.UTF_8);
+        Files.write(file, set(read(file), values), StandardCharsets.UTF_8);
     }
 }

@@ -38,7 +38,7 @@ import net.neoforged.neoforge.common.NeoForge;
  *    defaults); its toggle key no longer hides it there (two mixins, no class of ours registered here).
  *  - {@code defaults}: the pack's one-time defaults (moved here from haven-create-ui-ux, an optional mod): the listed
  *    resource packs enabled once and order fixes, before the first resource load (no extra reload), the loading
- *    screens black (Monochrome Logo, once), the first-run shader pack per OS, and per-OS shader pack options (macOS: Complementary
+ *    screens black (Monochrome Logo, once), key binding moves off clashing defaults (once), the first-run shader pack per OS, and per-OS shader pack options (macOS: Complementary
  *    at Block Reflection Quality Low, so Apple's 16 texture units hold Deep Seas' hull sampler too).
  */
 @Mod(value = HavenCompat.ID, dist = Dist.CLIENT)

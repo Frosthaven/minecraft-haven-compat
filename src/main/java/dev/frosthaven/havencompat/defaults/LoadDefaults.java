@@ -11,6 +11,7 @@ import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.neoforged.fml.loading.FMLPaths;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,13 +25,15 @@ import java.util.Map;
  * <pre>
  * {"resourcePacks": [{"id": "file/FA+All_Extensions-v1.8.1.zip", "above": "file/FreshAnimations_v1.10.4.zip"}],
  *  "resourcePackOrder": [{"id": "file/FreshAnimations_v1.10.4.zip", "above": "file/Vanilla Experience.zip"}],
- *  "darkLoadingScreen": true}
+ *  "darkLoadingScreen": true,
+ *  "keys": [{"key": "key_justzoom.keybinds.keybind.zoom", "from": "key.keyboard.z", "to": "key.keyboard.y"}]}
  * </pre>
  * {@code resourcePacks}: {@link PackList} (state {@code seen}). {@code resourcePackOrder}: each rule moves {@code id}
  * right above {@code above} once, when both are selected ({@link PackOrder}; state {@code ordered}).
  * {@code darkLoadingScreen}: the Monochrome Logo option (options.txt {@code darkMojangStudiosBackground}) is switched on
  * once (state {@code darkLoadingScreen}); NeoForge's early loading window reads it at launch and is black, not red, from
- * the next launch. The player's later choices always win ({@link DefaultsState}).
+ * the next launch. {@code keys}: key binding moves ({@link KeyDefaults}; state {@code keys}); mod keys read options.txt
+ * later in the same start, so a move works on the first launch. The player's later choices always win ({@link DefaultsState}).
  * <p>The changes reach options.txt as text ({@link OptionsFile}), not through {@code Options.save()}: at this point only
  * vanilla's key mappings exist, and a save dropped every mod's key binding.
  */
@@ -80,8 +83,14 @@ public final class LoadDefaults {
                 lines.put("darkMojangStudiosBackground", "true");
                 LOG.once("dark", "loading screens set to black (Monochrome Logo on)");
             }
+            Path file = FMLPaths.GAMEDIR.get().resolve("options.txt");
+            if (spec.has("keys")) {
+                Map<String, String> keys = KeyDefaults.moves(OptionsFile.read(file), spec.getAsJsonArray("keys"), state.object("keys"));
+                keys.forEach((key, to) -> LOG.once("key:" + key, "{} moved to {}", key, to));
+                lines.putAll(keys);
+            }
             if (!lines.isEmpty()) {
-                OptionsFile.write(FMLPaths.GAMEDIR.get().resolve("options.txt"), lines);
+                OptionsFile.write(file, lines);
             }
             state.save();
         } catch (Throwable t) {

@@ -64,10 +64,11 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
 - `PackDefaults`: the pack's `config/haven-pack-defaults.json` (`file()`, `section(file, key)`, `root(file)`); each fix
   reads its own key. `Os.macOS()`: the OS check (`os.name`, or `-Dhaven_compat.assumeMac=true`).
 - `defaults/`: the pack's one-time defaults (from haven-create-ui-ux up to 1.3.0). `DefaultsState`: `config/
-  haven-pack-defaults.state.json` (keys `seen`, `shaderApplied`, `shaderOptions`, `ordered`, `darkLoadingScreen`). `LoadDefaults`
+  haven-pack-defaults.state.json` (keys `seen`, `shaderApplied`, `shaderOptions`, `ordered`, `darkLoadingScreen`, `keys`). `LoadDefaults`
   (`mixin/LoadDefaultsMixin`, TAIL of `Options.loadSelectedResourcePacks`, once; before the first resource load, so no
   reload): `resourcePacks` enabled once in order (`PackList` pure, unit tested), `resourcePackOrder` rules once each (state
-  `ordered`, `PackOrder` pure, unit tested), `darkLoadingScreen` sets `darkMojangStudiosBackground` once; the pack lists
+  `ordered`, `PackOrder` pure, unit tested), `darkLoadingScreen` sets `darkMojangStudiosBackground` once, `keys` rules move a key line once from its old default
+  (`KeyDefaults` pure, unit tested; a key the player bound stays; mod keys read options.txt later in the same start); the pack lists
   are copied back into Options as `updateResourcePacks` does (without its reload), then `options.save()`.
   `TitleDefaults`: first title screen, `shader` set per OS on the first run (Iris by reflection:
   `getIrisConfig().setShaderPackName/setShadersEnabled/save`, `reload`). `ShaderOptions`: at mod construction (before Iris

@@ -14,7 +14,7 @@ import java.nio.file.Path;
 /**
  * {@code config/haven-pack-defaults.state.json}: what the pack defaults already applied on this instance, so a
  * default is applied once and the player's later choice stays. Keys: {@code seen} (resource packs seen installed),
- * {@code shaderApplied} (the first-run shader pack), {@code shaderOptions} (per pack, the option values written), {@code ordered} (resource pack order rules applied), {@code darkLoadingScreen} (Monochrome Logo switched on).
+ * {@code shaderApplied} (the first-run shader pack), {@code shaderOptions} (per pack, the option values written), {@code ordered} (resource pack order rules applied), {@code darkLoadingScreen} (Monochrome Logo switched on), {@code keys} (key binding moves decided).
  * The same file and keys as haven-create-ui-ux kept up to 1.3.0, so an existing install applies nothing again.
  */
 public final class DefaultsState {
