@@ -121,6 +121,11 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `AddReloadListenerEvent`, so `ClientPlayHandler.handleUpdateProjectile` hit null on every dedicated-server join. HEAD
   inject without target args (no NTGL types on the classpath), `Class.forName` + `get()` by reflection, cancel when null.
   `getConfig` has no callers, so the client loses nothing. Test: no "NetworkProjectileManager" NPE in a client log on join.
+- `trash/TrashSlotLock` + `mixin/TrashSlotVisibleMixin` / `TrashSlotToggleMixin` (client; `trashslot`): pack key
+  `trashSlot.alwaysVisible` (TrashSlot screen ids = keys of `TrashSlotSaveState.json`). RETURN of
+  `TrashSlotSaveState.getSettings`: the returned `ContainerSettings` is matched by identity in `cachedSettings` (reflection),
+  and for a listed id `setEnabled(true)` and kept in a weak identity set; HEAD of `ContainerSettings.setEnabled`
+  cancels `false` for those objects (TrashSlot's toggle key flips that flag, then `save()`s). Unlisted screens keep the toggle.
 - `mixin/CompatMixinPlugin`: each mixin applies only with all its mods in `LoadingModList` (`MODS_OF`: mixin simple name ->
   mod ids); `postApply` -> `PortalDepth.patched(target)`. The config is `required: false` with `defaultRequire: 1`: a target that moved fails
   that one mixin loudly in the log and the guard takes over.

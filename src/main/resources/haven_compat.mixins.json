@@ -27,7 +27,9 @@
     "MacDropStackScreenMixin",
     "PortalPipesTfmgMixin",
     "NtglProjectileSyncMixin",
-    "SchematicQuillSaveMixin"
+    "SchematicQuillSaveMixin",
+    "TrashSlotVisibleMixin",
+    "TrashSlotToggleMixin"
   ],
   "injectors": {
     "defaultRequire": 1

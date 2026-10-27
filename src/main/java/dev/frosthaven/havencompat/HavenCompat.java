@@ -34,6 +34,8 @@ import net.neoforged.neoforge.common.NeoForge;
  *    players again under Immersive Portals' chunk tracking ({@link dev.frosthaven.havencompat.mekanism.ChunkWatchers}).
  *  - {@code packs}: resource packs made for another pack format count as compatible (no warning, no confirmation,
  *    kept when enabled by the pack defaults); see {@link dev.frosthaven.havencompat.packs.OldPacks}.
+ *  - {@code trash}: TrashSlot's trash slot stays visible on the screens the pack lists ({@code trashSlot} in the pack
+ *    defaults); its toggle key no longer hides it there (two mixins, no class of ours registered here).
  *  - {@code defaults}: the pack's one-time defaults (moved here from haven-create-ui-ux, an optional mod): the listed
  *    resource packs enabled once and order fixes, before the first resource load (no extra reload), the loading
  *    screens black (Monochrome Logo, once), the first-run shader pack per OS, and per-OS shader pack options (macOS: Complementary
