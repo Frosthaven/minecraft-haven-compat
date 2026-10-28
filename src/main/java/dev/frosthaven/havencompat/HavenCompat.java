@@ -32,6 +32,9 @@ import net.neoforged.neoforge.common.NeoForge;
  *    per-scroll INFO logging is set to WARN, and its options get the pack's values once (Cmd for shortcuts).
  *  - {@code mekanism} (server): Mekanism's block update packets (a fluid tank's level, a machine's state) reach the
  *    players again under Immersive Portals' chunk tracking ({@link dev.frosthaven.havencompat.mekanism.ChunkWatchers}).
+ *  - {@code mekanism} (client): while a shader pack is in use, the chemical contents of Mekanism multiblocks take full
+ *    block light so they show in dark rooms ({@link dev.frosthaven.havencompat.mekanism.ChemicalGlow}; a mixin, nothing
+ *    registered here).
  *  - {@code packs}: resource packs made for another pack format count as compatible (no warning, no confirmation,
  *    kept when enabled by the pack defaults); see {@link dev.frosthaven.havencompat.packs.OldPacks}.
  *  - {@code trash}: TrashSlot's trash slot stays visible on the screens the pack lists ({@code trashSlot} in the pack

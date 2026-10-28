@@ -40,7 +40,8 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("MagnetCoilTurnMixin", List.of("simplemagnets", "create")),
             Map.entry("RsDirectionTurnMixin", List.of("refinedstorage", "create")),
             Map.entry("TrashSlotVisibleMixin", List.of("trashslot")),
-            Map.entry("TrashSlotToggleMixin", List.of("trashslot")));
+            Map.entry("TrashSlotToggleMixin", List.of("trashslot")),
+            Map.entry("MekanismChemicalGlowMixin", List.of("mekanism", "iris")));
     /** Mixins that apply on macOS only ({@link Os#macOS()}): on Windows and Linux the target classes stay unchanged. */
     private static final Set<String> MAC_ONLY = Set.of("MacDropStackMixin", "MacDropStackScreenMixin");
 

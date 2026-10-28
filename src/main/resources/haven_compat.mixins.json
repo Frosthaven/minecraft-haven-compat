@@ -29,7 +29,8 @@
     "NtglProjectileSyncMixin",
     "SchematicQuillSaveMixin",
     "TrashSlotVisibleMixin",
-    "TrashSlotToggleMixin"
+    "TrashSlotToggleMixin",
+    "MekanismChemicalGlowMixin"
   ],
   "injectors": {
     "defaultRequire": 1

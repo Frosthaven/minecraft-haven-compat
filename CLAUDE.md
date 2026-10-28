@@ -103,6 +103,14 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `@Mod` class is `dist = CLIENT`, so a dedicated server builds no class of ours but applies this mixin):
   `PacketUtils.hasPlayersTracking` answers `!chunkMap.getPlayers(chunk, false).isEmpty()` (Immersive Portals' tracking).
   Test: a Mekanism fluid tank with fluid shows it (single player applies it through the built-in server).
+- `mekanism/ChemicalGlow` + `mixin/MekanismChemicalGlowMixin` (client; `mekanism`, `iris`): `@Redirect` of
+  `RenderData.calculateGlowLight` in `MekanismTileEntityRenderer.renderObject(RenderData, BlockPos, Model3D, PoseStack,
+  VertexConsumer, int, float)` (receiver `@Coerce Object`, Mekanism is not on the classpath): a `ChemicalRenderData` gets
+  `LightTexture.FULL_BRIGHT` while `IrisApi.isShaderPackInUse()` (method handles, resolved once), else Mekanism's own
+  answer. Mekanism pins multiblock contents at full sky light, which vanilla draws at full brightness anywhere;
+  Complementary lights block entities from the scene, so a gas (alpha 0.2 + fill fraction) in a roofed room was drawn but
+  not visible (2026-10-27, measured in the pack's haven-chemical-shader report). Test: a roofed Dynamic Tank a third
+  full of hydrogen with Complementary on shows a lit haze; fluids and the no-shaders look unchanged.
 - `portals/RefusedCrossing` + `CrossingBack` (pure math, unit test) + `mixin/RefusedCrossingMixin` (server, `mixins` list):
   `@WrapOperation` on `teleportEntityGeneral` in IP's `onPlayerTeleportedInClient`, `@Local` args and the `failReason`
   String; the portal comes from the `portalId` argument, its plane from public `getOriginPos()`/`getNormal()` (reflection).
