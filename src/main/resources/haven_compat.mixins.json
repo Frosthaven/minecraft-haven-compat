@@ -13,7 +13,8 @@
     "StructurePlaceMixin",
     "PipezPipeTurnMixin",
     "MagnetCoilTurnMixin",
-    "RsDirectionTurnMixin"
+    "RsDirectionTurnMixin",
+    "CarriageSpawnPositionMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",

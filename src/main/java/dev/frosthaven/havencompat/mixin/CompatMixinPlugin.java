@@ -46,7 +46,8 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("BinderPagesMixin", List.of("easy_mob_farm")),
             Map.entry("BinderSlotAccessor", List.of("easy_mob_farm")),
             Map.entry("PortalViewSkipMixin", List.of("immersive_portals_core")),
-            Map.entry("PortalViewPlaneMixin", List.of("immersive_portals_core")));
+            Map.entry("PortalViewPlaneMixin", List.of("immersive_portals_core")),
+            Map.entry("CarriageSpawnPositionMixin", List.of("create")));
     /** Mixins that apply on macOS only ({@link Os#macOS()}): on Windows and Linux the target classes stay unchanged. */
     private static final Set<String> MAC_ONLY = Set.of("MacDropStackMixin", "MacDropStackScreenMixin");
 

@@ -1,6 +1,6 @@
 # haven-compat (`haven_compat`)
 
-NeoForge 1.21.1 mod for the Haven pack, client side except two server mixins (`mekanism`, `portals/RefusedCrossing`) (minecraft-haven-pack): fixes between other mods, one package per
+NeoForge 1.21.1 mod for the Haven pack, client side except three server mixins (`mekanism`, `portals/RefusedCrossing`, `trains/CarriageSpawn`) (minecraft-haven-pack): fixes between other mods, one package per
 fix. Read README.md first. Rules: every fix is off when its mods are absent; other mods are reached by class name only
 (`@Mixin(targets = "...")`, reflection), never as a compile dependency; nothing logs per frame (`Log.once`); a fix that
 cannot apply logs it and leaves the game as it was, never a crash of its own.
@@ -149,6 +149,21 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   error) + `PortalViewSkipMixin` (Disabled: IP skips the portal view) + `PortalViewPlaneMixin` -> `PortalPlane` (the
   portal entity's renderer draws a purple tile per block; shape getters cached per class in a `ClassValue`; a tile is
   left out when the blocks on both sides of the plane are solid). `HavenSettingsScreen`: Mods > Haven Compat > Config.
+- `trains/CarriageSpawn` + `mixin/CarriageSpawnPositionMixin` (server, `mixins` list; `create`): `@Pseudo`, the mixin
+  extends `Entity` and adds `getAddEntityPacket(ServerEntity)` to Create's `CarriageContraptionEntity` (neither it nor
+  `AbstractContraptionEntity` overrides it): a `ClientboundAddEntityPacket` with the entity's own position, not
+  `ServerEntity.getPositionBase()`. Why (Create 6.0.10, NeoForge 21.1 sources): tracking starts from the entity's
+  current chunk (`ChunkMap.TrackedEntity.updatePlayer`), the base moves only every update interval (3 for carriages,
+  `ServerEntity.sendChanges`), so a carriage that already existed spawned up to 2 ticks of travel behind, in a chunk the
+  client was never sent; `TransientEntitySectionManager.addEntity` starts no ticking there, a carriage moves and sets
+  `validForRender` only in `tickContraption`, and `isControlledByLocalInstance()` makes the client skip move and teleport
+  packets, so it stayed frozen until untracked. Test (2026-11-03): a copy of the live world, Island Express at Village
+  Underground and Port Frost Underground, render distance 8 below sim distance 10, a throwaway client probe logs
+  each carriage's `tickCount`, chunk and `validForRender`: 0.23.0 3/34 arrivals invisible, 0.24.0 0/35 (17 of them on
+  a 0.23.0 client); a player riding the train, render distance 10: 3/11 vs 0/18. Every failure: spawned in an unloaded
+  chunk, 0 client ticks. No client fallback: with the real spawn position no carriage spawned in an unloaded chunk.
+  A probe must follow each carriage by reference: Immersive Portals sends entities of other dimensions too (other
+  client levels), so `minecraft.level.getEntity(id)` misses them.
 - `mixin/CompatMixinPlugin`: each mixin applies only with all its mods in `LoadingModList` (`MODS_OF`: mixin simple name ->
   mod ids); `postApply` -> `PortalDepth.patched(target)`. The config is `required: false` with `defaultRequire: 1`: a target that moved fails
   that one mixin loudly in the log and the guard takes over.

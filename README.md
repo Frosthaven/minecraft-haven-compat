@@ -24,6 +24,7 @@ pack. One setting (Immersive Portal Rendering); everything else needs no configu
 | Card binder search and sort (also on the server) | Easy Mob Farm | The Mob Capture Card binder gets a search box (card name or mob id) and a sort (Name A-Z, Name Z-A, Rarity), remembered on this computer. The sort moves the real cards on the server, so the order stays everywhere; a click waits for the sort's reply (one round trip), so it never lands on a moved card. While typing, E and Q go to the search box. A server without this mod leaves the cards in their order (search still works). |
 | Sign editor rows apart | Big Sign Writer, Unlocked Typing | Both mods put a row of buttons right above the sign screen's Done button. With both installed, Unlocked Typing's row moves up one row, and Big Sign Writer's open font list no longer shows Done through it. |
 | Immersive Portal Rendering setting | Immersive Portals | Mods > Haven Compat > Config, under Experimental Optimizations: Normal (the full view through portals) or Disabled (a purple plane, no world rendered behind it; teleporting still works). Disabled raised FPS from about 25 to 41 in the overworld and 29 to 53 in the Nether on an M1 Pro, and 183 to 278 and 181 to 388 on an RTX 4090. Saved on this computer. |
+| Trains visible when they arrive (server) | Create | A train that comes into view no longer stays invisible at the edge of view until it leaves and comes back ([Create issue 10660](https://github.com/Creators-of-Create/Create/issues/10660)). The server now spawns each train carriage on the client at its real position. Players need nothing new: the server alone fixes it. |
 
 ## Download
 
@@ -150,6 +151,18 @@ now stands in front of the reverse one, and a small step back takes it: the play
 destination portal. Haven Compat wraps that call: for this reason only, in the same dimension, the player moves along the
 portal's normal until the eye is 10 cm in front of the plane, when no block is in the way.
 Server side, only with Immersive Portals installed.
+
+## Trains visible when they arrive
+
+The server starts sending an entity once the chunk it is in now is in the player's view, but the vanilla spawn packet
+carries the last position it sent (`ServerEntity.getPositionBase()`), which a Create carriage updates only every third
+tick. A carriage that already existed on the server (the player's render distance below the server's simulation
+distance, or another player near the train) and had just crossed into the player's outermost chunk spawned up to two
+ticks of travel behind, in a chunk the client never received. The client ticks no entity in a chunk it does not hold,
+a carriage moves and becomes renderable only in its own client tick, and the client skips server move packets for
+carriages, so it stayed frozen out there: the train looked invisible at the station. Haven Compat sends the carriage's
+real position in its spawn packet. Server side, only with Create installed; clients with an older Haven Compat get the
+fix too.
 
 ## Development
 
