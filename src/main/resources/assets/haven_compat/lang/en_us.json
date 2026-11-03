@@ -1,3 +1,14 @@
 {
-  "haven_compat.portals.shaders_off": "Shaders are on, but this computer's OpenGL cannot run Immersive Portals' shader path and Haven Compat could not patch it. Portals still teleport but show as empty frames until shaders are off."
+  "haven_compat.portals.shaders_off": "Shaders are on, but this computer's OpenGL cannot run Immersive Portals' shader path and Haven Compat could not patch it. Portals still teleport but show as empty frames until shaders are off.",
+  "haven_compat.binder.search": "Search cards",
+  "haven_compat.binder.sort.name_az": "Name A-Z",
+  "haven_compat.binder.sort.name_za": "Name Z-A",
+  "haven_compat.binder.sort.rarity": "Rarity",
+  "haven_compat.settings.title": "Haven Compat",
+  "haven_compat.settings.experimental": "Experimental Optimizations",
+  "haven_compat.settings.portal_view": "Immersive Portal Rendering",
+  "haven_compat.settings.portal_view.normal": "Normal",
+  "haven_compat.settings.portal_view.normal.tip": "The full view through portals.",
+  "haven_compat.settings.portal_view.disabled": "Disabled",
+  "haven_compat.settings.portal_view.disabled.tip": "Portals show a purple plane and do not render the world behind them. This can raise FPS a lot. Teleporting still works."
 }

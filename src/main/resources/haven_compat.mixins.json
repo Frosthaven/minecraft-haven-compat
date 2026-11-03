@@ -30,7 +30,12 @@
     "SchematicQuillSaveMixin",
     "TrashSlotVisibleMixin",
     "TrashSlotToggleMixin",
-    "MekanismChemicalGlowMixin"
+    "MekanismChemicalGlowMixin",
+    "BinderSlotMixin",
+    "BinderPagesMixin",
+    "BinderSlotAccessor",
+    "PortalViewSkipMixin",
+    "PortalViewPlaneMixin"
   ],
   "injectors": {
     "defaultRequire": 1

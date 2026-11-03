@@ -52,3 +52,26 @@ config="${mod_id}.mixins.json"
     versionRange="*"
     ordering="NONE"
     side="CLIENT"
+
+# The card binder's search and sort: its mixins and screen code stay off without Easy Mob Farm; the server only applies a sort.
+[[dependencies.${mod_id}]]
+    modId="easy_mob_farm"
+    type="optional"
+    versionRange="*"
+    ordering="NONE"
+    side="BOTH"
+
+# The sign screen's row move needs both mods, and nothing happens without them.
+[[dependencies.${mod_id}]]
+    modId="bigsignwriter"
+    type="optional"
+    versionRange="*"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="unlocked_typing"
+    type="optional"
+    versionRange="*"
+    ordering="NONE"
+    side="CLIENT"

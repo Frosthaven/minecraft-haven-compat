@@ -135,6 +135,20 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `TrashSlotSaveState.getSettings`: the returned `ContainerSettings` is matched by identity in `cachedSettings` (reflection),
   and for a listed id `setEnabled(true)` and kept in a weak identity set; HEAD of `ContainerSettings.setEnabled`
   cancels `false` for those objects (TrashSlot's toggle key flips that flag, then `save()`s). Unlisted screens keep the toggle.
+- `binder/` (client, `easy_mob_farm`; `BinderSortMessage` both sides, registered `optional()` from `HavenCompatCommon`):
+  `BinderFix` (screen events) opens a `BinderSession` per binder screen: search box and `SortDropdown` above the book,
+  `CardView` (pure, unit tested: `sorted`, `shown`, `rearrangesAll`). The search moves client slots into view cells
+  (`BinderSlotMixin`/`BinderSlotAccessor`, `BinderPagesMixin`); `BinderFix.patched` probes both mixins first. The sort
+  is real: `BinderSortMessage(containerId, stateId, order)`; the server refuses a stale state (a click it had not
+  answered) and a non-permutation, applies it and `broadcastFullState()`s (one packet, a new state). The client keeps
+  one request in flight (`busy()` until the menu state changes, or 40 ticks), holds clicks and slot keys meanwhile (a
+  vanilla click with a stale state still runs, on the moved slots), and stops after 3 tries of the same order.
+- `signs/SignEditorLayout` (client; `bigsignwriter`, `unlocked_typing`): moves Unlocked Typing's row up one row and
+  hides an inactive Done under Big Sign Writer's font list.
+- `portals/PortalView` (setting in `config/haven-compat-portal-view.json`, volatile, Normal on any read
+  error) + `PortalViewSkipMixin` (Disabled: IP skips the portal view) + `PortalViewPlaneMixin` -> `PortalPlane` (the
+  portal entity's renderer draws a purple tile per block; shape getters cached per class in a `ClassValue`; a tile is
+  left out when the blocks on both sides of the plane are solid). `HavenSettingsScreen`: Mods > Haven Compat > Config.
 - `mixin/CompatMixinPlugin`: each mixin applies only with all its mods in `LoadingModList` (`MODS_OF`: mixin simple name ->
   mod ids); `postApply` -> `PortalDepth.patched(target)`. The config is `required: false` with `defaultRequire: 1`: a target that moved fails
   that one mixin loudly in the log and the guard takes over.

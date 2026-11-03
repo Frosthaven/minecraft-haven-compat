@@ -2,7 +2,7 @@
 
 Fixes between mods of the Haven server's modpack (Minecraft 1.21.1, NeoForge) that belong to none of the
 mods themselves. Each fix switches itself off when the mods it is about are not installed, so the jar is safe in any
-pack. Nothing to configure. All fixes run in the game client except the Mekanism, schematic and portal crossing ones, which run on the server.
+pack. One setting (Immersive Portal Rendering); everything else needs no configuration. All fixes run in the game client except the Mekanism, schematic, portal crossing and card binder sort ones, which (also) run on the server.
 
 | Fix | Mods | What it does |
 |---|---|---|
@@ -21,6 +21,9 @@ pack. Nothing to configure. All fixes run in the game client except the Mekanism
 | Trash slot always visible | TrashSlot, the pack's `config/haven-pack-defaults.json` | The trash slot stays on the screens the pack lists (`trashSlot.alwaysVisible`: TrashSlot's screen ids, the keys of `TrashSlotSaveState.json`, for example the player inventory). The toggle key does not hide it there. On other screens the toggle key works as before. |
 | Key binding moves | the pack's `config/haven-pack-defaults.json` | When a mod update puts a key on one that another mod uses, the pack's `keys` rules move it once, from the old default to a free key, and only while the player still has the old default. A key the player bound themselves stays. The move works on the first launch. |
 | Jade below the macOS notch | Jade, the pack's `config/haven-pack-defaults.json` | On a Mac, Jade's "what am I looking at" box moves down from the top edge (the pack's `jade.macos` value) so a MacBook's camera notch does not hide it, unless the player moved the box themselves. |
+| Card binder search and sort (also on the server) | Easy Mob Farm | The Mob Capture Card binder gets a search box (card name or mob id) and a sort (Name A-Z, Name Z-A, Rarity), remembered on this computer. The sort moves the real cards on the server, so the order stays everywhere; a click waits for the sort's reply (one round trip), so it never lands on a moved card. While typing, E and Q go to the search box. A server without this mod leaves the cards in their order (search still works). |
+| Sign editor rows apart | Big Sign Writer, Unlocked Typing | Both mods put a row of buttons right above the sign screen's Done button. With both installed, Unlocked Typing's row moves up one row, and Big Sign Writer's open font list no longer shows Done through it. |
+| Immersive Portal Rendering setting | Immersive Portals | Mods > Haven Compat > Config, under Experimental Optimizations: Normal (the full view through portals) or Disabled (a purple plane, no world rendered behind it; teleporting still works). Disabled raised FPS from about 25 to 41 in the overworld and 29 to 53 in the Nether on an M1 Pro, and 183 to 278 and 181 to 388 on an RTX 4090. Saved on this computer. |
 
 ## Download
 

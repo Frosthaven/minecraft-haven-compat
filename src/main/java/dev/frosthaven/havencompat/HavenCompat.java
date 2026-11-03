@@ -39,6 +39,11 @@ import net.neoforged.neoforge.common.NeoForge;
  *    kept when enabled by the pack defaults); see {@link dev.frosthaven.havencompat.packs.OldPacks}.
  *  - {@code trash}: TrashSlot's trash slot stays visible on the screens the pack lists ({@code trashSlot} in the pack
  *    defaults); its toggle key no longer hides it there (two mixins, no class of ours registered here).
+ *  - {@code binder}: Easy Mob Farm's card binder gets a search box (client only) and a remembered sort that moves the real cards; see
+ *    {@link dev.frosthaven.havencompat.binder.BinderFix}.
+ *  - {@code portals}: the Immersive Portal Rendering setting (mod list, Config): Normal, or Disabled for a purple plane
+ *    with no view through it ({@link dev.frosthaven.havencompat.portals.PortalView}).
+ *  - {@code signs}: Unlocked Typing's row on the sign screen moves off Big Sign Writer's row when both are installed.
  *  - {@code defaults}: the pack's one-time defaults (moved here from haven-create-ui-ux, an optional mod): the listed
  *    resource packs enabled once and order fixes, before the first resource load (no extra reload), the loading
  *    screens black (Monochrome Logo, once), key binding moves off clashing defaults (once), the first-run shader pack per OS, and per-OS shader pack options (macOS: Complementary
@@ -52,6 +57,12 @@ public final class HavenCompat {
         PortalShaderGuard.register(NeoForge.EVENT_BUS);
         ServerListSync.register(NeoForge.EVENT_BUS);
         JadeNotch.register(NeoForge.EVENT_BUS);
+        dev.frosthaven.havencompat.binder.BinderFix.register(NeoForge.EVENT_BUS);
+        dev.frosthaven.havencompat.signs.SignEditorLayout.register(NeoForge.EVENT_BUS);
+        if (net.neoforged.fml.ModList.get().isLoaded("immersive_portals_core")) {
+            dev.frosthaven.havencompat.portals.PortalView.load();
+            container.registerExtensionPoint(net.neoforged.neoforge.client.gui.IConfigScreenFactory.class, (mod, parent) -> new dev.frosthaven.havencompat.portals.HavenSettingsScreen(parent));
+        }
         ShaderOptions.apply();   // before Iris loads its pack
         TitleDefaults.register(NeoForge.EVENT_BUS);
         MacInputLogs.quiet();
