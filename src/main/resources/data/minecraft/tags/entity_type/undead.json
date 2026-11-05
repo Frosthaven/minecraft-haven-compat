@@ -1,0 +1,97 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "zombie_variants:badlands_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:bamboo_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:cave_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:cherry_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:deep_dark_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:desert_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:dripstone_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:frozen_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:jungle_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:lush_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:mangrove_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:mushroom_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:pale_garden_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:savanna_zombie",
+      "required": false
+    },
+    {
+      "id": "zombie_variants:swamp_zombie",
+      "required": false
+    },
+    {
+      "id": "irons_spellbooks:catacombs_zombie",
+      "required": false
+    },
+    {
+      "id": "irons_spellbooks:summoned_zombie",
+      "required": false
+    },
+    {
+      "id": "minecolonies:drownedpirate",
+      "required": false
+    },
+    {
+      "id": "minecolonies:drownedarcherpirate",
+      "required": false
+    },
+    {
+      "id": "minecolonies:drownedchiefpirate",
+      "required": false
+    },
+    {
+      "id": "minecolonies:campdrownedpirate",
+      "required": false
+    },
+    {
+      "id": "minecolonies:campdrownedarcherpirate",
+      "required": false
+    },
+    {
+      "id": "minecolonies:campdrownedchiefpirate",
+      "required": false
+    }
+  ]
+}
