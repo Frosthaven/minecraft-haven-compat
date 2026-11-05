@@ -59,10 +59,9 @@ public final class HavenCompat {
         JadeNotch.register(NeoForge.EVENT_BUS);
         dev.frosthaven.havencompat.binder.BinderFix.register(NeoForge.EVENT_BUS);
         dev.frosthaven.havencompat.signs.SignEditorLayout.register(NeoForge.EVENT_BUS);
-        if (net.neoforged.fml.ModList.get().isLoaded("immersive_portals_core")) {
-            dev.frosthaven.havencompat.portals.PortalView.load();
-            container.registerExtensionPoint(net.neoforged.neoforge.client.gui.IConfigScreenFactory.class, (mod, parent) -> new dev.frosthaven.havencompat.portals.HavenSettingsScreen(parent));
-        }
+        dev.frosthaven.havencompat.portals.PortalView.SETTING.load();
+        dev.frosthaven.havencompat.animations.PlayerAnimationData.SETTING.load();
+        container.registerExtensionPoint(net.neoforged.neoforge.client.gui.IConfigScreenFactory.class, (mod, parent) -> new dev.frosthaven.havencompat.settings.HavenSettingsScreen(parent));
         ShaderOptions.apply();   // before Iris loads its pack
         TitleDefaults.register(NeoForge.EVENT_BUS);
         MacInputLogs.quiet();

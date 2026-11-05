@@ -10,5 +10,10 @@
   "haven_compat.settings.portal_view.normal": "Normal",
   "haven_compat.settings.portal_view.normal.tip": "The full view through portals.",
   "haven_compat.settings.portal_view.disabled": "Disabled",
-  "haven_compat.settings.portal_view.disabled.tip": "Portals show a purple plane and do not render the world behind them. This can raise FPS a lot. Teleporting still works."
+  "haven_compat.settings.portal_view.disabled.tip": "Portals show a purple plane and do not render the world behind them. This can raise FPS a lot. Teleporting still works.",
+  "haven_compat.settings.player_animation_data": "Player Animation Data",
+  "haven_compat.settings.player_animation_data.optimized": "Optimized",
+  "haven_compat.settings.player_animation_data.optimized.tip": "Player animations from resource packs read only the player data they use (off hand, held item, flying, sleeping). This can raise FPS a lot with Fresh Animations.",
+  "haven_compat.settings.player_animation_data.full": "Full",
+  "haven_compat.settings.player_animation_data.full.tip": "Player animations from resource packs read all player data, including the whole inventory. Use this if a pack needs other player data."
 }

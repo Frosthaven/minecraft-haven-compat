@@ -36,7 +36,8 @@
     "BinderPagesMixin",
     "BinderSlotAccessor",
     "PortalViewSkipMixin",
-    "PortalViewPlaneMixin"
+    "PortalViewPlaneMixin",
+    "PlayerAnimationDataMixin"
   ],
   "injectors": {
     "defaultRequire": 1
