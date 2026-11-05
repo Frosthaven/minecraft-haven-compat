@@ -92,6 +92,46 @@
     {
       "id": "minecolonies:campdrownedchiefpirate",
       "required": false
+    },
+    {
+      "id": "ad_astra:zombified_mogler",
+      "required": false
+    },
+    {
+      "id": "ad_astra:zombified_pygro",
+      "required": false
+    },
+    {
+      "id": "ars_nouveau:summon_skeleton",
+      "required": false
+    },
+    {
+      "id": "irons_spellbooks:summoned_skeleton",
+      "required": false
+    },
+    {
+      "id": "minecolonies:mummy",
+      "required": false
+    },
+    {
+      "id": "minecolonies:archermummy",
+      "required": false
+    },
+    {
+      "id": "minecolonies:campmummy",
+      "required": false
+    },
+    {
+      "id": "minecolonies:camparchermummy",
+      "required": false
+    },
+    {
+      "id": "block_factorys_bosses:pile_of_bones",
+      "required": false
+    },
+    {
+      "id": "cataclysm:ancient_ancient_remnant",
+      "required": false
     }
   ]
 }
