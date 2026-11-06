@@ -14,7 +14,8 @@
     "PipezPipeTurnMixin",
     "MagnetCoilTurnMixin",
     "RsDirectionTurnMixin",
-    "CarriageSpawnPositionMixin"
+    "CarriageSpawnPositionMixin",
+    "ElephantPhysicsMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",
