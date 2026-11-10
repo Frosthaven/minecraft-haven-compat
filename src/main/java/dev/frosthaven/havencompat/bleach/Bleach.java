@@ -69,5 +69,8 @@ public final class Bleach {
         modBus.addListener((BuildCreativeModeTabContentsEvent event) -> {
             if (event.getTabKey().equals(CREATE_TAB)) event.accept(BUCKET.get());
         });
+        // a dispenser places and picks up bleach, as Dragons Plus registers for its dye buckets
+        modBus.addListener((net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent event) -> event.enqueueWork(() ->
+                net.minecraft.world.level.block.DispenserBlock.registerBehavior(BUCKET.get(), net.neoforged.neoforge.fluids.DispenseFluidContainer.getInstance())));
     }
 }
