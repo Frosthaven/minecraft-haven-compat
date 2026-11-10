@@ -28,6 +28,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("LoadDefaultsMixin", List.of()),
             Map.entry("MacDropStackMixin", List.of()),
             Map.entry("MacDropStackScreenMixin", List.of()),
+            Map.entry("TooltipOnTopMixin", List.of()),   // vanilla only
             Map.entry("RefusedCrossingMixin", List.of("immersive_portals_core")),
             Map.entry("PortalPipesTfmgMixin", List.of("immersive_portals_core", "tfmg", "create")),
             Map.entry("NtglProjectileSyncMixin", List.of("ntgl")),

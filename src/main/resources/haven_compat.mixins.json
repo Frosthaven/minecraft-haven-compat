@@ -38,7 +38,8 @@
     "BinderSlotAccessor",
     "PortalViewSkipMixin",
     "PortalViewPlaneMixin",
-    "PlayerAnimationDataMixin"
+    "PlayerAnimationDataMixin",
+    "TooltipOnTopMixin"
   ],
   "injectors": {
     "defaultRequire": 1
