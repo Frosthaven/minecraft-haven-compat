@@ -189,16 +189,16 @@ handles a stencil main framebuffer (`DepthCopyStrategy.Gl30BlitFbCombinedDepthSt
 ## Testing
 
 No Mac here. The fallback path runs on any machine with `-Dhaven_compat.assumeNoCopyImage=true`: Prism instance
-"Haven Portals Test" (a Haven client with the snapshot world "Haven Snapshot 2026-10-16", the player standing at
+a test copy of "Haven Dev" (made for the test, deleted after; a Haven client with the snapshot world "Haven Snapshot 2026-10-16", the player standing at
 -992 63 554 facing the lit portal at -987 64 554, Iris on with Complementary Unbound, `pauseOnLostFocus:false`),
 this jar in `mods/`, `OverrideJavaArgs=true` + the flag in `instance.cfg`, then
-`prismlauncher -l "Haven Portals Test" -w "Haven Snapshot 2026-10-16"` and a screenshot (`grim`). Pass = the log has
+`prismlauncher -l "<test instance>" -w "Haven Snapshot 2026-10-16"` and a screenshot (`grim`). Pass = the log has
 `[portal depth]` "copied by blit" or the stencil hold line, "switched to renderer class ...IrisPortalRenderer" and no
 "Switched to compatibility" / "Depth blit ... failed", and the screenshot shows the other side through the portal.
 Close the game by working folder (`/proc/<pid>/cwd`), never by name; close Prism before editing `instance.cfg`.
 A real Mac check (shaders on, walk through a portal, portal-in-portal) is still owed after each Immersive Portals update.
 
-Server list: the "Haven Portals Test" instance has the bare `minecraft.thedragon.dev` entry in its `servers.dat`
+Server list: give the test instance the bare `minecraft.thedragon.dev` entry in its `servers.dat`
 (the old default); with this jar and `servers` in its `config/haven-pack-defaults.json`, a launch to the title screen
 logs `[servers] "Haven": minecraft.thedragon.dev -> minecraft.thedragon.dev:9205` and the file carries the port
 (checked 2026-10-18, 0.2.0).
