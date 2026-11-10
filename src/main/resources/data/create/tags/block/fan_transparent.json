@@ -1,0 +1,68 @@
+{
+  "values": [
+    {
+      "id": "haven_compat:controlled_white_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_orange_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_magenta_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_light_blue_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_yellow_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_lime_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_pink_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_gray_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_light_gray_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_cyan_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_purple_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_blue_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_brown_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_green_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_red_fan_dyeing_catalyst",
+      "required": false
+    },
+    {
+      "id": "haven_compat:controlled_black_fan_dyeing_catalyst",
+      "required": false
+    }
+  ]
+}

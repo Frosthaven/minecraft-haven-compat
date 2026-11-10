@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "haven_compat:bleach",
+      "required": false
+    },
+    {
+      "id": "haven_compat:flowing_bleach",
+      "required": false
+    }
+  ]
+}

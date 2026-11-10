@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "position=left": {
+      "model": "haven_compat:block/controlled_catalyst/light_blue_left"
+    },
+    "position=right": {
+      "model": "haven_compat:block/controlled_catalyst/light_blue_right"
+    },
+    "position=top": {
+      "model": "haven_compat:block/controlled_catalyst/light_blue_top"
+    },
+    "position=bottom": {
+      "model": "haven_compat:block/controlled_catalyst/light_blue_bottom"
+    },
+    "position=surround": {
+      "model": "haven_compat:block/controlled_catalyst/light_blue_surround"
+    }
+  }
+}

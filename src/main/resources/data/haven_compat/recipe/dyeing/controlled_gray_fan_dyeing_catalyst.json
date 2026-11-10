@@ -1,0 +1,26 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create_connected"
+    },
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create_dragons_plus"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "create_connected:gray_fan_dyeing_catalyst"
+    },
+    {
+      "item": "haven_compat:brass_dye_nozzle"
+    }
+  ],
+  "result": {
+    "id": "haven_compat:controlled_gray_fan_dyeing_catalyst",
+    "count": 1
+  }
+}

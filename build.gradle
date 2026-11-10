@@ -97,6 +97,7 @@ dependencies {
 
     compileOnly('com.simibubi.create:create-1.21.1:6.0.10-226:slim') { transitive = false }   // schematics/: the pack's Create
     compileOnly('org.appliedenergistics:appliedenergistics2:19.2.17') { transitive = false }   // schematics/: the pack's AE2
+    compileOnly('net.createmod.ponder:ponder-neoforge:1.0.81+mc1.21.1') { transitive = false }   // dyeing/: Create's value box outliner (catnip)
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'

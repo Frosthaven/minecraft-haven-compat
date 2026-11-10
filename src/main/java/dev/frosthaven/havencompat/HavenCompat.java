@@ -54,6 +54,13 @@ public final class HavenCompat {
     public static final String ID = "haven_compat";
 
     public HavenCompat(IEventBus modBus, ModContainer container) {
+        if (net.neoforged.fml.ModList.get().isLoaded("create")) {
+            dev.frosthaven.havencompat.bleach.BleachClient.register(modBus);
+        }
+        if (net.neoforged.fml.ModList.get().isLoaded("create") && net.neoforged.fml.ModList.get().isLoaded("create_connected")
+                && net.neoforged.fml.ModList.get().isLoaded("create_dragons_plus")) {
+            dev.frosthaven.havencompat.dyeing.NozzleValueBox.register(NeoForge.EVENT_BUS);
+        }
         PortalShaderGuard.register(NeoForge.EVENT_BUS);
         ServerListSync.register(NeoForge.EVENT_BUS);
         JadeNotch.register(NeoForge.EVENT_BUS);

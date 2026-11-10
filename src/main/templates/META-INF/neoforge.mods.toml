@@ -9,7 +9,8 @@ displayName="${mod_name}"
 description='''
 Fixes between mods of the Haven pack. Client: Immersive Portals with Iris shaders on macOS, server list, update
 popups, Jade below the notch, pack defaults. Server: Mekanism's block updates reach players under Immersive Portals;
-Create schematics keep other mods' block settings and upgrades.
+Create schematics keep other mods' block settings and upgrades. Bulk dyeing: the Brass Dye Nozzle picks where
+the dye goes in the grid; Bleach (a fluid) bulk-bleaches dyed items back to plain or white.
 '''
 
 # Targets Immersive Portals, so optional: its plugin applies nothing without it.

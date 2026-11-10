@@ -1,0 +1,39 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    },
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "mekanism"
+    }
+  ],
+  "type": "create:mixing",
+  "ingredients": [
+    [
+      {
+        "tag": "c:dusts/salt"
+      },
+      {
+        "tag": "c:gems/salt"
+      }
+    ],
+    {
+      "type": "neoforge:tag",
+      "amount": 250,
+      "tag": "c:chlorine"
+    },
+    {
+      "type": "neoforge:single",
+      "amount": 250,
+      "fluid": "minecraft:water"
+    }
+  ],
+  "results": [
+    {
+      "amount": 500,
+      "id": "haven_compat:bleach"
+    }
+  ]
+}

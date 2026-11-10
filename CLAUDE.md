@@ -39,8 +39,8 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   frequencies; `items`: charged; `turn`: data kept per absolute side; `positions`: links), registered by block entity
   id through `SchematicCopy` (Create's `SafeNbtWriterRegistry`, `SchematicRequirementRegistries.BLOCK_ENTITIES`,
   `MovedBlockTransformerRegistries.BLOCK_ENTITY_TRANSFORMERS`; a namespace skips types with a writer of their own).
-  Only `AeCableBus` and `AeBlockTurn` link against a mod (`compileOnly` Create 6.0.10 slim and AE2 19.2.17, never
-  shipped); the others work on NBT keys and reflection (`MekanismData`: `writeSustainedData`; `RsData`:
+  Only `AeCableBus` and `AeBlockTurn` link against a mod here (`compileOnly` Create 6.0.10 slim and AE2 19.2.17, never
+  shipped; `dyeing/` also links against Create); the others work on NBT keys and reflection (`MekanismData`: `writeSustainedData`; `RsData`:
   `writeConfiguration`). `Obtainable`: an item no server recipe makes is not copied or charged. AE2: the cable bus
   keeps its own `SchematicRequirementRegistries.BLOCKS` (parts, facades strict); `AeSettings` is the key whitelist for
   parts and AE2 / ExtendedAE blocks. Turns: vanilla `StructureTemplate.placeInWorld` turns states through
@@ -164,6 +164,32 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   chunk, 0 client ticks. No client fallback: with the real spawn position no carriage spawned in an unloaded chunk.
   A probe must follow each carriage by reference: Immersive Portals sends entities of other dimensions too (other
   client levels), so `minecraft.level.getEntity(id)` misses them.
+- `dyeing/` (both sides; registered from `HavenCompatCommon` only with `create`, `create_connected` and
+  `create_dragons_plus` loaded; compiles against Create and Ponder/catnip, `compileOnly`): the Brass Dye Nozzle
+  (`DyeNozzleItem`, recipe sheet-pipe-sheet over a sheet) turns a Create Connected fan dyeing catalyst into
+  `ControlledCatalystBlock` (one per vanilla dye colour, blockstate `position` = `DyePosition` left/right/top/bottom/surround;
+  empty-hand right-click cycles, sneak + empty hand takes the nozzle back off). `PositionedColoringType` (one Create fan
+  processing type per colour and position, priority 510): Dragons Plus's own coloring recipes first (by reflection,
+  `ColoringRecipeInput`), then the crafting grid with the dye in the chosen place (`DyePosition.grid`; Dragons Plus
+  always puts the dye right of the item, so Sophisticated items only got their accent), then Dragons Plus's type of the
+  colour; particles, air colour and entity dyeing are Dragons Plus's. `NozzleValueBox` (client) draws Create's own
+  `ValueBox.TextValueBox` with the position letter through `Outliner` and `CenteredSideValueBoxTransform`, the way
+  `ScrollValueRenderer.addBox` does, and Create's hover tip. Assets and data are generated: `python3 tools/dye_nozzle.py`
+  (models are Create Connected's `fan_catalyst/with_content` with the core panels cut around an 8 px nozzle per face).
+- `bleach/` (both sides; registered from `HavenCompatCommon` with `create` loaded; client look `BleachClient`): the Bleach
+  fluid (`Bleach`: fluid type, source/flowing, `BleachBlock`, bucket with NeoForge's `fluid_container` model; no new
+  sources), made by Create mixing (heated: water + salt + bone meal; or liquid chlorine + water + salt with Mekanism).
+  Look chosen by the maintainer ("Light"): water's textures tinted #ECF1C4 at about 40 % (tint 0x91ECF1C4), pale fog.
+  `BleachExposure`: in the fluid (`entityInside`) or in a fan's stream through it (`BleachingType.affectEntity`):
+  Nausea as the sulfur lakes give it (80 ticks, refreshed every 10, ambient) and 1 damage (`haven_compat:bleach`) every
+  40 ticks; sheep in the stream turn white. `BleachingType` (Create fan type, the fluid is the catalyst): `BleachProcess`,
+  first change wins: Create's own washing recipe when its result has no colour; the water cauldron's dye action
+  (vanilla `DYED_ITEM`, `BANNER`, `SHULKER_BOX`; Sophisticated classes by name) run by a `FakePlayer` against a cauldron
+  below the build height (refused level change), repeated until it stops (all banner layers); a mod's un-dye recipe
+  (`UNDYE_RECIPES`); the family's base item (`DyeFamilies`, read from the crafting recipes: the id without its colour,
+  which is an ingredient of the dye recipe); dye data on a `minecraft:dyeable` item; then an item still coloured with no
+  base becomes its family's white. Water washing is untouched (the maintainer's call, 2026-11-10). Audit 2026-11-10
+  (throwaway proof step over every dyed item): see the pack's patch notes for families no fluid un-dyes.
 - `mixin/CompatMixinPlugin`: each mixin applies only with all its mods in `LoadingModList` (`MODS_OF`: mixin simple name ->
   mod ids); `postApply` -> `PortalDepth.patched(target)`. The config is `required: false` with `defaultRequire: 1`: a target that moved fails
   that one mixin loudly in the log and the guard takes over.
