@@ -217,3 +217,9 @@ it stays (checked 2026-10-18, 0.4.0). The real notch check is a Mac player's: bo
 Push to `main`: CI publishes `haven-compat.jar` as the rolling `latest` release and `haven-compat-<version>.jar` as an
 immutable `v<mod_version>-<sha7>` release (the Haven pack pins one with `just bump-mod haven-compat`). Bump
 `mod_version` in `gradle.properties`. Commits: author `Frosthaven <shane@thedragon.dev>`, no Co-Authored-By trailer.
+
+## Player page
+
+Players read about this mod on the Haven Codex, tab `#tab-compat` (https://claude.ai/artifact/QG2xPPxSAM2BQiovWVoGiF#tab-compat).
+Update that tab when a change alters what players see; publish to that URL in place (never a copy) when the
+maintainer asks. The pack repo's CLAUDE.md, "Haven's own mods and pages", lists what to check on a pack change.
