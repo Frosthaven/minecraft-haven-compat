@@ -27,6 +27,12 @@ public final class BleachClient {
 
     public static void register(IEventBus modBus) {
         modBus.addListener(BleachClient::extensions);
+        modBus.addListener((net.neoforged.neoforge.client.event.RegisterColorHandlersEvent.Block event) -> {
+            if (BleachCatalyst.registered()) event.register((state, level, pos, tint) -> tint == 0 ? TINT & 0xFFFFFF : -1, BleachCatalyst.BLOCK.get());
+        });
+        modBus.addListener((net.neoforged.neoforge.client.event.RegisterColorHandlersEvent.Item event) -> {
+            if (BleachCatalyst.registered()) event.register((stack, tint) -> tint == 0 ? 0xFF000000 | (TINT & 0xFFFFFF) : -1, BleachCatalyst.BLOCK.get());
+        });
         modBus.addListener((FMLClientSetupEvent event) -> event.enqueueWork(() -> {
             ItemBlockRenderTypes.setRenderLayer(Bleach.SOURCE.get(), RenderType.translucent());
             ItemBlockRenderTypes.setRenderLayer(Bleach.FLOWING.get(), RenderType.translucent());

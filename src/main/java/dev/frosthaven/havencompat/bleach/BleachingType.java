@@ -15,7 +15,8 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 /**
- * Bulk bleaching: an encased fan blowing through bleach ({@link BleachProcess} for items). Living things in the
+ * Bulk bleaching: an encased fan blowing through bleach, loose or in a Fan Bleaching Catalyst ({@link BleachCatalyst});
+ * {@link BleachProcess} for items. Living things in the
  * stream get the same as in the fluid ({@link BleachExposure}), the way a fan through lava sets them on fire; sheep in
  * it turn white.
  */
@@ -25,7 +26,8 @@ public final class BleachingType implements FanProcessingType {
 
     @Override
     public boolean isValidAt(Level level, BlockPos pos) {
-        return level.getFluidState(pos).getFluidType() == Bleach.TYPE.get();
+        return level.getFluidState(pos).getFluidType() == Bleach.TYPE.get()
+                || BleachCatalyst.registered() && level.getBlockState(pos).is(BleachCatalyst.BLOCK.get());
     }
 
     @Override

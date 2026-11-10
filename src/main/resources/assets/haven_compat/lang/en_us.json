@@ -16,6 +16,7 @@
   "block.haven_compat.controlled_red_fan_dyeing_catalyst": "Controlled Red Fan Dyeing Catalyst",
   "block.haven_compat.controlled_white_fan_dyeing_catalyst": "Controlled White Fan Dyeing Catalyst",
   "block.haven_compat.controlled_yellow_fan_dyeing_catalyst": "Controlled Yellow Fan Dyeing Catalyst",
+  "block.haven_compat.fan_bleaching_catalyst": "Fan Bleaching Catalyst",
   "death.attack.haven_compat.bleach": "%1$s was bleached",
   "death.attack.haven_compat.bleach.player": "%1$s was bleached while fighting %2$s",
   "fluid_type.haven_compat.bleach": "Bleach",

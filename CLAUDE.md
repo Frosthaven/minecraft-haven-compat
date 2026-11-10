@@ -180,6 +180,9 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   fluid (`Bleach`: fluid type, source/flowing, `BleachBlock`, bucket with its own texture from `tools/bleach_bucket.py`: NeoForge's `fluid_container` model
   applies the fluid tint's alpha, so the almost clear fluid made the bucket look empty; no new sources), made by Create mixing (heated: water + salt + bone meal; or liquid chlorine + water + salt with Mekanism).
   Look chosen by the maintainer ("Light"): water's textures tinted #ECF1C4 at about 40 % (tint 0x91ECF1C4), pale fog.
+  `BleachCatalyst` (with `create_connected`): the Fan Bleaching Catalyst, made every way Create Connected makes its
+  dye and splashing catalysts (Bleach Bucket item application on the empty catalyst, Spout filling 1000 mB, crafted
+  back to the empty one), its model their splashing catalyst's composite with tint index 0 coloured by `BleachClient`.
   `BleachExposure`: in the fluid (`entityInside`) or in a fan's stream through it (`BleachingType.affectEntity`):
   Nausea as the sulfur lakes give it (80 ticks, refreshed every 10, ambient) and 1 damage (`haven_compat:bleach`) every
   40 ticks; sheep in the stream turn white. `BleachingType` (Create fan type, the fluid is the catalyst): `BleachProcess`,

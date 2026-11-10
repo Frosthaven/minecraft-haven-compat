@@ -63,6 +63,10 @@
     {
       "id": "haven_compat:controlled_black_fan_dyeing_catalyst",
       "required": false
+    },
+    {
+      "id": "haven_compat:fan_bleaching_catalyst",
+      "required": false
     }
   ]
 }

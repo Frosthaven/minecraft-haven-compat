@@ -22,6 +22,9 @@ public final class HavenCompatCommon {
         BinderSortMessage.register(modBus);
         if (ModList.get().isLoaded("create")) {
             dev.frosthaven.havencompat.bleach.Bleach.register(modBus);
+            if (ModList.get().isLoaded("create_connected")) {
+                dev.frosthaven.havencompat.bleach.BleachCatalyst.register(modBus);
+            }
         }
         if (ModList.get().isLoaded("create") && ModList.get().isLoaded("create_connected") && ModList.get().isLoaded("create_dragons_plus")) {
             dev.frosthaven.havencompat.dyeing.Dyeing.register(modBus);
