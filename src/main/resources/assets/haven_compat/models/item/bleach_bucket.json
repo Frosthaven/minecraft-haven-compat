@@ -1,5 +1,6 @@
 {
-  "parent": "neoforge:item/bucket",
-  "loader": "neoforge:fluid_container",
-  "fluid": "haven_compat:bleach"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "haven_compat:item/bleach_bucket"
+  }
 }

@@ -177,8 +177,8 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `ScrollValueRenderer.addBox` does, and Create's hover tip. Assets and data are generated: `python3 tools/dye_nozzle.py`
   (models are Create Connected's `fan_catalyst/with_content` with the core panels cut around an 8 px nozzle per face).
 - `bleach/` (both sides; registered from `HavenCompatCommon` with `create` loaded; client look `BleachClient`): the Bleach
-  fluid (`Bleach`: fluid type, source/flowing, `BleachBlock`, bucket with NeoForge's `fluid_container` model; no new
-  sources), made by Create mixing (heated: water + salt + bone meal; or liquid chlorine + water + salt with Mekanism).
+  fluid (`Bleach`: fluid type, source/flowing, `BleachBlock`, bucket with its own texture from `tools/bleach_bucket.py`: NeoForge's `fluid_container` model
+  applies the fluid tint's alpha, so the almost clear fluid made the bucket look empty; no new sources), made by Create mixing (heated: water + salt + bone meal; or liquid chlorine + water + salt with Mekanism).
   Look chosen by the maintainer ("Light"): water's textures tinted #ECF1C4 at about 40 % (tint 0x91ECF1C4), pale fog.
   `BleachExposure`: in the fluid (`entityInside`) or in a fan's stream through it (`BleachingType.affectEntity`):
   Nausea as the sulfur lakes give it (80 ticks, refreshed every 10, ambient) and 1 damage (`haven_compat:bleach`) every
