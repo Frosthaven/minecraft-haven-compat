@@ -15,7 +15,8 @@
     "MagnetCoilTurnMixin",
     "RsDirectionTurnMixin",
     "CarriageSpawnPositionMixin",
-    "ElephantPhysicsMixin"
+    "ElephantPhysicsMixin",
+    "BackpackNameMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",

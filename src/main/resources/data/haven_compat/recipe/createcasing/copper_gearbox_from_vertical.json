@@ -1,0 +1,19 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "createcasing"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "createcasing:vertical_copper_gearbox"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "createcasing:copper_gearbox"
+  }
+}

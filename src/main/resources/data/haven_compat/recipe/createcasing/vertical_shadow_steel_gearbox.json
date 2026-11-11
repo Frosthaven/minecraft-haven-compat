@@ -1,0 +1,19 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "createcasing"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "createcasing:shadow_steel_gearbox"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "createcasing:vertical_shadow_steel_gearbox"
+  }
+}

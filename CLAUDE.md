@@ -164,6 +164,12 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   chunk, 0 client ticks. No client fallback: with the real spawn position no carriage spawned in an unloaded chunk.
   A probe must follow each carriage by reference: Immersive Portals sends entities of other dimensions too (other
   client levels), so `minecraft.level.getEntity(id)` misses them.
+- `mixin/BackpackNameMixin` (both sides, `mixins` list; `sophisticatedbackpacks`): `@Pseudo`, makes Sophisticated
+  Backpacks' `BackpackBlockEntity` `Nameable` from the stored backpack item (`getBackpackWrapper().getBackpack()`, by
+  method handle: no compile dependency). Jade names a block from a `Nameable` block entity (server data) or its pick
+  item; the backpack had neither, so a placed renamed backpack read "Diamond Backpack".
+- `data/haven_compat/recipe/createcasing/` (`createcasing` loaded): Create Encased adds 9 vertical gearbox items with no
+  recipe; one gearbox alone in a crafting grid converts to its vertical one and back, as Create's own gearbox does.
 - `dyeing/` (both sides; registered from `HavenCompatCommon` only with `create`, `create_connected` and
   `create_dragons_plus` loaded; compiles against Create and Ponder/catnip, `compileOnly`): the Brass Dye Nozzle
   (`DyeNozzleItem`, recipe sheet-pipe-sheet over a sheet) turns a Create Connected fan dyeing catalyst into
