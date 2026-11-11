@@ -130,11 +130,21 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `AddReloadListenerEvent`, so `ClientPlayHandler.handleUpdateProjectile` hit null on every dedicated-server join. HEAD
   inject without target args (no NTGL types on the classpath), `Class.forName` + `get()` by reflection, cancel when null.
   `getConfig` has no callers, so the client loses nothing. Test: no "NetworkProjectileManager" NPE in a client log on join.
-- `trash/TrashSlotLock` + `mixin/TrashSlotVisibleMixin` / `TrashSlotToggleMixin` (client; `trashslot`): pack key
-  `trashSlot.alwaysVisible` (TrashSlot screen ids = keys of `TrashSlotSaveState.json`). RETURN of
-  `TrashSlotSaveState.getSettings`: the returned `ContainerSettings` is matched by identity in `cachedSettings` (reflection),
-  and for a listed id `setEnabled(true)` and kept in a weak identity set; HEAD of `ContainerSettings.setEnabled`
-  cancels `false` for those objects (TrashSlot's toggle key flips that flag, then `save()`s). Unlisted screens keep the toggle.
+- `trash/TrashSlotLock` + `TrashSpot` + `mixin/TrashSlotVisibleMixin` / `TrashSlotToggleMixin` (client; `trashslot`):
+  RETURN of `TrashSlotSaveState.getSettings(screen, @Coerce layout)`: the returned `ContainerSettings` is held shown
+  on a screen with the player's hotbar (a menu slot of `Inventory`, index 0-8, active, near the box) and held hidden
+  on one without (Train Schedule, Waystones, Elevator, AE2 Network Status: nothing to drag in); kept in a weak identity
+  map; HEAD of `ContainerSettings.setEnabled` cancels the other value (TrashSlot's toggle key flips that flag, then
+  `save()`s), so the toggle key does nothing. Spot: TrashSlot's default is under the bottom-right corner of
+  `imageWidth` x `imageHeight`, which floats on screens whose box is bigger than the drawn inventory panel (Create
+  filters, Card Binder, Beacon, Mekanism, ...). `TrashSpot.underHotbar` puts it under the hotbar panel's corner
+  (last hotbar slot + 16 + 8 px; pure math `spot`/`close` unit tested: a vanilla screen gives TrashSlot's own default);
+  within 2 px of the default the default stays (vanilla chests, AE2: there TrashSlot draws the slot as a tab of the
+  box). Pack key `trashSlot.positions` (id -> `[x, y]`, TrashSlot's units, ids = keys of `TrashSlotSaveState.json`)
+  wins, unused so far. Applied only while the settings hold the layout's `getDefaultSlotX/Y` (a dragged slot stays).
+  Test 2026-11-11: a throwaway proof step placed and right-clicked every block with a block entity (5,854 jobs,
+  click 4 ticks after placing, or SecurityCraft / Ad Astra / Sophisticated Storage kick the client), plus item,
+  entity and inventory screens: 184 screen ids; 32 moved (all checked on screenshots), 11 hidden, toggle held on all.
 - `binder/` (client, `easy_mob_farm`; `BinderSortMessage` both sides, registered `optional()` from `HavenCompatCommon`):
   `BinderFix` (screen events) opens a `BinderSession` per binder screen: search box and `SortDropdown` above the book,
   `CardView` (pure, unit tested: `sorted`, `shown`, `rearrangesAll`). The search moves client slots into view cells
