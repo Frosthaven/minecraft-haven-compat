@@ -18,7 +18,9 @@ import org.spongepowered.asm.mixin.Pseudo;
 /**
  * A placed Sophisticated Backpack keeps the whole backpack item (custom name too), and its menu title shows that name,
  * but the block entity was not {@link Nameable}: Jade then names the block from its plain item ("Diamond Backpack").
- * Now the block entity gives the stored backpack's name, with its colours and fonts.
+ * Now the block entity is named from the stored backpack: Jade's title ({@code getDisplayName}) stays the plain
+ * backpack name, and SecurityCraft's Jade line ("Custom name: ...", from {@code getCustomName}) shows the custom name
+ * with its colours and fonts.
  */
 @Pseudo
 @Mixin(targets = "net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackBlockEntity", remap = false)
@@ -49,6 +51,13 @@ public abstract class BackpackNameMixin extends BlockEntity implements Nameable 
     public Component getName() {
         ItemStack stack = havencompat$stack();
         return stack.isEmpty() ? getBlockState().getBlock().getName() : stack.getHoverName();
+    }
+
+    /** The plain backpack name ("Diamond Backpack"): Jade's title. The custom name stays in {@link #getCustomName()}. */
+    @Override
+    public Component getDisplayName() {
+        ItemStack stack = havencompat$stack();
+        return stack.isEmpty() ? getBlockState().getBlock().getName() : stack.getItem().getName(stack);
     }
 
     @Override
