@@ -2,7 +2,7 @@
 
 Fixes between mods of the Haven server's modpack (Minecraft 1.21.1, NeoForge) that belong to none of the
 mods themselves. Each fix switches itself off when the mods it is about are not installed, so the jar is safe in any
-pack. One setting (Immersive Portal Rendering); everything else needs no configuration. All fixes run in the game client except the Mekanism, schematic, portal crossing and card binder sort ones, which (also) run on the server: Mekanism, schematics, portal crossings, card binder sort, trains, the delete key, spell aim and elevator riders.
+pack. One setting (Immersive Portal Rendering); everything else needs no configuration. All fixes run in the game client except the Mekanism, schematic, portal crossing and card binder sort ones, which (also) run on the server: Mekanism, schematics, portal crossings, card binder sort, trains and elevators (spawn position), the delete key, spell aim and elevator riders.
 
 | Fix | Mods | What it does |
 |---|---|---|
@@ -30,7 +30,7 @@ pack. One setting (Immersive Portal Rendering); everything else needs no configu
 | Tooltips always on top | vanilla | A tooltip covers whatever is under it. Some screens draw items or panels deeper than Minecraft's tooltip depth, so they showed through it (Create's Ponder item index, among others). Right before a tooltip draws, what is queued is drawn and the depth buffer cleared, so every tooltip (vanilla, JEI, Ponder, Legendary Tooltips) is on top. |
 | Sign editor rows apart | Big Sign Writer, Unlocked Typing | Both mods put a row of buttons right above the sign screen's Done button. With both installed, Unlocked Typing's row moves up one row, and Big Sign Writer's open font list no longer shows Done through it. |
 | Immersive Portal Rendering setting | Immersive Portals | Mods > Haven Compat > Config, under Experimental Optimizations: Normal (the full view through portals) or Disabled (a purple plane, no world rendered behind it; teleporting still works). Disabled raised FPS from about 25 to 41 in the overworld and 29 to 53 in the Nether on an M1 Pro, and 183 to 278 and 181 to 388 on an RTX 4090. Saved on this computer. |
-| Trains visible when they arrive (server) | Create | A train that comes into view no longer stays invisible at the edge of view until it leaves and comes back ([Create issue 10660](https://github.com/Creators-of-Create/Create/issues/10660)). The server now spawns each train carriage on the client at its real position. Players need nothing new: the server alone fixes it. |
+| Trains and elevators visible (server) | Create | A train that comes into view no longer stays invisible at the edge of view until it leaves and comes back ([Create issue 10660](https://github.com/Creators-of-Create/Create/issues/10660)), and an elevator (or another pulley, piston or bearing contraption) no longer vanishes for one player while others still see it. The server now spawns each on the client at its real position. Players need nothing new: the server alone fixes it. |
 
 ## Download
 
@@ -158,7 +158,7 @@ destination portal. Haven Compat wraps that call: for this reason only, in the s
 portal's normal until the eye is 10 cm in front of the plane, when no block is in the way.
 Server side, only with Immersive Portals installed.
 
-## Trains visible when they arrive
+## Trains and elevators visible
 
 The server starts sending an entity once the chunk it is in now is in the player's view, but the vanilla spawn packet
 carries the last position it sent (`ServerEntity.getPositionBase()`), which a Create carriage updates only every third
@@ -169,6 +169,11 @@ a carriage moves and becomes renderable only in its own client tick, and the cli
 carriages, so it stayed frozen out there: the train looked invisible at the station. Haven Compat sends the carriage's
 real position in its spawn packet. Server side, only with Create installed; clients with an older Haven Compat get the
 fix too.
+
+Elevators, and other contraptions a pulley, piston or bearing moves, have the same stale spawn position (the server
+refreshes theirs every 40 ticks). Their spawn data also gives the pulley's position as an offset from the elevator's
+position on the server now; the client adds it to the stale spawn position, finds no pulley there and deletes the
+elevator, for that player only, until they leave its range or join again. The real spawn position fixes both.
 
 ## Development
 

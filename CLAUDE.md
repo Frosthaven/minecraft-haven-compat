@@ -1,6 +1,6 @@
 # haven-compat (`haven_compat`)
 
-NeoForge 1.21.1 mod for the Haven pack, client side except three server mixins (`mekanism`, `portals/RefusedCrossing`, `trains/CarriageSpawn`) (minecraft-haven-pack): fixes between other mods, one package per
+NeoForge 1.21.1 mod for the Haven pack, client side except three server mixins (`mekanism`, `portals/RefusedCrossing`, `contraptions/ContraptionSpawn`) (minecraft-haven-pack): fixes between other mods, one package per
 fix. Read README.md first. Rules: every fix is off when its mods are absent; other mods are reached by class name only
 (`@Mixin(targets = "...")`, reflection), never as a compile dependency; nothing logs per frame (`Log.once`); a fix that
 cannot apply logs it and leaves the game as it was, never a crash of its own.
@@ -159,9 +159,9 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   error) + `PortalViewSkipMixin` (Disabled: IP skips the portal view) + `PortalViewPlaneMixin` -> `PortalPlane` (the
   portal entity's renderer draws a purple tile per block; shape getters cached per class in a `ClassValue`; a tile is
   left out when the blocks on both sides of the plane are solid). `HavenSettingsScreen`: Mods > Haven Compat > Config.
-- `trains/CarriageSpawn` + `mixin/CarriageSpawnPositionMixin` (server, `mixins` list; `create`): `@Pseudo`, the mixin
-  extends `Entity` and adds `getAddEntityPacket(ServerEntity)` to Create's `CarriageContraptionEntity` (neither it nor
-  `AbstractContraptionEntity` overrides it): a `ClientboundAddEntityPacket` with the entity's own position, not
+- `contraptions/ContraptionSpawn` + `mixin/ContraptionSpawnPositionMixin` (server, `mixins` list; `create`): `@Pseudo`, the mixin
+  extends `Entity` and adds `getAddEntityPacket(ServerEntity)` to Create's `CarriageContraptionEntity` and
+  `ControlledContraptionEntity` (siblings; neither they nor `AbstractContraptionEntity` override it): a `ClientboundAddEntityPacket` with the entity's own position, not
   `ServerEntity.getPositionBase()`. Why (Create 6.0.10, NeoForge 21.1 sources): tracking starts from the entity's
   current chunk (`ChunkMap.TrackedEntity.updatePlayer`), the base moves only every update interval (3 for carriages,
   `ServerEntity.sendChanges`), so a carriage that already existed spawned up to 2 ticks of travel behind, in a chunk the
@@ -174,6 +174,13 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   chunk, 0 client ticks. No client fallback: with the real spawn position no carriage spawned in an unloaded chunk.
   A probe must follow each carriage by reference: Immersive Portals sends entities of other dimensions too (other
   client levels), so `minecraft.level.getEntity(id)` misses them.
+  Elevators (0.30.8): `ControlledContraptionEntity` (`create:stationary_contraption`, update interval 40) writes
+  `ControllerRelative` = controller - `blockPosition()` (server, now) into its spawn data; the client's `readAdditional`
+  adds it to the block of the packet position. With a stale base the sum misses the pulley, `getController()` is null,
+  `tickContraption` discards the entity on that client only, and it stays gone until the player leaves its range or
+  rejoins (a friend's client lost an elevator another player kept seeing and riding, 2026-11-11). Test (2026-11-12,
+  hidden, a session in minecraft-rancher-companion): 20 elevator trips each starting out of range, online and single
+  player: 0.30.6 0 of 20 visible (the client looked for the pulley 2 to 20 blocks off), the fix 20 of 20.
 - `mixin/BackpackNameMixin` (both sides, `mixins` list; `sophisticatedbackpacks`): `@Pseudo`, makes Sophisticated
   Backpacks' `BackpackBlockEntity` `Nameable` from the stored backpack item (`getBackpackWrapper().getBackpack()`, by
   method handle: no compile dependency). Jade names a block from a `Nameable` block entity (server data) or its pick

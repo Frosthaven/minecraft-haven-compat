@@ -49,7 +49,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("PortalViewSkipMixin", List.of("immersive_portals_core")),
             Map.entry("PortalViewPlaneMixin", List.of("immersive_portals_core")),
             Map.entry("PlayerAnimationDataMixin", List.of("entity_texture_features")),
-            Map.entry("CarriageSpawnPositionMixin", List.of("create")),
+            Map.entry("ContraptionSpawnPositionMixin", List.of("create")),
             Map.entry("ElephantPhysicsMixin", List.of("livingthings")),
             Map.entry("BackpackNameMixin", List.of("sophisticatedbackpacks")),
             Map.entry("MountedBackpackColourMixin", List.of("sophisticatedbackpackscreateintegration")),

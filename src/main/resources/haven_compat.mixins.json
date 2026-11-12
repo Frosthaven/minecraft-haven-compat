@@ -14,7 +14,7 @@
     "PipezPipeTurnMixin",
     "MagnetCoilTurnMixin",
     "RsDirectionTurnMixin",
-    "CarriageSpawnPositionMixin",
+    "ContraptionSpawnPositionMixin",
     "ElephantPhysicsMixin",
     "BackpackNameMixin",
     "TrashSlotOversizeMixin",
