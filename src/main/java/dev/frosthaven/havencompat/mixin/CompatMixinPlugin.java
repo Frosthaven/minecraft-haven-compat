@@ -51,7 +51,15 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("PlayerAnimationDataMixin", List.of("entity_texture_features")),
             Map.entry("CarriageSpawnPositionMixin", List.of("create")),
             Map.entry("ElephantPhysicsMixin", List.of("livingthings")),
-            Map.entry("BackpackNameMixin", List.of("sophisticatedbackpacks")));
+            Map.entry("BackpackNameMixin", List.of("sophisticatedbackpacks")),
+            Map.entry("MountedBackpackColourMixin", List.of("sophisticatedbackpackscreateintegration")),
+            Map.entry("TrashSlotOversizeMixin", List.of("trashslot")),
+            Map.entry("BackpackRmbDragMixin", List.of("mousetweaks", "sophisticatedbackpacks")),
+            Map.entry("ArsTouchAimMixin", List.of("ars_nouveau")),
+            Map.entry("ArsTouchHintMixin", List.of("ars_nouveau")),
+            Map.entry("ContraptionMotionMixin", List.of("create")),
+            Map.entry("MovePlayerGroundMixin", List.of("create")),
+            Map.entry("ServerEntityGroundMixin", List.of("create")));
     /** Mixins that apply on macOS only ({@link Os#macOS()}): on Windows and Linux the target classes stay unchanged. */
     private static final Set<String> MAC_ONLY = Set.of("MacDropStackMixin", "MacDropStackScreenMixin");
 

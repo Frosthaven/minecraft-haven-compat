@@ -179,6 +179,47 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   method handle: no compile dependency). Jade names a block from a `Nameable` block entity (server data) or its pick
   item; the backpack had neither, so a placed renamed backpack read "Diamond Backpack". `getDisplayName` (Jade's
   title) stays the plain item name; SecurityCraft's Jade line "Custom name: ..." (`getCustomName`) shows the styled name.
+- `mixin/TrashSlotOversizeMixin` + `trash/OversizeDelete` (both sides; `trashslot`): `@Pseudo`. TrashSlot's delete key
+  (server, `MessageDeleteFromSlot.attemptDeleteFromSlot`) clicks the slot up and trashes the cursor only when it
+  `ItemStack.matches` the whole slot; a slot over one stack (Sophisticated stack upgrades) gives one stack, the match
+  fails and the stack stays on the cursor. A slot over its item's max stack size is now clicked up and trashed stack by
+  stack until empty, in the one packet (63 clicks for 4000 items, one tick); the trash slot keeps the last stack (undo).
+  Test (2026-11-11): Haven Dye Test, iron backpack with a tier 2 stack upgrade, 256 dirt in one slot: 0.30.6 left 64
+  on the cursor and 192 in the slot; 0.30.7 (tier 4 upgrade, 1024 dirt) empties the slot in one press, cursor empty.
+- `spells/` + `mixin/ArsTouchAimMixin` (both sides, `mixins`) + `mixin/ArsTouchHintMixin` (client) (`ars_nouveau`):
+  Ars Nouveau aims a spell book cast on the server (`AbstractCaster.castSpell` -> `SpellUtil.rayTrace`) against the
+  server's positions; a small moving mob (a familiar hopping around its owner) was missed on most clicks on a real
+  server ("Name only works if I spam it"). The client sends the entity under its crosshair (`TouchTargetMessage`,
+  `MultiPlayerGameMode.useItem` HEAD, only for `ars_nouveau` items and only when the server has the channel) before
+  the use packet; `@WrapOperation` on the ray returns that entity when it is alive, in the same level and within
+  reach + 1.5 blocks (`TouchTargets`, hint used once within 2 ticks), else Ars' own ray. Test (2026-11-12, hidden):
+  the server moves the familiar 1 block sideways before the click arrives (lag): 0.30.6 0 of 6, 0.30.7 6 of 6
+  in each of 4 runs (Starbuncle and Whirlisprig).
+- `contraptions/ContraptionGround` + `mixin/ContraptionMotionMixin` + `mixin/MovePlayerGroundMixin` (both sides,
+  `mixins`; `create`): other players saw a rider of a descending Create elevator in the falling pose (Fresh Animations'
+  player pack: not on ground and going down). The on-ground flag others get is the server's; both the rider's movement
+  packet and Create's `ClientMotionPacket` (sent while touching a contraption, with that moment's on-ground flag) say
+  "in the air" on some ticks while the floor drops. A player Create reported touching a contraption in the last 10
+  ticks, not rising more than 0.35 since the last movement update (a jump rises ~0.42), not flying, gliding or riding, stays on the ground
+  (after `ClientMotionPacket.handle` and `handleMovePlayer`, and at `ServerEntity.sendChanges` HEAD: something in the
+  tick clears it again, so the broadcast moment is the one that counts). Test (2026-11-12, hidden): rope pulley at 128 RPM down,
+  server on-ground (what others get) over 40 ticks: 0.30.6 false on 3 to 4 mid-descent ticks, 0.30.7 none once
+  moving (the first ticks, before Create reports contact, stay a real hop).
+- `mixin/BackpackRmbDragMixin` + `backpacks/BackpackRmbDrag` (client; `mousetweaks` and `sophisticatedbackpacks`):
+  `@Pseudo`, HEAD of Mouse Tweaks' `Main.rmbTweakMaybeClickSlot`. A backpack on the cursor stashes a slot's stack on a
+  right-click (`BackpackItem.overrideStackedOnOther`, like a bundle); Mouse Tweaks' right-button drag clicks every slot
+  only for a `BundleItem`, else only empty or matching slots. With a backpack on the cursor the drag right-clicks each
+  slot holding items it passes (never an empty one: that puts the backpack down); not in the creative inventory.
+  Test (2026-11-12, hidden): chest with stone, dirt, sand, gravel, cobblestone; backpack on the cursor, right-button
+  drag over the first four: all four stashed, cobblestone left, backpack still on the cursor.
+- `mixin/MountedBackpackColourMixin` + `backpacks/MountedBackpackColour` (client;
+  `sophisticatedbackpackscreateintegration`): `@Pseudo`. A backpack on a moving Create contraption drew white: the
+  integration's `clearNbt` empties the backpack's block data in the contraption, and its client refresh
+  (`refreshRenderBlockEntity`) calls `BackpackBlockEntity.setBackpack` in Create's virtual render level (not a client
+  level), which resolves a server-side wrapper and gets the no-op one (colour -1). The render block entity's colours
+  come from `pendingLoadedBackpack` when set, so client ticks set it to the mounted stack until that works (the entity
+  link is missing on the first tick), then again after each refresh. Test (2026-11-11): Haven Dye Test, minecart
+  contraption with a dyed iron backpack; 0.30.6 white, render BE `Noop` wrapper.
 - `data/haven_compat/recipe/createcasing/` (`createcasing` loaded): Create Encased adds 9 vertical gearbox items with no
   recipe; one gearbox alone in a crafting grid converts to its vertical one and back, as Create's own gearbox does.
 - `dyeing/` (both sides; registered from `HavenCompatCommon` only with `create`, `create_connected` and

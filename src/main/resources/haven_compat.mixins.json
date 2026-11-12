@@ -16,7 +16,12 @@
     "RsDirectionTurnMixin",
     "CarriageSpawnPositionMixin",
     "ElephantPhysicsMixin",
-    "BackpackNameMixin"
+    "BackpackNameMixin",
+    "TrashSlotOversizeMixin",
+    "ArsTouchAimMixin",
+    "ContraptionMotionMixin",
+    "MovePlayerGroundMixin",
+    "ServerEntityGroundMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",
@@ -40,7 +45,10 @@
     "PortalViewSkipMixin",
     "PortalViewPlaneMixin",
     "PlayerAnimationDataMixin",
-    "TooltipOnTopMixin"
+    "TooltipOnTopMixin",
+    "MountedBackpackColourMixin",
+    "BackpackRmbDragMixin",
+    "ArsTouchHintMixin"
   ],
   "injectors": {
     "defaultRequire": 1

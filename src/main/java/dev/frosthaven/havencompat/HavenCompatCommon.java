@@ -10,6 +10,7 @@ import net.neoforged.fml.common.Mod;
  * The fixes that run on both sides (a dedicated server builds this class, not {@link HavenCompat}):
  *  - {@code schematics}: Create schematics keep other mods' block settings and upgrades, charge for them, turn them
  *    and move their links with the print; AE2 cables print again ({@link SchematicFixes}).
+ *  - {@code spells}: the server aims Ars Nouveau spell book clicks at the mob the client clicked ({@code TouchTargets}).
  *  - {@code binder}: the server applies a card binder sort ({@link BinderSortMessage}); it does nothing without a binder open.
  *  - {@code dyeing}: the Brass Dye Nozzle and Controlled Fan Dyeing Catalysts (bulk dyeing with the dye placed left,
  *    right, top, bottom or all around the item), with Create, Create Connected and Create Dragons Plus loaded.
@@ -20,6 +21,9 @@ public final class HavenCompatCommon {
     public HavenCompatCommon(IEventBus modBus) {
         SchematicFixes.register(modBus);
         BinderSortMessage.register(modBus);
+        if (ModList.get().isLoaded("ars_nouveau")) {
+            dev.frosthaven.havencompat.spells.TouchTargetMessage.register(modBus);
+        }
         if (ModList.get().isLoaded("create")) {
             dev.frosthaven.havencompat.bleach.Bleach.register(modBus);
             if (ModList.get().isLoaded("create_connected")) {
