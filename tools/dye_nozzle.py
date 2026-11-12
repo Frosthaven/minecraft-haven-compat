@@ -105,7 +105,9 @@ def corners(face, a, b):
 
 
 def cut_panels(elements):
-    """The core panels' outer faces (on the block bound) lose the square the nozzle covers: up to 4 flat strips."""
+    """The core panels' main faces lose the square the nozzle covers: up to 4 flat strips. Minecraft puts a north, west or
+    down face at the element's `from` and a south, east or up face at its `to`, unsorted; the panels are written
+    from 2 to 0, so their faces sit at 2 / 14 (inside the frame), and the strips must stay on that same plane."""
     out = []
     normal = {"north": (2, 0), "south": (2, 16), "west": (0, 0), "east": (0, 16), "down": (1, 0), "up": (1, 16)}
     for e in elements:
@@ -115,8 +117,9 @@ def cut_panels(elements):
         extra = []
         for face, f in e["faces"].items():
             axis, bound = normal[face]
-            plane = a[axis] if bound == 0 else b[axis]
-            if plane != bound or f["texture"] != "#1" or f.get("rotation"):
+            plane = e["from"][axis] if bound == 0 else e["to"][axis]
+            outer = a[axis] if bound == 0 else b[axis]
+            if outer != bound or f["texture"] != "#1" or f.get("rotation"):
                 continue
             i, j = [k for k in range(3) if k != axis]
             if not (a[i] <= LO and b[i] >= HI and a[j] <= LO and b[j] >= HI):
@@ -223,9 +226,12 @@ def main():
         "key": {"S": {"tag": "c:plates/brass"}, "P": {"item": "create:fluid_pipe"}},
         "result": {"id": f"{NS}:brass_dye_nozzle", "count": 1}})
     ids = [f"{NS}:{b}" for b in blocks]
-    optional = lambda values: {"values": [{"id": v, "required": False} for v in values]}
-    write(ROOT / "data/create/tags/block/fan_transparent.json", optional(ids))
-    write(ROOT / "data/minecraft/tags/block/mineable/pickaxe.json", optional(ids))
+    for tag in ("data/create/tags/block/fan_transparent.json", "data/minecraft/tags/block/mineable/pickaxe.json"):
+        # Merge: other blocks in the tag (the bleaching catalyst) are not this tool's to drop.
+        path = ROOT / tag
+        old = json.loads(path.read_text())["values"] if path.exists() else []
+        keep = [v for v in old if (v["id"] if isinstance(v, dict) else v) not in ids]
+        write(path, {"values": [{"id": v, "required": False} for v in ids] + keep})
     print(f"{len(blocks)} blocks, {len(blocks) * len(POSITIONS)} models and caps")
 
 
