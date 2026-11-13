@@ -16,13 +16,13 @@ import java.util.UUID;
  * ({@code BlockHelper.placeSchematicBlock}), so a printed deployer acts as the ownerless fake player "Deployer", which
  * a claim mod that allows fake players only by their owner's id refuses (FTB Chunks: nothing placed, used or broken
  * in a claim). Create issue 6219.
- * <p>The cannon knows no player, so {@code mixin/CannonPrintStarterMixin} records the one who pressed Play on it
- * ({@code ConfigureSchematicannonPacket}; a print cannot run without it) and {@code mixin/CannonDeployerOwnerMixin}
+ * <p>The cannon knows no player, so {@code mixin/CannonPrintStarterMixin} records the one who pressed Play or Pause
+ * on it ({@code ConfigureSchematicannonPacket}; only those two take a cannon out of {@code STOPPED}) and {@code mixin/CannonDeployerOwnerMixin}
  * keeps that id in the cannon's saved data and writes it as {@code Owner} into each deployer it launches. The
  * {@code Owner} inside the schematic file is not used: a player can write any id into a file they upload.
  */
 public final class PrintOwner {
-    /** The cannon's saved data: the id of the player who last pressed Play. */
+    /** The cannon's saved data: the id of the player who last pressed Play or Pause. */
     public static final String STARTER = "HavenPrintStarter";
     private static final ResourceLocation DEPLOYER = ResourceLocation.fromNamespaceAndPath("create", "deployer");
     private static final Log LOG = new Log("[print owner] ");

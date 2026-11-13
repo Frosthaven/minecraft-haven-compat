@@ -65,8 +65,9 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `DeployerBlock.setPlacedBy` from a `ServerPlayer`; the cannon copies `writeSafe` data (the mode) and
   `BlockHelper.placeSchematicBlock` passes no placer, so the print acted as the ownerless "Deployer" and FTB Chunks
   (`def_fake_player_ids` on, `def_fake_players` off) refused it in claims (2026-11-13; Create issue 6219). The cannon
-  stores no player (`SchematicannonBlock.setPlacedBy` keeps a yaw only), so the starter is whoever sends
-  `ConfigureSchematicannonPacket` `PLAY` through the cannon's menu (no print runs without it): kept on the cannon as
+  stores no player (`SchematicannonBlock.setPlacedBy` keeps a yaw only), so the starter is whoever last sends
+  `ConfigureSchematicannonPacket` `PLAY` or `PAUSE` through the cannon's menu (only those two leave `STOPPED`; `PAUSE`
+  counts because a paused cannon resumes by itself after a missing item, an unloaded target or empty fuel): kept on the cannon as
   `HavenPrintStarter` (server save only, not in client packets), written as `Owner` into the data of each deployer in
   `launchBlock` (so a block in flight keeps it across a restart). The schematic file's own `Owner` is never used: a
   player can upload a file with any id. Not covered: creative instant placement (`SchematicPlacePacket`), a print
