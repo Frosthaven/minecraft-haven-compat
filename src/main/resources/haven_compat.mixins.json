@@ -21,7 +21,9 @@
     "ArsTouchAimMixin",
     "ContraptionMotionMixin",
     "MovePlayerGroundMixin",
-    "ServerEntityGroundMixin"
+    "ServerEntityGroundMixin",
+    "CannonPrintStarterMixin",
+    "CannonDeployerOwnerMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",

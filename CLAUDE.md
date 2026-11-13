@@ -1,6 +1,6 @@
 # haven-compat (`haven_compat`)
 
-NeoForge 1.21.1 mod for the Haven pack, client side except three server mixins (`mekanism`, `portals/RefusedCrossing`, `contraptions/ContraptionSpawn`) (minecraft-haven-pack): fixes between other mods, one package per
+NeoForge 1.21.1 mod for the Haven pack, client side except the server mixins (`mekanism`, `portals/RefusedCrossing`, `contraptions/ContraptionSpawn`, `schematics/PrintOwner` and others in the `mixins` list) (minecraft-haven-pack): fixes between other mods, one package per
 fix. Read README.md first. Rules: every fix is off when its mods are absent; other mods are reached by class name only
 (`@Mixin(targets = "...")`, reflection), never as a compile dependency; nothing logs per frame (`Log.once`); a fix that
 cannot apply logs it and leaves the game as it was, never a crash of its own.
@@ -59,6 +59,22 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   0.18.0 5/12, 0.18.1 12/12; all mods: 0.19.0 12/12. The spin for a turned front and top is searched
   (`AeBlockTurn.spin`): `BlockOrientation.get(front, up)` can return a spin whose top is not `up`. Storage Drawers:
   drawers beside a controller store no link (the controller finds them, `updateCache` on load); only remote upgrades do.
+- `schematics/PrintOwner` + `mixin/CannonPrintStarterMixin` + `mixin/CannonDeployerOwnerMixin` (server, `mixins` list;
+  `create`): a Deployer printed by a Schematicannon takes the player who started the print as its owner. Why (Create
+  6.0.10): `DeployerBlockEntity.owner` (NBT `Owner`, the id of its `DeployerFakePlayer`) is set only by
+  `DeployerBlock.setPlacedBy` from a `ServerPlayer`; the cannon copies `writeSafe` data (the mode) and
+  `BlockHelper.placeSchematicBlock` passes no placer, so the print acted as the ownerless "Deployer" and FTB Chunks
+  (`def_fake_player_ids` on, `def_fake_players` off) refused it in claims (2026-11-13; Create issue 6219). The cannon
+  stores no player (`SchematicannonBlock.setPlacedBy` keeps a yaw only), so the starter is whoever sends
+  `ConfigureSchematicannonPacket` `PLAY` through the cannon's menu (no print runs without it): kept on the cannon as
+  `HavenPrintStarter` (server save only, not in client packets), written as `Owner` into the data of each deployer in
+  `launchBlock` (so a block in flight keeps it across a restart). The schematic file's own `Owner` is never used: a
+  player can upload a file with any id. Not covered: creative instant placement (`SchematicPlacePacket`), a print
+  begun before 0.30.10 until Play is pressed again, deployers already printed. Test (2026-11-13, a throwaway harness
+  class in a dev server with Create 6.0.10, two starts): start 1 pressed Play as a fake `ServerPlayer` holding the
+  cannon's menu; start 2 (after the restart) launched a deployer whose schematic copy had another `Owner`: the printed
+  one's `Owner` and fake player id = the starter; one from a cannon nobody started: no `Owner`, id `9e2faded-...`
+  (Create's fallback); a chest printed beside it: no `Owner`. Not tested with FTB Chunks.
 - `defaults/LoadDefaults` writes options.txt as text (`OptionsFile`), never `Options.save()`: at
   `Options.loadSelectedResourcePacks` only vanilla key mappings exist, and a save there dropped every mod key binding.
 - `PackDefaults`: the pack's `config/haven-pack-defaults.json` (`file()`, `section(file, key)`, `root(file)`); each fix
