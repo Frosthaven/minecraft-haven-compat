@@ -59,6 +59,13 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   0.18.0 5/12, 0.18.1 12/12; all mods: 0.19.0 12/12. The spin for a turned front and top is searched
   (`AeBlockTurn.spin`): `BlockOrientation.get(front, up)` can return a spin whose top is not `up`. Storage Drawers:
   drawers beside a controller store no link (the controller finds them, `updateCache` on load); only remote upgrades do.
+- `trees/HangingLogs` (pure, unit tested) + `mixin/ArsTreeCutMixin` (server, `mixins` list; `create`, `ars_nouveau`): a
+  Mechanical Saw takes the whole Ars tree. Why (Create 6.0.10, Ars Nouveau 5.13.3): `TreeCutter.findTree` follows logs
+  sideways and up only; Ars' `MagicTrunkPlacer.addBranch` ends each branch with a log one block under the branch tip,
+  which stayed in the air with its leaves (8 single logs above a tree farm, 2026-11-13). The mixin adds, before the leaf
+  search, each log of an `ars_*` mod right under a found log, above the cut level, with no log under it. Test
+  (2026-11-13): `just smoke --serve` with the jar, `place feature ars_nouveau:vexing_tree` and `cascading_tree`, three
+  base logs removed, a powered saw on the fourth: no log left above the base level.
 - `schematics/PrintOwner` + `mixin/CannonPrintStarterMixin` + `mixin/CannonDeployerOwnerMixin` (server, `mixins` list;
   `create`): a Deployer printed by a Schematicannon takes the player who started the print as its owner. Why (Create
   6.0.10): `DeployerBlockEntity.owner` (NBT `Owner`, the id of its `DeployerFakePlayer`) is set only by

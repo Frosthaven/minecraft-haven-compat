@@ -23,7 +23,8 @@
     "MovePlayerGroundMixin",
     "ServerEntityGroundMixin",
     "CannonPrintStarterMixin",
-    "CannonDeployerOwnerMixin"
+    "CannonDeployerOwnerMixin",
+    "ArsTreeCutMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",
