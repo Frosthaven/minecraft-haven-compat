@@ -67,7 +67,10 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   (2026-11-13): `just smoke --serve` with the jar, `place feature ars_nouveau:vexing_tree` and `cascading_tree`, three
   base logs removed, a powered saw on the fourth: no log left above the base level.
 - `schematics/PrintOwner` + `mixin/CannonPrintStarterMixin` + `mixin/CannonDeployerOwnerMixin` (server, `mixins` list;
-  `create`): a Deployer printed by a Schematicannon takes the player who started the print as its owner. Why (Create
+  `create`): a Deployer printed by a Schematicannon takes the player who started the print as its owner (any
+  `DeployerBlock`: Create Encased's cased deployers, `createcasing:brass_deployer` and others, extend it and use
+  Create's `DeployerBlockEntity`; up to 0.30.12 only the block id `create:deployer` matched, so printed brass deployers
+  had no `Owner`, live 2026-11-14). Why (Create
   6.0.10): `DeployerBlockEntity.owner` (NBT `Owner`, the id of its `DeployerFakePlayer`) is set only by
   `DeployerBlock.setPlacedBy` from a `ServerPlayer`; the cannon copies `writeSafe` data (the mode) and
   `BlockHelper.placeSchematicBlock` passes no placer, so the print acted as the ownerless "Deployer" and FTB Chunks

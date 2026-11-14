@@ -1,9 +1,8 @@
 package dev.frosthaven.havencompat.schematics;
 
+import com.simibubi.create.content.kinetics.deployer.DeployerBlock;
 import dev.frosthaven.havencompat.Log;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,11 +19,12 @@ import java.util.UUID;
  * on it ({@code ConfigureSchematicannonPacket}; only those two take a cannon out of {@code STOPPED}) and {@code mixin/CannonDeployerOwnerMixin}
  * keeps that id in the cannon's saved data and writes it as {@code Owner} into each deployer it launches. The
  * {@code Owner} inside the schematic file is not used: a player can write any id into a file they upload.
+ * <p>A deployer is any {@code DeployerBlock}: Create's own and the cased ones of Create Encased (brass, copper and
+ * others; {@code CustomDeployerBlock} extends it and uses Create's {@code DeployerBlockEntity}).
  */
 public final class PrintOwner {
     /** The cannon's saved data: the id of the player who last pressed Play or Pause. */
     public static final String STARTER = "HavenPrintStarter";
-    private static final ResourceLocation DEPLOYER = ResourceLocation.fromNamespaceAndPath("create", "deployer");
     private static final Log LOG = new Log("[print owner] ");
 
     private PrintOwner() {
@@ -38,7 +38,7 @@ public final class PrintOwner {
     /** The block entity data a cannon launches with {@code state}: a deployer's gets {@code starter} as its owner. */
     @Nullable
     public static CompoundTag launched(BlockState state, @Nullable CompoundTag data, @Nullable UUID starter) {
-        if (starter == null || !DEPLOYER.equals(BuiltInRegistries.BLOCK.getKey(state.getBlock()))) {
+        if (starter == null || !(state.getBlock() instanceof DeployerBlock)) {
             return data;
         }
         CompoundTag owned = data == null ? new CompoundTag() : data;
