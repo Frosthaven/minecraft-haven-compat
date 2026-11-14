@@ -262,6 +262,21 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   slot holding items it passes (never an empty one: that puts the backpack down); not in the creative inventory.
   Test (2026-11-12, hidden): chest with stone, dirt, sand, gravel, cobblestone; backpack on the cursor, right-button
   drag over the first four: all four stashed, cobblestone left, backpack still on the cursor.
+- `mixin/SettingsStacksSyncMixin` (client; `sophisticatedcore`): `@Pseudo`, HEAD of Sophisticated Core's
+  `SyncContainerStacksPayload.handlePayload` (HEAD, not TAIL: the method has two returns and TAIL is only the applied
+  one). A storage with a stack upgrade (`getStackSizeMultiplier() > 1`) syncs through `HighStackCountSynchronizer`, in
+  the storage menu and in `SettingsContainerMenu` alike; the client handler of the full-contents packet applies it only
+  to a `StorageContainerMenuBase`, which the settings menu is not (`SyncSlotStackPayload` does accept it), so the
+  settings screen drew only the client's own copy of the contents. That copy is empty when a client level load
+  (`BackpackStorage.onClientWorldLoad` clears every client copy; Immersive Portals creates a client level per remote
+  dimension) comes while the bag screen is open: Settings then showed an empty bag until Back and Settings again. The
+  packet is now applied to an open settings menu with the same id (`initializeContents`, what vanilla's contents packet
+  does for a storage without a stack upgrade). Serves Sophisticated Storage's settings screens too (same handler; not
+  tested there). Test (2026-11-14, hidden client, `just smoke --serve` server, a throwaway harness mod: iron backpack,
+  stack upgrade tier 1, 100 dirt; bag open, a `LevelEvent.Load` posted for the client level, Settings): 0.30.12 the
+  settings menu's client slots empty, the server's 100 dirt, right on the second open; 0.30.13 right on the first.
+  Without the level load both versions were right (contents changed while the bag was closed, by the player or by the
+  server while open); a bag without a stack upgrade was right in both (vanilla packet).
 - `mixin/MountedBackpackColourMixin` + `backpacks/MountedBackpackColour` (client;
   `sophisticatedbackpackscreateintegration`): `@Pseudo`. A backpack on a moving Create contraption drew white: the
   integration's `clearNbt` empties the backpack's block data in the contraption, and its client refresh

@@ -52,7 +52,8 @@
     "MountedBackpackColourMixin",
     "BackpackRmbDragMixin",
     "ArsTouchHintMixin",
-    "ArsCastOverMobMixin"
+    "ArsCastOverMobMixin",
+    "SettingsStacksSyncMixin"
   ],
   "injectors": {
     "defaultRequire": 1
