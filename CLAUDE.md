@@ -37,6 +37,27 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   display fails Immersive Portals' depth blit and it falls back to the compatibility renderer (no portal in portal);
   `-Dhaven_compat.assumeNoCopyImage=true` in the instance's JVM arguments keeps the normal renderer. Scene: a nether
   portal, a second one lit 10 blocks behind its nether side; no "Creating pipeline" line after the join.
+- `colorwheel/ColorwheelCut` + `mixin/ColorwheelCompileMixin` / `ColorwheelEngineMixin` / `ColorwheelEnvironmentMixin`
+  (client; `colorwheel` + `immersive_portals_core`, the last two also `sable`): Immersive Portals' two cuts of Create's
+  instanced parts, ported to Colorwheel (not in the pack yet, 2026-11-14; without it Flywheel is off under Iris and the
+  parts are block entity draws on the CPU). Immersive Portals patches Flywheel's `Compilation`, `EmbeddedEnvironment` and
+  `EngineImpl`; Colorwheel has its own (`ClrwlCompilation`, its `EmbeddedEnvironment`, `ClrwlEngine`), so with Colorwheel
+  parts behind a portal's far side showed in the portal view and a straddling ship's parts drew whole (log:
+  "[IPStraddle] could not cut Flywheel parts"). The patch goes into the full vertex source at `ClrwlCompilation.compile`
+  (vertex only: `gl_VertexID`; the fragment and geometry sources also have a `_clrwl_main`): `gl_ClipDistance[0]` from
+  `iportal_ClippingEquation` and `[1]` from `ipa_ShipClipEquation`, the names Immersive Portals' `GlProgram.bind` hook
+  already feeds (Colorwheel's programs extend Flywheel's `GlProgram`). Ship planes: `beginPass` after
+  `ClrwlEngine.prepareFrame` reads each environment's plane from `IPStraddleRender.flywheelPlane` (far-half pass:
+  `IPFlywheelStraddleClip.farHalf` by reflection, `flywheelFarHalfPlane` for that ship, reject the rest), as a uniform at
+  `setupDraw` (instancing) and a buffer on shader storage binding 10 indexed by `matrixIndex` (indirect; Colorwheel uses
+  0 to 9, Immersive Portals' own uses 8). Not covered: train carriages (their plane function takes Flywheel's
+  environment type). Test (2026-11-14, hidden game on the NVIDIA card: `__NV_PRIME_RENDER_OFFLOAD=1
+  __GLX_VENDOR_LIBRARY_NAME=nvidia`, else the headless desktop uses the built-in graphics): a ship is made with `/sable
+  assemble area`, pushed on blue ice with `/sable physics impulse @l linear 0 0 30 global` until `/ip_aeronautics
+  straddle status` says 1 session; `/sable teleport` into a portal makes no session. Results: shaft behind the portal
+  gone (was sticking out 2.6 blocks), far half inside the portal as without Colorwheel, cogwheel behind the nether
+  portal's plane gone from the portal view. A ship is not drawn at all for a player in the other dimension, with or
+  without Colorwheel.
 - `packs/OldPacks` + `OldPacksOptionsMixin` / `OldPacksEntryMixin` (client, vanilla only): `PackCompatibility.isCompatible()`
   reads true in `Options.updateResourcePacks/loadSelectedResourcePacks` and `TransferableSelectionList$PackEntry.render/
   handlePackSelection` (MixinExtras `@ModifyExpressionValue`). HEAD of `loadSelectedResourcePacks`: `forgetIncompatible`
