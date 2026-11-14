@@ -1,0 +1,14 @@
+{
+  "parent": "sophisticatedstorage:chest",
+  "textures": {
+    "single": {
+      "base": "haven_backports:entity/chest/copper"
+    },
+    "left": {
+      "base": "haven_backports:entity/chest/copper_left"
+    },
+    "right": {
+      "base": "haven_backports:entity/chest/copper_right"
+    }
+  }
+}

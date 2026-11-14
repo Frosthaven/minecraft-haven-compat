@@ -65,7 +65,9 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("CannonDeployerOwnerMixin", List.of("create")),
             Map.entry("SchematicPlacerMixin", List.of("create")),
             Map.entry("ArsTreeCutMixin", List.of("create", "ars_nouveau")),
-            Map.entry("SettingsStacksSyncMixin", List.of("sophisticatedcore")));
+            Map.entry("SettingsStacksSyncMixin", List.of("sophisticatedcore")),
+            Map.entry("CopperLookHolderMixin", List.of("sophisticatedstorage", "haven_backports")),
+            Map.entry("CopperLookChestMixin", List.of("sophisticatedstorage", "haven_backports")));
     /** Mixins that apply on macOS only ({@link Os#macOS()}): on Windows and Linux the target classes stay unchanged. */
     private static final Set<String> MAC_ONLY = Set.of("MacDropStackMixin", "MacDropStackScreenMixin");
 

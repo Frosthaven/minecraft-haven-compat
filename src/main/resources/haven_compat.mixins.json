@@ -25,7 +25,9 @@
     "CannonPrintStarterMixin",
     "CannonDeployerOwnerMixin",
     "SchematicPlacerMixin",
-    "ArsTreeCutMixin"
+    "ArsTreeCutMixin",
+    "CopperLookHolderMixin",
+    "CopperLookChestMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",

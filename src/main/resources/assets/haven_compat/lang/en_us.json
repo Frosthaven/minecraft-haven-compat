@@ -46,5 +46,13 @@
   "haven_compat.settings.title": "Haven Compat",
   "item.haven_compat.bleach_bucket": "Bleach Bucket",
   "item.haven_compat.brass_dye_nozzle": "Brass Dye Nozzle",
-  "item.haven_compat.brass_dye_nozzle.tooltip": "Use on a Fan Dyeing Catalyst to choose where the fan puts the dye in the crafting grid."
+  "item.haven_compat.brass_dye_nozzle.tooltip": "Use on a Fan Dyeing Catalyst to choose where the fan puts the dye in the crafting grid.",
+  "wood_name.sophisticatedstorage.haven_copper": "Copper",
+  "wood_name.sophisticatedstorage.haven_exposed_copper": "Exposed Copper",
+  "wood_name.sophisticatedstorage.haven_weathered_copper": "Weathered Copper",
+  "wood_name.sophisticatedstorage.haven_oxidized_copper": "Oxidized Copper",
+  "wood_name.sophisticatedstorage.haven_waxed_copper": "Waxed Copper",
+  "wood_name.sophisticatedstorage.haven_waxed_exposed_copper": "Waxed Exposed Copper",
+  "wood_name.sophisticatedstorage.haven_waxed_weathered_copper": "Waxed Weathered Copper",
+  "wood_name.sophisticatedstorage.haven_waxed_oxidized_copper": "Waxed Oxidized Copper"
 }

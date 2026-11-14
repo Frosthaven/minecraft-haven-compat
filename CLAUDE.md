@@ -59,6 +59,23 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   0.18.0 5/12, 0.18.1 12/12; all mods: 0.19.0 12/12. The spin for a turned front and top is searched
   (`AeBlockTurn.spin`): `BlockOrientation.get(front, up)` can return a spin whose top is not `up`. Storage Drawers:
   drawers beside a controller store no link (the controller finds them, `updateCache` on load); only remote upgrades do.
+- `copperchest/CopperLook` + `mixin/CopperLookChestMixin`, `CopperLookHolderMixin` (both sides, `mixins` list;
+  `sophisticatedstorage`, `haven_backports`): Backports' Copper Chest as a look of Sophisticated Storage's chests. Why
+  (Sophisticated Storage 1.6.2): a chest's look is a `WoodType` in its block entity and item component; textures come
+  from `assets/<any>/storage_texture_definitions/<WoodType name>_chest.json` (the file path must equal the name, so
+  ours are `haven_copper`, `haven_waxed_exposed_copper`, ...: no colon); `TierUpgrade.addTierUpgradeDefinition` is
+  public and takes a block, so each of Backports' 8 copper chests gets the vanilla chest's definition with its look
+  (reflection: the definition's getters sit on a private class). Mojang's copper chest textures have the vanilla
+  chest layout, which Sophisticated's base layer uses too. The 8 wood types register in the block `RegisterEvent`
+  (serial; `WoodType`'s map is not thread safe), without `Sheets.addWoodType` (no signs of them). Aging: the mixin
+  makes the chest block randomly ticking and ports `ChangeOverTimeBlock`; random ticks need a player near (forced
+  chunks alone do not age). Not done: a double Copper Chest whose halves differ in stage converts one half per
+  click; Sophisticated's hinge sounds stay; no creative tab entry. Test (2026-11-14, hidden client on
+  `just smoke --serve`): chests set by `setblock ...{woodType:"haven_copper"}` draw each stage under every tier;
+  `randomTickSpeed 3000` with a player near aged one to oxidized in 6 s and left a waxed one; Create Deployers
+  (`Inventory:[{Slot:0b,...}]`, `Mode:"USE"`, shaft on the side) waxed with honeycomb, took wax off and scraped with
+  an axe, and upgraded a single and a double Copper Chest with items kept; Jade read "Waxed Exposed Copper Copper
+  Chest". A person's own clicks and the item in an inventory were not tested.
 - `trees/HangingLogs` (pure, unit tested) + `mixin/ArsTreeCutMixin` (server, `mixins` list; `create`, `ars_nouveau`): a
   Mechanical Saw takes the whole Ars tree. Why (Create 6.0.10, Ars Nouveau 5.13.3): `TreeCutter.findTree` follows logs
   sideways and up only; Ars' `MagicTrunkPlacer.addBranch` ends each branch with a log one block under the branch tip,
