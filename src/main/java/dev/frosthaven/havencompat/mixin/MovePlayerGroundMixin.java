@@ -10,13 +10,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** A contraption rider's own movement update cannot drop them off the ground; see {@link ContraptionGround}. */
+/** A contraption rider's movement updates: the rise per update; see {@link ContraptionGround}. */
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class MovePlayerGroundMixin {
     @Shadow public ServerPlayer player;
 
     @Inject(method = "handleMovePlayer", at = @At("RETURN"))
-    private void havencompat$keepGround(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
+    private void havencompat$moved(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
         ContraptionGround.afterMove(player);
     }
 }

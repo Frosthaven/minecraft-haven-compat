@@ -289,16 +289,23 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   and villager: 0.30.11 no cast (the villager traded), 0.30.12 renamed, no trade. Unchanged in both: Starbuncle
   familiar renamed, gold nugget on it (scrying), empty hand on the villager (trade) and the Wixie, sneak + book
   (the mob's interaction, no cast).
-- `contraptions/ContraptionGround` + `mixin/ContraptionMotionMixin` + `mixin/MovePlayerGroundMixin` (both sides,
-  `mixins`; `create`): other players saw a rider of a descending Create elevator in the falling pose (Fresh Animations'
-  player pack: not on ground and going down). The on-ground flag others get is the server's; both the rider's movement
-  packet and Create's `ClientMotionPacket` (sent while touching a contraption, with that moment's on-ground flag) say
-  "in the air" on some ticks while the floor drops. A player Create reported touching a contraption in the last 10
-  ticks, not rising more than 0.35 since the last movement update (a jump rises ~0.42), not flying, gliding or riding, stays on the ground
-  (after `ClientMotionPacket.handle` and `handleMovePlayer`, and at `ServerEntity.sendChanges` HEAD: something in the
-  tick clears it again, so the broadcast moment is the one that counts). Test (2026-11-12, hidden): rope pulley at 128 RPM down,
-  server on-ground (what others get) over 40 ticks: 0.30.6 false on 3 to 4 mid-descent ticks, 0.30.7 none once
-  moving (the first ticks, before Create reports contact, stay a real hop).
+- `contraptions/ContraptionGround` + `mixin/ContraptionMotionMixin` + `mixin/MovePlayerGroundMixin` +
+  `mixin/ServerEntityGroundMixin` (both sides, `mixins`; `create`): other players saw a rider of a moving Create
+  elevator in the falling or jumping pose (Fresh Animations' player pack reads the on-ground flag, and the flag others
+  get is the server's, which is false on most ticks of a moving floor). A rider is sent as on the ground: the flag is
+  set at `ServerEntity.sendChanges` HEAD and restored at RETURN, so the server's own state never changes. Rider = in the
+  last 40 ticks Create's `ClientMotionPacket` reported contact (going down) or a movement update's y change matched a
+  contraption's speed within 0.15 (going up Create's client carries the rider and sends no report), and a contraption
+  is within 8 blocks (with lag the server has the rider 2 to 5 blocks behind a 256 RPM floor). On a floor that moves up
+  or down the rider always stands; on one at rest a rise above 0.35 per update stays a jump.
+  Do not set the server's on-ground flag (0.30.7 to 0.31.0 did, after every movement update): vanilla's
+  `handleMovePlayer` then counts each "in the air" update that rises as a jump and charges its hunger, about 5
+  saturation points per 150 blocks up at 256 RPM, and the 10 tick contact window ended during laggy descents (falling
+  pose in bursts). Create alone charges 3 to 6 exhaustion on that ride (measured with the fix off); we leave that.
+  Test (2026-11-14, hidden game through a TCP proxy: 120 ms each way plus a 250 ms stall each second; rope pulley,
+  256 RPM, 150 blocks): 0 "in the air" ticks sent while moving, down and up, standing and jumping; hunger up 3.9 with
+  the fix, 4.7 and 5.8 without; rider-to-platform gap the same with and without (12 + 4 rides). A rope pulley's stop
+  (the contraption becomes blocks) can drop a laggy rider with or without the fix: start test rides from rest.
 - `mixin/BackpackRmbDragMixin` + `backpacks/BackpackRmbDrag` (client; `mousetweaks` and `sophisticatedbackpacks`):
   `@Pseudo`, HEAD of Mouse Tweaks' `Main.rmbTweakMaybeClickSlot`. A backpack on the cursor stashes a slot's stack on a
   right-click (`BackpackItem.overrideStackedOnOther`, like a bundle); Mouse Tweaks' right-button drag clicks every slot
