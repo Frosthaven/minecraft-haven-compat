@@ -51,7 +51,8 @@
     "TooltipOnTopMixin",
     "MountedBackpackColourMixin",
     "BackpackRmbDragMixin",
-    "ArsTouchHintMixin"
+    "ArsTouchHintMixin",
+    "ArsCastOverMobMixin"
   ],
   "injectors": {
     "defaultRequire": 1

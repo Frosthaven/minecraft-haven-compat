@@ -226,6 +226,25 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   reach + 1.5 blocks (`TouchTargets`, hint used once within 2 ticks), else Ars' own ray. Test (2026-11-12, hidden):
   the server moves the familiar 1 block sideways before the click arrives (lag): 0.30.6 0 of 6, 0.30.7 6 of 6
   in each of 4 runs (Starbuncle and Whirlisprig).
+- `mixin/ArsCastOverMobMixin` + `spells/CasterItems` (client; `ars_nouveau`): a right-click on a mob with a spell
+  caster casts. Vanilla `Minecraft.startUseItem` asks the mob first (`MultiPlayerGameMode.interactAt`, `interact`) and
+  calls `useItem` (Ars casts there: `SpellBook.use` -> `castOnServer`) only when the mob does not consume the click.
+  `FamiliarWixie`, `FamiliarBookwyrm`, `FamiliarDrygmy` and `FamiliarAmethystGolem.mobInteract` return `SUCCESS` on the
+  client for every click; villagers and pets consume too: within reach no cast was sent. `@WrapOperation` on both
+  calls returns `PASS` when the target is a `Mob`, the player does not sneak and the hand holds a caster. The off
+  hand's turn is skipped too when the main hand holds a caster: Ars' `use` returns `PASS`, vanilla goes on to the off
+  hand, and a villager opens its trades for either hand. A caster (`CasterItems`, by name, cached per class) = the item
+  class implements `ICasterTool` and has a `use` of its own above vanilla: spell book, wand, caster tome, gauntlet,
+  mirror, scry caster, spell bow, enchanter's fishing rod, Ars Elemental's spell horn. Not the Enchanter's Sword, Spell
+  Parchment or Spell Crossbow (`ICasterTool`, vanilla `use`: no cast on a click), not the Dominion Wand. Not skipped:
+  entities that are not mobs (boats, minecarts, item frames, armour stands), sneaking, a caster in the off hand while
+  the main hand's click is consumed. With a caster in hand a horse is not mounted by a plain click, and Easy
+  Villagers takes sneak + click on a villager (pick-up): trade with another item in hand. Test (2026-11-13, a
+  throwaway harness mod in a hidden client and a `just smoke --serve` server; the use key through `KeyMapping.click`,
+  mobs 2 blocks away, Touch + Name in a novice book; cast = the mob renamed on the server): Wixie, Bookwyrm familiar
+  and villager: 0.30.11 no cast (the villager traded), 0.30.12 renamed, no trade. Unchanged in both: Starbuncle
+  familiar renamed, gold nugget on it (scrying), empty hand on the villager (trade) and the Wixie, sneak + book
+  (the mob's interaction, no cast).
 - `contraptions/ContraptionGround` + `mixin/ContraptionMotionMixin` + `mixin/MovePlayerGroundMixin` (both sides,
   `mixins`; `create`): other players saw a rider of a descending Create elevator in the falling pose (Fresh Animations'
   player pack: not on ground and going down). The on-ground flag others get is the server's; both the rider's movement

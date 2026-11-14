@@ -57,6 +57,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("BackpackRmbDragMixin", List.of("mousetweaks", "sophisticatedbackpacks")),
             Map.entry("ArsTouchAimMixin", List.of("ars_nouveau")),
             Map.entry("ArsTouchHintMixin", List.of("ars_nouveau")),
+            Map.entry("ArsCastOverMobMixin", List.of("ars_nouveau")),
             Map.entry("ContraptionMotionMixin", List.of("create")),
             Map.entry("MovePlayerGroundMixin", List.of("create")),
             Map.entry("ServerEntityGroundMixin", List.of("create")),
