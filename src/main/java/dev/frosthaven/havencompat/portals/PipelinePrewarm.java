@@ -5,6 +5,7 @@ import dev.frosthaven.havencompat.PackDefaults;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.neoforged.fml.ModList;
 
@@ -25,7 +26,17 @@ import net.neoforged.fml.ModList;
  * every pipeline; pipelines built before it (at the login's own build) would be wasted. So with Immersive Portals
  * present nothing is built until {@code IPCGlobal.renderer} is its Iris renderer. A shader pack reload destroys the
  * pipelines too; the next build after it triggers this again. Shaders off (a vanilla pipeline) and the title screen's
- * build (no level) do nothing. Off switch: {@code "portals": {"prewarmPipelines": false}} in
+ * build (no level) do nothing.
+ * <p>
+ * Portal views: Immersive Portals 2.8 keeps up to three more pipeline maps ({@code IPIrisPortalViewPipelines.PIPELINES})
+ * and swaps one into the manager while it renders a second, third or fourth view of a dimension in one frame (the
+ * player's own dimension seen back through a far portal is the first such view). It builds those on first look too:
+ * about 0.4 s each on the render thread, in play. Two rules follow. A pipeline created into one of those maps starts
+ * no prewarm (0.31.1 and before did: every first view also built the two other dimensions for that view, 3.2 s for
+ * two views). And the prewarm builds the first {@code portals.prewarmPortalViews} (default 2) views of the player's
+ * dimension behind the loading screen, the same way Immersive Portals does: its map in the manager, then its
+ * {@code onCreated}. Other views stay on first look (each pipeline holds full-size render targets, so not all nine).
+ * Off switch: {@code "portals": {"prewarmPipelines": false}} in
  * {@code config/haven-pack-defaults.json}. Reflection only; any failure is logged once and the game goes on as before.
  */
 public final class PipelinePrewarm {
@@ -34,11 +45,20 @@ public final class PipelinePrewarm {
     private static final String IP_GLOBAL = "qouteall.imm_ptl.core.IPCGlobal";
     static final List<String[]> DIMENSIONS = List.of(
             new String[] {"minecraft", "overworld"}, new String[] {"minecraft", "the_nether"}, new String[] {"minecraft", "the_end"});
+    private static final String IP_VIEWS = "qouteall.imm_ptl.core.compat.iris_integration.IPIrisPortalViewPipelines";
+    private static final int DEFAULT_VIEWS = 2;
     private static boolean active, broken;
     private static Boolean enabled;
     private static int round;
 
     private PipelinePrewarm() {}
+
+    /** The manager's pipeline map, by the mixin. */
+    public interface Pipelines {
+        Map<?, ?> haven_compat$pipelines();
+
+        void haven_compat$pipelines(Map<?, ?> map);
+    }
 
     /** True while this class itself is calling preparePipeline: the mixin stays out of those calls. */
     public static boolean active() {
@@ -55,6 +75,9 @@ public final class PipelinePrewarm {
             }
             if (pipeline == null || pipeline.getClass().getSimpleName().startsWith("Vanilla")) return;   // shaders off
             if (Minecraft.getInstance().level == null) return;   // the title screen's build; a join rebuilds anyway
+            List<Map<?, ?>> views = portalViews();
+            Map<?, ?> own = ((Pipelines) manager).haven_compat$pipelines();
+            for (Map<?, ?> view : views) if (view == own) return;   // Immersive Portals built a portal view: not a new session of pipelines
             if (!portalRendererReady()) {
                 LOG.once("ip-switch", "waiting for Immersive Portals' switch to its Iris renderer (it rebuilds every pipeline); the other dimensions are built after it");
                 return;
@@ -66,13 +89,36 @@ public final class PipelinePrewarm {
             String name = (String) idType.getMethod("getName").invoke(createdId);
             round++;
             active = true;
+            boolean fresh = false;
             try {
                 for (String[] dim : DIMENSIONS) {
                     if (dim[0].equals(namespace) && dim[1].equals(name)) continue;
                     long t = System.nanoTime();
-                    prepare.invoke(manager, id.newInstance(dim[0], dim[1]));
+                    Object other = id.newInstance(dim[0], dim[1]);
+                    if (own.containsKey(other)) continue;
+                    fresh = true;
+                    prepare.invoke(manager, other);
                     LOG.once("warm:" + round + ":" + dim[1], "shader pipeline for {}:{} built behind the loading screen ({} ms)",
                             dim[0], dim[1], (System.nanoTime() - t) / 1_000_000);
+                }
+                // Portal views only with a new set of pipelines (a join, a shader reload): a single late build (a
+                // modded dimension's first look) happens in play, and more builds there would be a longer stall.
+                int count = fresh ? Math.min(views.size(), viewCount()) : 0;
+                for (int i = 0; i < count; i++) {
+                    if (views.get(i).containsKey(createdId)) continue;
+                    long t = System.nanoTime();
+                    ((Pipelines) manager).haven_compat$pipelines(views.get(i));
+                    Object made;
+                    try {
+                        made = prepare.invoke(manager, createdId);
+                    } finally {
+                        ((Pipelines) manager).haven_compat$pipelines(own);
+                    }
+                    for (Method m : Class.forName(IP_VIEWS).getMethods()) {
+                        if (m.getName().equals("onCreated")) m.invoke(null, createdId, made);
+                    }
+                    LOG.once("view:" + round + ":" + i, "shader pipeline for portal view {} of {}:{} built behind the loading screen ({} ms)",
+                            i + 1, namespace, name, (System.nanoTime() - t) / 1_000_000);
                 }
                 prepare.invoke(manager, createdId);   // the player's stays current: an id that exists is a lookup
             } finally {
@@ -89,6 +135,27 @@ public final class PipelinePrewarm {
         if (!ModList.get().isLoaded("immersive_portals_core")) return true;
         Object renderer = Class.forName(IP_GLOBAL).getField("renderer").get(null);
         return renderer != null && renderer.getClass().getName().contains("iris_compatibility");
+    }
+
+    /** Immersive Portals' portal-view pipeline maps; empty without it or before its 2.8. */
+    @SuppressWarnings("unchecked")
+    private static List<Map<?, ?>> portalViews() throws ReflectiveOperationException {
+        if (!ModList.get().isLoaded("immersive_portals_core")) return List.of();
+        try {
+            return (List<Map<?, ?>>) Class.forName(IP_VIEWS).getField("PIPELINES").get(null);
+        } catch (ClassNotFoundException | NoSuchFieldException e) {
+            return List.of();
+        }
+    }
+
+    private static int viewCount() {
+        try {
+            var portals = PackDefaults.section(PackDefaults.file(), "portals");
+            if (portals != null && portals.has("prewarmPortalViews")) return Math.max(0, portals.get("prewarmPortalViews").getAsInt());
+        } catch (Exception e) {
+            LOG.warnOnce("config-views", "could not read {} ({}); {} portal views are prebuilt", PackDefaults.FILE, e.toString(), DEFAULT_VIEWS);
+        }
+        return DEFAULT_VIEWS;
     }
 
     private static boolean enabled() {

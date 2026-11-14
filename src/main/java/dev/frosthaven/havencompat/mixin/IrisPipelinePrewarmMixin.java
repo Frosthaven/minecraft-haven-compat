@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,17 +17,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /**
  * Iris's {@code PipelineManager.preparePipeline(NamespacedId)}: when it created a new pipeline (the id was not in
  * {@code pipelinesPerDimension} before and is after), {@link PipelinePrewarm#created} builds the other dimensions'
- * pipelines right there. Calls made by the prewarm itself are left alone.
+ * pipelines right there. Calls made by the prewarm itself are left alone. The map is mutable (Immersive Portals swaps
+ * it too) so the prewarm can fill Immersive Portals' portal-view maps.
  */
 @Pseudo
 @Mixin(targets = PipelinePrewarm.TARGET, remap = false)
-public abstract class IrisPipelinePrewarmMixin {
-    @Shadow @Final private Map<?, ?> pipelinesPerDimension;
+public abstract class IrisPipelinePrewarmMixin implements PipelinePrewarm.Pipelines {
+    @Shadow @Final @Mutable private Map pipelinesPerDimension;
     @Unique private Set<Object> haven_compat$before;
 
     @Inject(method = "preparePipeline", at = @At("HEAD"))
     private void haven_compat$noteIds(CallbackInfoReturnable<?> cir) {
-        haven_compat$before = PipelinePrewarm.active() ? null : new HashSet<>(pipelinesPerDimension.keySet());
+        haven_compat$before = PipelinePrewarm.active() ? null : new HashSet<Object>(pipelinesPerDimension.keySet());
     }
 
     @Inject(method = "preparePipeline", at = @At("RETURN"))
@@ -40,5 +42,15 @@ public abstract class IrisPipelinePrewarmMixin {
                 return;
             }
         }
+    }
+
+    @Override
+    public Map<?, ?> haven_compat$pipelines() {
+        return pipelinesPerDimension;
+    }
+
+    @Override
+    public void haven_compat$pipelines(Map<?, ?> map) {
+        pipelinesPerDimension = map;
     }
 }

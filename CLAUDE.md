@@ -25,6 +25,18 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   off), no level (the title screen's build), and with Immersive Portals loaded only once `IPCGlobal.renderer` is its Iris
   renderer (its first switch destroys every pipeline; so the build happens at the recreation right after it, on the
   first world frame, behind the loading screen). Off: `portals.prewarmPipelines = false` in haven-pack-defaults.json.
+  Portal views (0.31.2): Immersive Portals 2.8 keeps three more pipeline maps (`IPIrisPortalViewPipelines.PIPELINES`)
+  and swaps one into the manager (`MixinIrisPipelineManager_PortalViews`, a `@WrapMethod` on `preparePipeline`) for the
+  second and later views of a dimension in a frame; the player's own dimension seen back through a far portal is view 1.
+  It builds them on first look (0.3 to 0.5 s each, in play). Our RETURN hook ran inside that wrap, saw a new id in the
+  swapped map and prewarmed the other two dimensions into it: 6 builds, 3.2 s, at the first look at a nether hub
+  (2026-11-14, NVIDIA). Now a creation into one of those maps starts nothing, and a fresh set of pipelines (join,
+  shader reload) also builds the first `portals.prewarmPortalViews` (default 2) views of the player's dimension: the
+  mixin makes the map `@Mutable` and `PipelinePrewarm.Pipelines` swaps it, then Immersive Portals' `onCreated`. Other
+  views stay on first look: each pipeline holds full-size render targets. Test (hidden game, 2026-11-14): the headless
+  display fails Immersive Portals' depth blit and it falls back to the compatibility renderer (no portal in portal);
+  `-Dhaven_compat.assumeNoCopyImage=true` in the instance's JVM arguments keeps the normal renderer. Scene: a nether
+  portal, a second one lit 10 blocks behind its nether side; no "Creating pipeline" line after the join.
 - `packs/OldPacks` + `OldPacksOptionsMixin` / `OldPacksEntryMixin` (client, vanilla only): `PackCompatibility.isCompatible()`
   reads true in `Options.updateResourcePacks/loadSelectedResourcePacks` and `TransferableSelectionList$PackEntry.render/
   handlePackSelection` (MixinExtras `@ModifyExpressionValue`). HEAD of `loadSelectedResourcePacks`: `forgetIncompatible`

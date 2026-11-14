@@ -7,7 +7,7 @@ pack. One setting (Immersive Portal Rendering); everything else needs no configu
 | Fix | Mods | What it does |
 |---|---|---|
 | Portals with shaders on macOS | Immersive Portals (Aeronautics fork), Iris | Portals render through with shaders on, on a computer whose OpenGL has no `glCopyImageSubData` (OpenGL 4.3; macOS stops at 4.1). Without it the game aborts near a portal the moment shaders go on. |
-| First look through a portal | Immersive Portals, Iris | The other dimensions' shader pipelines are built while the player joins, not at the first look through a portal (which cost about a second of shader linking and a full chunk rebuild: several seconds of jitter). |
+| First look through a portal | Immersive Portals, Iris | The other dimensions' shader pipelines are built while the player joins, not at the first look through a portal (which cost about a second of shader linking and a full chunk rebuild: several seconds of jitter). The same for the extra pipelines Immersive Portals 2.8 uses when one frame shows a dimension more than once (your own dimension seen back through a far portal): the first two are built at the join, and a late one no longer makes the other dimensions build again (a 3 second freeze at a portal hub). |
 | Server list stays current | the pack's `config/haven-pack-defaults.json` | The pack's server entries in the player's server list get the pack's current address: a port spelled out, a new host name. Default Options copies the pack's list on a first launch only, so an address change never reached existing players. |
 | No update popups from mods | Create Deep Seas | The mod's own "Deep Seas Update" screen, shown in front of the title screen whenever Modrinth has a newer build (alphas included), is off, and so is its request to Modrinth at start. The pack manages mod versions. |
 | Mekanism blocks update again (server) | Mekanism, Immersive Portals | Mekanism's block updates (a fluid tank's level, a machine's state) reach the players again. Immersive Portals keeps its own chunk tracking, Mekanism asked the empty vanilla one, so it sent nothing: tanks looked empty although they held fluid. |
@@ -87,6 +87,10 @@ renderer on the first world frame, behind the "Loading terrain" screen: the join
 not hitch. A shader pack reload builds them again the same way. `[iris prewarm]` lines in `latest.log` give each build's
 time. Off without Iris or a shader pack; off by choice with `"portals": {"prewarmPipelines": false}` in
 `config/haven-pack-defaults.json`.
+
+Immersive Portals 2.8 adds up to three more pipelines per dimension, for the second and later views of that
+dimension in one frame, and builds each on first look. The prewarm builds the first two of the player's dimension
+(`"portals": {"prewarmPortalViews": 2}`; 0 turns that off) and does nothing when Immersive Portals builds one in play.
 
 ## The server list fix
 
