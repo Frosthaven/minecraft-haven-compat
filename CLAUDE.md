@@ -86,6 +86,30 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   cannon's menu; start 2 (after the restart) launched a deployer whose schematic copy had another `Owner`: the printed
   one's `Owner` and fake player id = the starter; one from a cannon nobody started: no `Owner`, id `9e2faded-...`
   (Create's fallback); a chest printed beside it: no `Owner`. Not tested with FTB Chunks.
+  Every other printed block (0.30.13, `mixin/SchematicPlacerMixin` + `PrintOwner.placer`): Create already calls
+  `Block.setPlacedBy(level, pos, state, null, stack)` for each block it lands (`BlockHelper.placeSchematicBlock`, after
+  the block entity data is loaded, exceptions swallowed). While a cannon lands its flying blocks (`tickFlyingBlocks`
+  HEAD/RETURN set a thread-local starter) that null becomes a NeoForge `FakePlayer` with the starter's id and name
+  (online player, else the server's profile cache; unknown: no placer), so blocks that take their owner in
+  `setPlacedBy` get it. Never the real `ServerPlayer`: a scan of every pack jar's `setPlacedBy` (309 overrides) found
+  blocks that read the placer's hands (Create and Copycats+ copycats, Storage Drawers: the off-hand item), open a
+  screen or send packets (Waystones, Refurbished Furniture door mat and mailbox, FTB Quests task screen) or use the
+  position (MCreator blocks, MineColonies graves). Kept with no placer (`NOT_PLACED`, by block namespace): `waystones`
+  (would activate the waystone for the placer), `minecolonies`, `create_furnitures`, `create_sa`. Owner readers found:
+  Create deployers (`ServerPlayer`), Mekanism (`ISecurityTile` owner when unset, UUID), SecurityCraft
+  (`OwnershipEvent`, name + UUID), Refined Storage (`PlayerAwareBlockEntity`, profile id), AE2 (`IOwnerAwareBlockEntity.
+  setOwner(Player)`), FramedBlocks one-way window, Easy Villagers converter, FTB Quests barrier, Deep Seas mine, Iron's
+  portal frame, KubeJS blocks (UUID). No owner in `setPlacedBy`: Sophisticated Storage, Create New Age, FTB Chunks
+  (claims are per chunk), MineColonies huts. Create's `AdvancementBehaviour` skips fake players (no advancement
+  credit, as before). Not covered: creative instant placement, belts (`ForBelt`), AE2 (see the test).
+  Test (2026-11-14, `just smoke --serve` with this jar, a throwaway harness mod: `launchBlock` on a cannon whose
+  starter was set, the starter online and offline (profile cache only), same results): `create:deployer`,
+  `createcasing:brass_deployer`, `createcasing:copper_deployer` (schematic data with another `Owner`): `Owner` =
+  starter (0.30.12: plain yes, brass none, copper the schematic's); `mekanism:enrichment_chamber`: security owner =
+  starter (0.30.12 none); `securitycraft:keypad_chest`: owner name and id = starter (0.30.12 placeholder); `ae2:drive`:
+  still no owner (`proxy.p` -1: AE2 gives a fake player no id); `refinedstorage:grid` and the mailbox: no owner data in
+  the block entity either way; oak door and red bed (both halves printed): two halves, nothing dropped; waystone,
+  chest, cogwheel, copycat: as with 0.30.12. Not tested: a real print from a schematic file, FTB Chunks.
 - `defaults/LoadDefaults` writes options.txt as text (`OptionsFile`), never `Options.save()`: at
   `Options.loadSelectedResourcePacks` only vanilla key mappings exist, and a save there dropped every mod key binding.
 - `PackDefaults`: the pack's `config/haven-pack-defaults.json` (`file()`, `section(file, key)`, `root(file)`); each fix

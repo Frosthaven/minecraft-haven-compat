@@ -24,6 +24,7 @@
     "ServerEntityGroundMixin",
     "CannonPrintStarterMixin",
     "CannonDeployerOwnerMixin",
+    "SchematicPlacerMixin",
     "ArsTreeCutMixin"
   ],
   "client": [

@@ -19,7 +19,8 @@ import java.util.UUID;
 
 /**
  * The Schematicannon keeps the player who started its print (saved with the block, so a restart in the middle of a
- * print keeps it) and gives that owner to the deployers it launches; see {@link PrintOwner}.
+ * print keeps it), gives that owner to the deployers it launches and names it while its flying blocks land; see
+ * {@link PrintOwner}.
  */
 @Mixin(value = SchematicannonBlockEntity.class, remap = false)
 public abstract class CannonDeployerOwnerMixin implements PrintOwner.Cannon {
@@ -45,6 +46,16 @@ public abstract class CannonDeployerOwnerMixin implements PrintOwner.Cannon {
         if (!clientPacket && tag.hasUUID(PrintOwner.STARTER)) {
             haven$starter = tag.getUUID(PrintOwner.STARTER);
         }
+    }
+
+    @Inject(method = "tickFlyingBlocks", at = @At("HEAD"))
+    private void haven$landing(CallbackInfo ci) {
+        PrintOwner.landing(haven$starter);
+    }
+
+    @Inject(method = "tickFlyingBlocks", at = @At("RETURN"))
+    private void haven$landed(CallbackInfo ci) {
+        PrintOwner.landing(null);
     }
 
     @ModifyVariable(method = "launchBlock", at = @At("HEAD"), argsOnly = true)
