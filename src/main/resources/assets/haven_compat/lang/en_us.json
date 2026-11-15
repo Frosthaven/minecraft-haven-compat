@@ -54,5 +54,6 @@
   "wood_name.sophisticatedstorage.haven_waxed_copper": "Waxed Copper",
   "wood_name.sophisticatedstorage.haven_waxed_exposed_copper": "Waxed Exposed Copper",
   "wood_name.sophisticatedstorage.haven_waxed_weathered_copper": "Waxed Weathered Copper",
-  "wood_name.sophisticatedstorage.haven_waxed_oxidized_copper": "Waxed Oxidized Copper"
+  "wood_name.sophisticatedstorage.haven_waxed_oxidized_copper": "Waxed Oxidized Copper",
+  "haven_compat.compiling_shaders": "Compiling shaders..."
 }

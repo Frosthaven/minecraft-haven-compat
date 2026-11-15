@@ -91,6 +91,13 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `withSwitchedWorld`, because Flywheel only supports the current level, then the private `lateInit` by reflection), and
   builds every recorded key plus the six culling programs for every pipeline of every engine (`getPipelineData` by
   reflection). A key whose parts no loaded class names (holders listed in `HOLDERS`) is skipped. The list only grows.
+  Loading screen: `portals/PrewarmScreen` + `mixin/PrewarmScreenMixin` (vanilla `ReceivingLevelScreen`). At a join with a
+  shader pack on, the screen says "Compiling shaders..." (lang key `haven_compat.compiling_shaders`) and does not close
+  until the round ends (`PrewarmScreen.done()`: after the Colorwheel program build, at once when Colorwheel is absent,
+  on any failure). Limits: 20 s for the round to start, 180 s in all. Not held: shaders off, and later dimension
+  changes (the flag resets only when Iris destroys its pipelines). Test (2026-11-15, hidden game, cache off): text from
+  the first frame to the "[colorwheel warm] ... the_end" line, world within 3 s after it; a `tp` to the nether and a
+  join with shaders off showed "Loading terrain..." and no delay.
   Test (2026-11-15, hidden game on the 4090, `__GL_SHADER_DISK_CACHE=0`, 24 kinds of Create blocks, a pulley
   contraption, a nether portal with a second portal behind it, 16 recorded keys): at the look 41 programs / 6.9 s
   without the list; with it 0 programs at the look and 48 + 16 + 16 programs / 17 s at the join. Cache on: 48 programs

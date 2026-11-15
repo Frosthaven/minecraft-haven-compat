@@ -35,6 +35,7 @@
     "PortalDepthCopyMixin",
     "DeepSeasUpdateCheckMixin",
     "IrisPipelinePrewarmMixin",
+    "PrewarmScreenMixin",
     "ColorwheelCompileMixin",
     "ColorwheelEngineMixin",
     "ColorwheelEnvironmentMixin",

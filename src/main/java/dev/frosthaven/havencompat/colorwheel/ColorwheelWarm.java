@@ -157,7 +157,10 @@ public final class ColorwheelWarm {
      * loads and keeps them for the session) and builds everything in that one frame, while the world has just appeared.
      */
     public static void warmEngines() {
-        if (programsBroken) return;
+        if (programsBroken) {
+            dev.frosthaven.havencompat.portals.PrewarmScreen.done();
+            return;
+        }
         long deadline = System.currentTimeMillis() + WAIT_MS;
         Minecraft.getInstance().tell(() -> whenEngineExists(deadline));
     }
@@ -166,6 +169,8 @@ public final class ColorwheelWarm {
         if (ClrwlEngine.ENGINES.isEmpty()) {
             if (System.currentTimeMillis() < deadline && Minecraft.getInstance().level != null) {
                 Minecraft.getInstance().tell(() -> whenEngineExists(deadline));
+            } else {
+                dev.frosthaven.havencompat.portals.PrewarmScreen.done();
             }
             return;
         }
@@ -201,6 +206,7 @@ public final class ColorwheelWarm {
             LOG.error("levels", "could not make the other dimensions' renderers at the join; their programs are built at the first look", e);
         }
         for (ClrwlEngine engine : List.copyOf(ClrwlEngine.ENGINES)) warmEngine(engine);
+        dev.frosthaven.havencompat.portals.PrewarmScreen.done();
     }
 
     private static void warmEngine(Object engine) {

@@ -26,6 +26,11 @@ public abstract class IrisPipelinePrewarmMixin implements PipelinePrewarm.Pipeli
     @Shadow @Final @Mutable private Map pipelinesPerDimension;
     @Unique private Set<Object> haven_compat$before;
 
+    @Inject(method = "destroyPipeline", at = @At("HEAD"))
+    private void haven_compat$destroyed(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        dev.frosthaven.havencompat.portals.PrewarmScreen.destroyed();
+    }
+
     @Inject(method = "preparePipeline", at = @At("HEAD"))
     private void haven_compat$noteIds(CallbackInfoReturnable<?> cir) {
         haven_compat$before = PipelinePrewarm.active() ? null : new HashSet<Object>(pipelinesPerDimension.keySet());

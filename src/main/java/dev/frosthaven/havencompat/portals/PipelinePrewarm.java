@@ -88,6 +88,7 @@ public final class PipelinePrewarm {
             String namespace = (String) idType.getMethod("getNamespace").invoke(createdId);
             String name = (String) idType.getMethod("getName").invoke(createdId);
             round++;
+            PrewarmScreen.roundStarted();
             active = true;
             boolean fresh = false;
             try {
@@ -122,7 +123,9 @@ public final class PipelinePrewarm {
                 }
                 if (fresh && ModList.get().isLoaded("colorwheel")) {
                     warmColorwheel(own, id, idType);
-                    dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.warmEngines();
+                    dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.warmEngines();   // ends the loading screen's hold itself
+                } else {
+                    PrewarmScreen.done();
                 }
                 prepare.invoke(manager, createdId);   // the player's stays current: an id that exists is a lookup
             } finally {
@@ -130,6 +133,7 @@ public final class PipelinePrewarm {
             }
         } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
             broken = true;
+            PrewarmScreen.done();
             LOG.error("prewarm", "could not pre-build Iris's pipelines; portals build them on first look as before", e);
         }
     }
@@ -168,6 +172,16 @@ public final class PipelinePrewarm {
             if (pipeline != null && pipeline.getClass().getSimpleName().equals("IrisRenderingPipeline") && !out.contains(pipeline)) out.add(pipeline);
         }
         return out;
+    }
+
+    /** A prewarm round is to be expected at a join: this is on, not broken, and a shader pack is in use. */
+    static boolean expected() {
+        if (broken) return false;
+        try {
+            return enabled() && ((java.util.Optional<?>) Class.forName("net.irisshaders.iris.Iris").getMethod("getCurrentPack").invoke(null)).isPresent();
+        } catch (ReflectiveOperationException | LinkageError e) {
+            return false;   // no Iris
+        }
     }
 
     /** Without Immersive Portals: yes. With it: only once its renderer is the Iris one (after its pipeline-destroying switch). */
