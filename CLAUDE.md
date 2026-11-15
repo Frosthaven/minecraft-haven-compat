@@ -77,17 +77,24 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   patched vertex shaders compile on Apple's GLSL 4.10.
 - `colorwheel/ColorwheelUnits` + `mixin/ColorwheelProgramMixin` (client; `colorwheel` + `iris`; compiles against Iris from
   Modrinth's Maven, version id `KduFYu4t` = 1.8.14-beta.1): a fault of Colorwheel 1.3.2 itself on macOS, not of our patch.
-  `ClrwlProgram.getReservedTextureUnits` keeps units 0 to 6 for Flywheel, 7 and 8 for its transparency (OIT) and one per
-  coefficient rank of the pack (Complementary's `colorwheel.properties`: `3,3`, so 11 in all); Iris gives the shader
-  pack's samplers the rest of `GL_MAX_TEXTURE_IMAGE_UNITS`, which is 16 on Apple. Colorwheel turns OIT off on Apple
-  (`GlCompat.SUPPORTS_OIT`: renderer name starts with "apple") but keeps the units, so Complementary's translucent
-  program had 5: "IllegalStateException: No more available texture units while activating sampler shadowtex1",
-  "Could not compile shader: clrwl_gbuffers_translucent/create_instance_fluid/...", fluid in glass pipes not drawn, and
-  the chat lines "[Colorwheel] Current shader pack contains broken shaders, expect graphical issues" / "Disable this
-  alert (click here)" (the "crash" report of 2026-11-14; no JVM crash was found). Where `SUPPORTS_OIT` is false the mixin takes the OIT units out
-  of the reserved set and skips their `addExternalSampler` calls (Iris refuses an external sampler on a unit that is
-  not reserved); nothing binds or reads those units without OIT. Units 3, 5 and 6 (crumbling, light) stay reserved:
-  Colorwheel binds the light textures once per pass, not per program. With OIT supported nothing changes.
+  `ClrwlProgram.getReservedTextureUnits` keeps units 0 to 6 for Flywheel (diffuse, overlay, lightmap, crumbling,
+  instances, light LUT, light sections), 7 and 8 for its transparency (OIT) and one per coefficient rank of the pack
+  (Complementary's `colorwheel.properties`: `3,3`, so 11 in all); Iris gives the shader pack's samplers the rest of
+  `GL_MAX_TEXTURE_IMAGE_UNITS`, which is 16 on Apple. Colorwheel turns OIT off on Apple (`GlCompat.SUPPORTS_OIT`:
+  renderer name starts with "apple") but keeps the units, so Complementary's translucent programs had 5:
+  "IllegalStateException: No more available texture units while activating sampler shadowtex1", "Could not compile
+  shader: clrwl_gbuffers_translucent/create_instance_fluid/...", fluid in glass pipes and glass on contraptions not
+  drawn, and the chat lines "[Colorwheel] Current shader pack contains broken shaders, expect graphical issues" /
+  "Disable this alert (click here)" (the "crash" report of 2026-11-14; no JVM crash was found). 0.32.2 gave back the
+  OIT units only (9 free): enough for the overworld, but the End's translucent programs still failed at
+  `shadowcolor0` (seen as soon as the join-time build compiled all three dimensions). 0.32.3: on a driver with no more
+  than 16 units, the wrap around `ProgramSamplers.builder` in `postLink` keeps a shareable unit (crumbling, light LUT,
+  light sections, OIT) only when the linked program has its sampler uniform, and the `addExternalSampler` calls for the
+  others are skipped (Iris refuses an external sampler on a unit that is not reserved). Why that is safe: the light
+  textures are buffer textures (their own binding point on a unit, no sampler state), the crumbling texture is bound
+  right before its own programs and `bind` takes a shader pack's sampler object off that unit for a program that
+  reads it, OIT textures are bound by each OIT step. Units 0, 1, 2 and 4 always stay: they are bound once per pass.
+  With more than 16 units nothing changes (not one line of this runs on the 4090).
   Test: see `flywheel/LightBufferFix` below (same day, same scenes).
 - `flywheel/LightBufferFix` + `mixin/FlywheelTextureBufferMixin` (0.32.3; client; `flywheel`, which Create carries): a fault of
   Flywheel 1.0.6 on a driver without Direct State Access (macOS), with or without us. `InstancedLight.bind` (Flywheel's
@@ -118,7 +125,13 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   Error1282" (so those two are not our patch's); Colorwheel removed: none; 0.32.2: no "OpenGL Error" line of any code, water in
   the glass pipes and the contraption's glass drawn, the large cogwheel cut from the portal view, the ship's and the
   carriage's parts cut at the portal (nothing behind the frame, far half in the portal), one resource reload per
-  launch as before. Not tested: an Intel Mac.
+  launch as before. 0.32.3 (merged with the join-time program build): the same scenes again, plus the block-breaking
+  overlay on a cogwheel, shafts and a pump (`ServerLevel.destroyBlockProgress`, one breaker id per block), 70 programs
+  built at the join (42 + 14 + 14, 7.9 s, none dropped; 0.32.2's unit rule dropped two of the End's), menu to world 61
+  to 65 s as before the merge. Other packs: Complementary Reimagined r5.9.3 as Unbound; BSL 10.1.1 and MakeUp
+  UltraFast 9.5f have no Colorwheel programs (its "not compatible" chat line, Create parts drawn by Create); Photon
+  1.3b does not load on a Mac at all (Iris's own composite program runs out of texture units, shaders go off).
+  Not tested: an Intel Mac.
 - `colorwheel/ColorwheelWarm` + `mixin/ColorwheelSourcesMixin` (client; `colorwheel`; compiles against Colorwheel from
   Modrinth's Maven, version id `lV874ox8` = 1.3.2): Colorwheel keeps a `ClrwlProgramSources` per Iris pipeline and rewrites
   the pack's program sources there on first use (`ClrwlTransformPatcher`, a glsl-transformer parse: 30 to 50 ms per
