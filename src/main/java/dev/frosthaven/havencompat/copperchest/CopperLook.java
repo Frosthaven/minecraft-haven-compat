@@ -89,6 +89,27 @@ public final class CopperLook {
         modBus.addListener(FMLCommonSetupEvent.class, e -> e.enqueueWork(CopperLook::addTierUpgrades));
     }
 
+    /**
+     * Sophisticated Storage's creative tab list of one chest block (and with it JEI): the eight copper looks after its
+     * woods, for every tier, as it lists its woods. Recipes: {@code data/haven_compat/recipe}, a Backports Copper Chest
+     * and a lever to the basic chest of that look (the shape of its own "from vanilla chest" recipe); its tier upgrade
+     * recipes keep the look.
+     */
+    public static void addTabItems(Block chest, java.util.function.Consumer<ItemStack> items) {
+        if (TYPES.isEmpty()) return;
+        try {
+            Method setWoodType = Class.forName(STORAGE + "item.WoodStorageBlockItem").getMethod("setWoodType", ItemStack.class, WoodType.class);
+            for (boolean waxed : new boolean[] {false, true}) {
+                for (WeatherState stage : WeatherState.values()) {
+                    items.accept((ItemStack) setWoodType.invoke(null, new ItemStack(chest), TYPES.get(new Look(stage, waxed))));
+                }
+            }
+            LOG.once("tab", "the copper looks are listed with Sophisticated Storage's chests (creative tab, JEI)");
+        } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
+            LOG.error("tab", "could not list the copper looks with Sophisticated Storage's chests", e);
+        }
+    }
+
     private static void registerLooks() {
         if (!LOOKS.isEmpty()) {
             return;

@@ -27,7 +27,8 @@
     "SchematicPlacerMixin",
     "ArsTreeCutMixin",
     "CopperLookHolderMixin",
-    "CopperLookChestMixin"
+    "CopperLookChestMixin",
+    "CopperLookTabMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",

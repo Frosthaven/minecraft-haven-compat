@@ -68,6 +68,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("SettingsStacksSyncMixin", List.of("sophisticatedcore")),
             Map.entry("CopperLookHolderMixin", List.of("sophisticatedstorage", "haven_backports")),
             Map.entry("CopperLookChestMixin", List.of("sophisticatedstorage", "haven_backports")),
+            Map.entry("CopperLookTabMixin", List.of("sophisticatedstorage", "haven_backports")),
             Map.entry("ColorwheelCompileMixin", List.of("colorwheel", "immersive_portals_core")),
             Map.entry("ColorwheelEngineMixin", List.of("colorwheel", "immersive_portals_core")),
             Map.entry("ColorwheelEnvironmentMixin", List.of("colorwheel", "immersive_portals_core")),

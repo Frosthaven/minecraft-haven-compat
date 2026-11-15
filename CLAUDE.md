@@ -133,6 +133,11 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   (`Inventory:[{Slot:0b,...}]`, `Mode:"USE"`, shaft on the side) waxed with honeycomb, took wax off and scraped with
   an axe, and upgraded a single and a double Copper Chest with items kept; Jade read "Waxed Exposed Copper Copper
   Chest". A person's own clicks and the item in an inventory were not tested.
+  0.32.1: recipes (`data/haven_compat/recipe/haven_*_chest_from_copper_chest.json`, shapeless Backports chest + lever ->
+  `sophisticatedstorage:chest` with the `sophisticatedstorage:wood_type` component; Sophisticated Storage's
+  `storage_tier_upgrade` recipes copy the components, so tiers need none) and `mixin/CopperLookTabMixin` (TAIL of
+  `WoodStorageBlockBase.addCreativeTabItems`, chests only: the eight looks for every tier; JEI reads that list). Seen in
+  a hidden game: both recipes unlock by `/recipe give`, item icons draw in the hotbar in each stage's colour.
 - `trees/HangingLogs` (pure, unit tested) + `mixin/ArsTreeCutMixin` (server, `mixins` list; `create`, `ars_nouveau`): a
   Mechanical Saw takes the whole Ars tree. Why (Create 6.0.10, Ars Nouveau 5.13.3): `TreeCutter.findTree` follows logs
   sideways and up only; Ars' `MagicTrunkPlacer.addBranch` ends each branch with a log one block under the branch tip,

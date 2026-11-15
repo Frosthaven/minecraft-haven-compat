@@ -1,0 +1,30 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "sophisticatedstorage"
+    },
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "haven_backports"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "haven_compat:copper_look_chest",
+  "ingredients": [
+    {
+      "item": "haven_backports:oxidized_copper_chest"
+    },
+    {
+      "item": "minecraft:lever"
+    }
+  ],
+  "result": {
+    "components": {
+      "sophisticatedstorage:wood_type": "haven_oxidized_copper"
+    },
+    "count": 1,
+    "id": "sophisticatedstorage:chest"
+  }
+}
