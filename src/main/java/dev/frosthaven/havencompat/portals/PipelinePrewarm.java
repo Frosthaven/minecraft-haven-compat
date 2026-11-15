@@ -88,6 +88,7 @@ public final class PipelinePrewarm {
             String namespace = (String) idType.getMethod("getNamespace").invoke(createdId);
             String name = (String) idType.getMethod("getName").invoke(createdId);
             round++;
+            PrewarmScreen.roundStarted();
             active = true;
             boolean fresh = false;
             try {
@@ -120,13 +121,19 @@ public final class PipelinePrewarm {
                     LOG.once("view:" + round + ":" + i, "shader pipeline for portal view {} of {}:{} built behind the loading screen ({} ms)",
                             i + 1, namespace, name, (System.nanoTime() - t) / 1_000_000);
                 }
-                if (fresh && ModList.get().isLoaded("colorwheel")) warmColorwheel(own, id, idType);
+                if (fresh && ModList.get().isLoaded("colorwheel")) {
+                    warmColorwheel(own, id, idType);
+                    dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.warmEngines();   // ends the loading screen's hold itself
+                } else {
+                    PrewarmScreen.done();
+                }
                 prepare.invoke(manager, createdId);   // the player's stays current: an id that exists is a lookup
             } finally {
                 active = false;
             }
         } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
             broken = true;
+            PrewarmScreen.done();
             LOG.error("prewarm", "could not pre-build Iris's pipelines; portals build them on first look as before", e);
         }
     }
@@ -147,6 +154,33 @@ public final class PipelinePrewarm {
             int sources = dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.warm(pipeline, programSet.invoke(pack, dimension));
             LOG.once("colorwheel:" + round + ":" + dim[1], "Colorwheel's shader sources for {}:{} prepared behind the loading screen ({} sources, {} ms)",
                     dim[0], dim[1], sources, (System.nanoTime() - t) / 1_000_000);
+        }
+    }
+
+    /**
+     * Every Iris pipeline that exists for this dimension id now: the manager's own and Immersive Portals' portal views.
+     * Empty before Iris has a manager or a pipeline for it.
+     */
+    public static List<Object> pipelinesOf(Object dimension) throws ReflectiveOperationException {
+        List<Object> out = new java.util.ArrayList<>();
+        Object manager = Class.forName("net.irisshaders.iris.Iris").getMethod("getPipelineManager").invoke(null);
+        if (!(manager instanceof Pipelines own)) return out;
+        Object main = own.haven_compat$pipelines().get(dimension);
+        if (main != null && main.getClass().getSimpleName().equals("IrisRenderingPipeline")) out.add(main);
+        for (Map<?, ?> view : portalViews()) {
+            Object pipeline = view.get(dimension);
+            if (pipeline != null && pipeline.getClass().getSimpleName().equals("IrisRenderingPipeline") && !out.contains(pipeline)) out.add(pipeline);
+        }
+        return out;
+    }
+
+    /** A prewarm round is to be expected at a join: this is on, not broken, and a shader pack is in use. */
+    static boolean expected() {
+        if (broken) return false;
+        try {
+            return enabled() && ((java.util.Optional<?>) Class.forName("net.irisshaders.iris.Iris").getMethod("getCurrentPack").invoke(null)).isPresent();
+        } catch (ReflectiveOperationException | LinkageError e) {
+            return false;   // no Iris
         }
     }
 
