@@ -38,6 +38,7 @@
     "ColorwheelEngineMixin",
     "ColorwheelEnvironmentMixin",
     "ColorwheelCarriageMixin",
+    "ColorwheelSourcesMixin",
     "OldPacksOptionsMixin",
     "OldPacksEntryMixin",
     "LoadDefaultsMixin",

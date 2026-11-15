@@ -49,8 +49,8 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   already feeds (Colorwheel's programs extend Flywheel's `GlProgram`). Ship planes: `beginPass` after
   `ClrwlEngine.prepareFrame` reads each environment's plane from `IPStraddleRender.flywheelPlane` (far-half pass:
   `IPFlywheelStraddleClip.farHalf` by reflection, `flywheelFarHalfPlane` for that ship, reject the rest), as a uniform at
-  `setupDraw` (instancing) and a buffer on shader storage binding 10 indexed by `matrixIndex` (indirect; Colorwheel uses
-  0 to 9, Immersive Portals' own uses 8). Train carriages: `mixin/ColorwheelCarriageMixin` at the head of Immersive
+  `setupDraw` (instancing) and a buffer on shader storage binding 28 indexed by `matrixIndex` (indirect; Colorwheel uses
+  0 to 9 and moves the shader pack's own up by 10, Immersive Portals' own uses 8). Train carriages: `mixin/ColorwheelCarriageMixin` at the head of Immersive
   Portals' `IPCreateCarriageCrossingClient.registerEmbedding` puts Colorwheel's environment into its `EMBEDDINGS` map
   (it keeps only Flywheel's type; the map is read by object, so its own model rebuilds and copy list then work), and
   `beginPass` reads the carriage's plane from its private `flywheelPlane(carriage, origin)`, and in a far-half pass
@@ -69,6 +69,19 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   hook that reads a command file did it (not kept). Negative speed went toward the assembly direction. With the carriage
   in both dimensions: bogey and wheels behind the portal gone (they stuck out without the port), and the nether side
   shows the carriage coming out as without Colorwheel.
+- `colorwheel/ColorwheelWarm` + `mixin/ColorwheelSourcesMixin` (client; `colorwheel`; compiles against Colorwheel from
+  Modrinth's Maven, version id `lV874ox8` = 1.3.2): Colorwheel keeps a `ClrwlProgramSources` per Iris pipeline and rewrites
+  the pack's program sources there on first use (`ClrwlTransformPatcher`, a glsl-transformer parse: 30 to 50 ms per
+  program on the render thread). With portals that is every dimension and every portal-view pipeline, at the moment a
+  portal comes into view: 0.3 to 0.7 s in Shane's game, three times in one session (2026-11-14; JFR showed the render
+  thread in `ClrwlCompilation.compile` / `parseTranslationUnit` at the "Created pipeline data" log line). The wrap around
+  `getGbuffersSources` keeps one result per (program set, program id, OIT mode, buffer offset, texture map) for all
+  pipelines; `PipelinePrewarm.warmColorwheel` fills it for the three dimensions behind the loading screen (24 rewrites,
+  about 0.5 s). Measured with a temporary HEAD/RETURN timing mixin on `ClrwlProgramSources`, `ClrwlCompilation` and
+  `ClrwlCompilationHarness` (hidden game, RTX 4090, warm driver cache): at the first Create parts 138 -> 35 ms, at the
+  portal's first view 40 -> 10 ms. What is left there is the driver's compile and link. A build that changes Colorwheel's
+  shader text (ours does, see ColorwheelCut) makes the driver compile fresh once: about 70 ms per program in that first
+  session, so compare timings only after a second launch.
 - `packs/OldPacks` + `OldPacksOptionsMixin` / `OldPacksEntryMixin` (client, vanilla only): `PackCompatibility.isCompatible()`
   reads true in `Options.updateResourcePacks/loadSelectedResourcePacks` and `TransferableSelectionList$PackEntry.render/
   handlePackSelection` (MixinExtras `@ModifyExpressionValue`). HEAD of `loadSelectedResourcePacks`: `forgetIncompatible`

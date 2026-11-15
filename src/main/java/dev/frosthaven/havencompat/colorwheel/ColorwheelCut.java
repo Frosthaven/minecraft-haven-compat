@@ -53,8 +53,8 @@ public final class ColorwheelCut {
     public static final String ENVIRONMENT = "dev.djefrey.colorwheel.engine.embed.EmbeddedEnvironment";
     public static final String COMPILATION = "dev.djefrey.colorwheel.compile.core.ClrwlCompilation";
     public static final String CARRIAGES = "qouteall.imm_ptl.core.compat.create_integration.IPCreateCarriageCrossingClient";
-    /** Colorwheel's indirect backend uses shader storage bindings 0 to 9. */
-    static final int BINDING = 10;
+    /** Colorwheel's indirect backend uses shader storage bindings 0 to 9 and moves the shader pack's own up to 10 and above. */
+    static final int BINDING = 28;
     private static final String SHIP_UNIFORM = "ipa_ShipClipEquation";
     private static final String MAIN = "void _clrwl_main(";
     private static final String SHADER_MAIN = "_clrwl_shader_main();";

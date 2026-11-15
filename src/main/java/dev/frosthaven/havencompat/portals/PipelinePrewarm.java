@@ -120,6 +120,7 @@ public final class PipelinePrewarm {
                     LOG.once("view:" + round + ":" + i, "shader pipeline for portal view {} of {}:{} built behind the loading screen ({} ms)",
                             i + 1, namespace, name, (System.nanoTime() - t) / 1_000_000);
                 }
+                if (fresh && ModList.get().isLoaded("colorwheel")) warmColorwheel(own, id, idType);
                 prepare.invoke(manager, createdId);   // the player's stays current: an id that exists is a lookup
             } finally {
                 active = false;
@@ -127,6 +128,25 @@ public final class PipelinePrewarm {
         } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
             broken = true;
             LOG.error("prewarm", "could not pre-build Iris's pipelines; portals build them on first look as before", e);
+        }
+    }
+
+    /**
+     * Colorwheel's rewritten shader sources for the three dimensions, behind the same loading screen (see
+     * {@code colorwheel/ColorwheelWarm}): else it rewrites them when a portal first comes into view.
+     */
+    private static void warmColorwheel(Map<?, ?> pipelines, Constructor<?> id, Class<?> idType) throws ReflectiveOperationException {
+        Object pack = ((java.util.Optional<?>) Class.forName("net.irisshaders.iris.Iris").getMethod("getCurrentPack").invoke(null)).orElse(null);
+        if (pack == null) return;
+        Method programSet = pack.getClass().getMethod("getProgramSet", idType);
+        for (String[] dim : DIMENSIONS) {
+            Object dimension = id.newInstance(dim[0], dim[1]);
+            Object pipeline = pipelines.get(dimension);
+            if (pipeline == null || !pipeline.getClass().getSimpleName().equals("IrisRenderingPipeline")) continue;
+            long t = System.nanoTime();
+            int sources = dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.warm(pipeline, programSet.invoke(pack, dimension));
+            LOG.once("colorwheel:" + round + ":" + dim[1], "Colorwheel's shader sources for {}:{} prepared behind the loading screen ({} sources, {} ms)",
+                    dim[0], dim[1], sources, (System.nanoTime() - t) / 1_000_000);
         }
     }
 
