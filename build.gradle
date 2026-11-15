@@ -103,6 +103,7 @@ dependencies {
     compileOnly('org.appliedenergistics:appliedenergistics2:19.2.17') { transitive = false }   // schematics/: the pack's AE2
     compileOnly('net.createmod.ponder:ponder-neoforge:1.0.81+mc1.21.1') { transitive = false }   // dyeing/: Create's value box outliner (catnip)
     compileOnly('dev.engine-room.flywheel:flywheel-neoforge-api-1.21.1:1.0.6') { transitive = false }   // colorwheel/: the embedding type in Immersive Portals' carriage hook
+    compileOnly('dev.engine-room.flywheel:flywheel-neoforge-1.21.1:1.0.6') { transitive = false }   // colorwheel/ColorwheelWarm: ContextShader, a part of Colorwheel's program key
     compileOnly('maven.modrinth:colorwheel:lV874ox8') { transitive = false }   // colorwheel/ColorwheelWarm: Colorwheel 1.3.2 for NeoForge 1.21.1
 
     testImplementation platform('org.junit:junit-bom:5.10.2')

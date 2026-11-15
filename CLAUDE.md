@@ -79,9 +79,22 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   pipelines; `PipelinePrewarm.warmColorwheel` fills it for the three dimensions behind the loading screen (24 rewrites,
   about 0.5 s). Measured with a temporary HEAD/RETURN timing mixin on `ClrwlProgramSources`, `ClrwlCompilation` and
   `ClrwlCompilationHarness` (hidden game, RTX 4090, warm driver cache): at the first Create parts 138 -> 35 ms, at the
-  portal's first view 40 -> 10 ms. What is left there is the driver's compile and link. A build that changes Colorwheel's
-  shader text (ours does, see ColorwheelCut) makes the driver compile fresh once: about 70 ms per program in that first
-  session, so compare timings only after a second launch.
+  portal's first view 40 -> 10 ms. That test was too small and only with a warm driver cache: in Shane's world the first
+  session on 0.32.1 froze 3 to 5 s at the first look at a portal (three pipelines' programs in a row, 1.4 to 1.9 s each).
+  The cost is the driver's link, per program: about 160 ms with the NVIDIA shader cache cold (any build that changes
+  Colorwheel's shader text, as ColorwheelCut's does, makes it cold once), a few ms warm.
+  0.32.2, programs: `mixin/ColorwheelProgramsMixin` (HEAD of `ClrwlCompilationHarness.compile`) records each
+  `ClrwlShaderKey` Colorwheel builds to `haven/colorwheel-programs.txt` in the game folder, one line of shader part names
+  and enum names. `ColorwheelWarm.warmEngines` (started by the Iris prewarm) waits, one check per frame, until
+  Colorwheel has an engine (it is made at the level's first drawn frame; Flywheel's manager makes it in `lateInit`), then
+  makes the nether and end client levels (`ClientWorldLoader.getWorld`), their managers and engines (inside
+  `withSwitchedWorld`, because Flywheel only supports the current level, then the private `lateInit` by reflection), and
+  builds every recorded key plus the six culling programs for every pipeline of every engine (`getPipelineData` by
+  reflection). A key whose parts no loaded class names (holders listed in `HOLDERS`) is skipped. The list only grows.
+  Test (2026-11-15, hidden game on the 4090, `__GL_SHADER_DISK_CACHE=0`, 24 kinds of Create blocks, a pulley
+  contraption, a nether portal with a second portal behind it, 16 recorded keys): at the look 41 programs / 6.9 s
+  without the list; with it 0 programs at the look and 48 + 16 + 16 programs / 17 s at the join. Cache on: 48 programs
+  in 1.9 s at the join. Always test this with the cache off and a second launch; the player must face away at the join.
 - `packs/OldPacks` + `OldPacksOptionsMixin` / `OldPacksEntryMixin` (client, vanilla only): `PackCompatibility.isCompatible()`
   reads true in `Options.updateResourcePacks/loadSelectedResourcePacks` and `TransferableSelectionList$PackEntry.render/
   handlePackSelection` (MixinExtras `@ModifyExpressionValue`). HEAD of `loadSelectedResourcePacks`: `forgetIncompatible`
