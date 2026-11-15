@@ -69,6 +69,36 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   hook that reads a command file did it (not kept). Negative speed went toward the assembly direction. With the carriage
   in both dimensions: bogey and wheels behind the portal gone (they stuck out without the port), and the nether side
   shows the carriage coming out as without Colorwheel.
+  macOS (2026-11-15, 0.32.2): `beginPass` bound the ship-plane buffer as `GL_SHADER_STORAGE_BUFFER` on every pass, also on
+  the instancing backend. OpenGL 4.1 has no such target: GL_INVALID_ENUM each pass, which Immersive Portals' check logs
+  with a stack trace ("[iPortal] OpenGL Error1280", `IrisPortalRenderer.doMainRenderings`; 4,350 in 7 minutes of play, a
+  31 MB latest.log). `uploadPlanes` now runs only with OpenGL 4.3 or `ARB_shader_storage_buffer_object`
+  ("[colorwheel cut] no shader storage buffers ..." once); the instancing shaders take the plane from the uniform. The
+  patched vertex shaders compile on Apple's GLSL 4.10.
+- `colorwheel/ColorwheelUnits` + `mixin/ColorwheelProgramMixin` (client; `colorwheel` + `iris`; compiles against Iris from
+  Modrinth's Maven, version id `KduFYu4t` = 1.8.14-beta.1): a fault of Colorwheel 1.3.2 itself on macOS, not of our patch.
+  `ClrwlProgram.getReservedTextureUnits` keeps units 0 to 6 for Flywheel, 7 and 8 for its transparency (OIT) and one per
+  coefficient rank of the pack (Complementary's `colorwheel.properties`: `3,3`, so 11 in all); Iris gives the shader
+  pack's samplers the rest of `GL_MAX_TEXTURE_IMAGE_UNITS`, which is 16 on Apple. Colorwheel turns OIT off on Apple
+  (`GlCompat.SUPPORTS_OIT`: renderer name starts with "apple") but keeps the units, so Complementary's translucent
+  program had 5: "IllegalStateException: No more available texture units while activating sampler shadowtex1",
+  "Could not compile shader: clrwl_gbuffers_translucent/create_instance_fluid/...", fluid in glass pipes not drawn, and
+  the chat lines "[Colorwheel] Current shader pack contains broken shaders, expect graphical issues" / "Disable this
+  alert (click here)" (the "crash" report of 2026-11-14; no JVM crash was found). Where `SUPPORTS_OIT` is false the mixin takes the OIT units out
+  of the reserved set and skips their `addExternalSampler` calls (Iris refuses an external sampler on a unit that is
+  not reserved); nothing binds or reads those units without OIT. Units 3, 5 and 6 (crumbling, light) stay reserved:
+  Colorwheel binds the light textures once per pass, not per program. With OIT supported nothing changes.
+  Test (2026-11-15, MacBook Pro M1 Pro, macOS 26.6.2, "OpenGL 4.1 Metal - 90.5", Complementary Unbound r5.9.3): a copy
+  of the instance in its own Prism data folder (`open -n -g -a "Prism Launcher" --args -d <folder> -l <instance> -w
+  <world> -o <name>`; `cp -Rc` clones on APFS), no pre-launch command, and a datapack in the world whose tick function
+  holds the player (`tp @a ...`) and builds the scene once: creative motor, cogwheel, shafts, a mechanical pump with
+  glass fluid pipes between two water sources, a lit nether portal behind. The game window alone:
+  `screencapture -o -l <window id>` (the id from `CGWindowListCopyWindowInfo`), never the whole screen. Results, 90 s
+  in the world each: as shipped (0.32.1) 4,340 "OpenGL Error1280" and the texture unit error; our five Colorwheel
+  mixins off: 0 and the texture unit error (so that one is Colorwheel's); Colorwheel removed: neither; 0.32.2:
+  neither, water in the glass pipes drawn (missing before), portal view drawn. Not tested on a Mac: a Sable ship or a
+  train half through a portal (the uniform path of the ship plane), other shader packs, an Intel Mac. Worth reporting
+  to Colorwheel (reserve the OIT units only when OIT is on).
 - `colorwheel/ColorwheelWarm` + `mixin/ColorwheelSourcesMixin` (client; `colorwheel`; compiles against Colorwheel from
   Modrinth's Maven, version id `lV874ox8` = 1.3.2): Colorwheel keeps a `ClrwlProgramSources` per Iris pipeline and rewrites
   the pack's program sources there on first use (`ClrwlTransformPatcher`, a glsl-transformer parse: 30 to 50 ms per
