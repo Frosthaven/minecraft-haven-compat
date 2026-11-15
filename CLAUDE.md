@@ -212,9 +212,16 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `customModels` (it runs at once on a client, before `build()` returns: the first build crashed mod loading there).
   A new Haven Backports wood: add it to `WOODS` in both files and run the tool. A Steam 'n' Rails update: compare
   `GenericTrackCompat.register` and `TrackCompatUtils.makeTrack`. Test (2026-11-15, test server and hidden client): the
-  six blocks place and render (straight, crossing), names and icons, `create:tracks`, `create:girdable_tracks`,
-  `mineable/pickaxe`, each drops itself, the six recipes load. Not tested: a curve (the tie and segment models), a
-  train on them, a recipe run in a deployer line, the portal track piece.
+  six blocks place and render (straight, crossing, the portal piece), names and icons, `create:tracks`,
+  `create:girdable_tracks`, `mineable/pickaxe`, each drops itself. Recipes through real machines (a depot, a deployer
+  fed by a hopper, a mechanical press, a mechanical saw; a birch slab as the control): slab to standard track, slab to
+  narrow, standard track to wide. Curves and trains through a temporary command (not committed) that calls Create's
+  own paths as the test player (`TrackBlockItem.useOn` twice; the station item on the track, then on the ground;
+  `StationBlockEntity.enterAssemblyMode`, `trackClicked` with a railway casing, `assemble`; then `manualTick` and
+  `targetSpeed` for 200 ticks): each of the six tracks took a 90 degree curve (standard 8 blocks, wide 16, narrow 8,
+  the same results as Steam 'n' Rails' birch tracks), got the bogey of its gauge, and its train (bogey, casing,
+  controls, super glue) drove straight, curve, straight to the track end, not derailed; the curves render. Test notes:
+  lay the track a few ticks before the station click (the track graph must exist), and a wide gauge curve of 12 fails.
 - `repository/` + `mixin/RepositoryCatalogMixin`, `RepositoryTileMixin`, `RepositoryStorageMixin` (both sides, `mixins`
   list; `ars_nouveau`, `sophisticatedstorage`; compiles against both, Sophisticated Core and GeckoLib from Modrinth's
   Maven): the Repository Upgrade (`haven_compat:repository_upgrade`, 0.33.0), a Sophisticated Storage upgrade that makes
