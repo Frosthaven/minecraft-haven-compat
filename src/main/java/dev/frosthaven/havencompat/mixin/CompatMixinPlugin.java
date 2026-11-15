@@ -79,7 +79,8 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("ColorwheelCarriageMixin", List.of("colorwheel", "immersive_portals_core", "create")),
             Map.entry("ColorwheelSourcesMixin", List.of("colorwheel")),
             Map.entry("ColorwheelProgramsMixin", List.of("colorwheel")),
-            Map.entry("ColorwheelProgramMixin", List.of("colorwheel", "iris")));
+            Map.entry("ColorwheelProgramMixin", List.of("colorwheel", "iris")),
+            Map.entry("FlywheelTextureBufferMixin", List.of("flywheel")));
     /** Mixins that apply on macOS only ({@link Os#macOS()}): on Windows and Linux the target classes stay unchanged. */
     private static final Set<String> MAC_ONLY = Set.of("MacDropStackMixin", "MacDropStackScreenMixin");
 
