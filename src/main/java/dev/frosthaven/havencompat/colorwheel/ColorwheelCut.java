@@ -33,7 +33,10 @@ import org.lwjgl.opengl.GL43;
  * ({@code IPStraddleRender.flywheelPlane}, and in its far-half pass {@code flywheelFarHalfPlane} for the ship it is
  * drawing; everything else is rejected there, as Immersive Portals does).
  * <p>
- * Not covered: train carriages in a portal (Immersive Portals' plane for those takes Flywheel's environment type).
+ * Train carriages in a portal use the same ship-plane slot. Immersive Portals keeps a map from a carriage's embedding to
+ * the carriage and only fills it for Flywheel's environment type; {@link #registerCarriage} puts Colorwheel's
+ * environment into that same map, so Immersive Portals' own bookkeeping (model rebuilds, known copies) sees the
+ * carriage, and {@link #beginPass} reads the carriage's plane from Immersive Portals' own functions.
  * Reflection only; a failure is logged once and the parts draw uncut, as before.
  */
 public final class ColorwheelCut {
@@ -49,6 +52,7 @@ public final class ColorwheelCut {
     public static final String ENGINE = "dev.djefrey.colorwheel.engine.ClrwlEngine";
     public static final String ENVIRONMENT = "dev.djefrey.colorwheel.engine.embed.EmbeddedEnvironment";
     public static final String COMPILATION = "dev.djefrey.colorwheel.compile.core.ClrwlCompilation";
+    public static final String CARRIAGES = "qouteall.imm_ptl.core.compat.create_integration.IPCreateCarriageCrossingClient";
     /** Colorwheel's indirect backend uses shader storage bindings 0 to 9. */
     static final int BINDING = 10;
     private static final String SHIP_UNIFORM = "ipa_ShipClipEquation";
@@ -65,6 +69,8 @@ public final class ColorwheelCut {
     private static boolean enabled, far, broken;
     private static int buffer, bufferSize;
     private static Handles handles;
+    private static Map<?, ?> carriageMap;
+    private static boolean carriageMapBroken;
 
     private ColorwheelCut() {}
 
@@ -113,20 +119,33 @@ public final class ColorwheelCut {
                 ship = handles.farShip.invoke(selection);
                 session = handles.farSession.invoke(selection);
             }
+            Map<?, ?> farCarriages = far && ship == null ? handles.captured(selection) : null;
             Collection<?> environments = (Collection<?>) handles.environments.get(handles.storage.invoke(engine));
-            boolean straddling = far || !(boolean) handles.sessionsEmpty.invoke(null);
+            boolean ships = handles.sessionsEmpty != null && !(boolean) handles.sessionsEmpty.invoke(null);
+            boolean carriages = handles.carriages != null && !handles.carriages.isEmpty();
+            boolean straddling = far || ships || carriages;
             int maxIndex = 0;
             for (Object o : environments) {
                 Env env = (Env) o;
                 if (env.haven_compat$deleted()) continue;
                 maxIndex = Math.max(maxIndex, env.haven_compat$index());
                 if (!straddling) continue;
-                Vec3i origin = ((Env) root(o)).haven_compat$origin();
-                float[] plane;
+                Object root = root(o);
+                Vec3i origin = ((Env) root).haven_compat$origin();
+                Object carriage = carriages ? carriageOf(o, root) : null;
+                float[] plane = null;
                 if (far) {
-                    plane = ship != null && ofShip(level, origin, ship) ? (float[]) handles.farPlane.invoke(null, session, renderOrigin) : null;
+                    if (ship != null) {
+                        if (ofShip(level, origin, ship)) plane = (float[]) handles.farPlane.invoke(null, session, renderOrigin);
+                    } else if (carriage != null && farCarriages != null) {
+                        Object crossing = farCarriages.get(carriage);
+                        if (crossing != null && !(boolean) handles.carriageOutdated.invoke(null, carriage, true)) {
+                            plane = (float[]) handles.carriageFarPlane.invoke(null, carriage, crossing, renderOrigin);
+                        }
+                    }
                 } else {
-                    plane = (float[]) handles.nearPlane.invoke(null, level, origin, renderOrigin);
+                    if (carriage != null) plane = (float[]) handles.carriagePlane.invoke(null, carriage, renderOrigin);
+                    if (plane == null && ships) plane = (float[]) handles.nearPlane.invoke(null, level, origin, renderOrigin);
                 }
                 if (plane != null) PLANES.put(o, plane);
             }
@@ -156,6 +175,38 @@ public final class ColorwheelCut {
             PLANES.clear();
             LOG.error("begin", "could not cut Colorwheel's parts of straddling ships; they draw whole", e);
         }
+    }
+
+    /**
+     * Immersive Portals' {@code IPCreateCarriageCrossingClient.registerEmbedding}: it keeps only Flywheel's environment
+     * type, so a Colorwheel environment goes into its map here (the map's keys are not read by type).
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static void registerCarriage(Object embedding, Object entity) {
+        if (!(embedding instanceof Env) || entity == null || carriageMapBroken) return;
+        try {
+            if (carriageMap == null) {
+                Class<?> client = Class.forName(CARRIAGES);
+                if (!Class.forName("com.simibubi.create.content.trains.entity.CarriageContraptionEntity").isInstance(entity)) return;
+                Field f = client.getDeclaredField("EMBEDDINGS");
+                f.setAccessible(true);
+                carriageMap = (Map) f.get(null);
+            } else if (!entity.getClass().getName().endsWith("CarriageContraptionEntity")) {
+                return;
+            }
+            ((Map) carriageMap).put(embedding, new java.lang.ref.WeakReference<>(entity));
+            LOG.once("carriage", "train carriages drawn by Colorwheel are known to Immersive Portals");
+        } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
+            carriageMapBroken = true;
+            LOG.error("carriage", "could not register a Colorwheel carriage with Immersive Portals; carriages in a portal draw whole", e);
+        }
+    }
+
+    /** The carriage this environment (or its root) draws, from Immersive Portals' map. */
+    private static Object carriageOf(Object environment, Object root) {
+        Object reference = handles.carriages.get(environment);
+        if (reference == null) reference = handles.carriages.get(root);
+        return reference instanceof java.lang.ref.Reference<?> r ? r.get() : null;
     }
 
     /** At the end of an environment's {@code setupDraw}: its program is bound (the instancing backend). */
@@ -194,11 +245,14 @@ public final class ColorwheelCut {
         return plot != null && handles.plotShip.invoke(plot) == ship;
     }
 
-    /** Reflection, resolved once on the first pass. */
+    /** Reflection, resolved once on the first pass. The Sable and the Create train parts are null without those mods. */
     private static final class Handles {
         final Method storage, sessionsEmpty, nearPlane, farPlane, farShip, farSession, container, plot, plotShip;
+        final Method carriagePlane, carriageFarPlane, carriageOutdated;
         final Field environments, parent, farHalf;
         final Class<?> shipFarHalf;
+        final Map<?, ?> carriages;
+        private final Map<Class<?>, Field> capturedMaps = new java.util.HashMap<>();
 
         Handles(Object engine) throws ReflectiveOperationException {
             storage = engine.getClass().getMethod("environmentStorage");
@@ -207,17 +261,53 @@ public final class ColorwheelCut {
             Class<?> straddle = Class.forName("qouteall.imm_ptl.core.compat.create_integration.IPFlywheelStraddleClip");
             farHalf = open(straddle.getDeclaredField("farHalf"));
             shipFarHalf = Class.forName(straddle.getName() + "$ShipFarHalf");
-            farShip = open(shipFarHalf.getDeclaredMethod("ship"));
-            farSession = open(shipFarHalf.getDeclaredMethod("session"));
-            Class<?> render = Class.forName("qouteall.imm_ptl.core.compat.sable_straddle.client.IPStraddleRender");
-            Class<?> sessions = Class.forName("qouteall.imm_ptl.core.compat.sable_straddle.client.IPStraddleClientSessions");
-            sessionsEmpty = sessions.getMethod("isEmpty");
-            nearPlane = render.getMethod("flywheelPlane", ClientLevel.class, Vec3i.class, Vec3i.class);
-            farPlane = render.getMethod("flywheelFarHalfPlane", Class.forName(sessions.getName() + "$Session"), Vec3i.class);
-            Class<?> containers = Class.forName("dev.ryanhcode.sable.api.sublevel.SubLevelContainer");
-            container = containers.getMethod("getContainer", net.minecraft.world.level.Level.class);
-            plot = containers.getMethod("getPlot", ChunkPos.class);
-            plotShip = Class.forName("dev.ryanhcode.sable.sublevel.plot.LevelPlot").getMethod("getSubLevel");
+            if (net.neoforged.fml.ModList.get().isLoaded("sable")) {
+                farShip = open(shipFarHalf.getDeclaredMethod("ship"));
+                farSession = open(shipFarHalf.getDeclaredMethod("session"));
+                Class<?> render = Class.forName("qouteall.imm_ptl.core.compat.sable_straddle.client.IPStraddleRender");
+                Class<?> sessions = Class.forName("qouteall.imm_ptl.core.compat.sable_straddle.client.IPStraddleClientSessions");
+                sessionsEmpty = sessions.getMethod("isEmpty");
+                nearPlane = render.getMethod("flywheelPlane", ClientLevel.class, Vec3i.class, Vec3i.class);
+                farPlane = render.getMethod("flywheelFarHalfPlane", Class.forName(sessions.getName() + "$Session"), Vec3i.class);
+                Class<?> containers = Class.forName("dev.ryanhcode.sable.api.sublevel.SubLevelContainer");
+                container = containers.getMethod("getContainer", net.minecraft.world.level.Level.class);
+                plot = containers.getMethod("getPlot", ChunkPos.class);
+                plotShip = Class.forName("dev.ryanhcode.sable.sublevel.plot.LevelPlot").getMethod("getSubLevel");
+            } else {
+                farShip = farSession = sessionsEmpty = nearPlane = farPlane = container = plot = plotShip = null;
+            }
+            if (net.neoforged.fml.ModList.get().isLoaded("create")) {
+                Class<?> client = Class.forName(CARRIAGES);
+                carriages = (Map<?, ?>) open(client.getDeclaredField("EMBEDDINGS")).get(null);
+                Method plane = null, farPlaneOf = null, outdated = null;
+                for (Method m : client.getDeclaredMethods()) {
+                    Class<?>[] p = m.getParameterTypes();
+                    if (m.getName().equals("flywheelPlane") && p.length == 2 && p[1] == Vec3i.class) plane = open(m);
+                    if (m.getName().equals("farHalfPlane") && p.length == 3) farPlaneOf = open(m);
+                    if (m.getName().equals("isOutdated") && p.length == 2) outdated = open(m);
+                }
+                if (plane == null || farPlaneOf == null || outdated == null) throw new NoSuchMethodException(CARRIAGES + " plane functions");
+                carriagePlane = plane;
+                carriageFarPlane = farPlaneOf;
+                carriageOutdated = outdated;
+            } else {
+                carriages = null;
+                carriagePlane = carriageFarPlane = carriageOutdated = null;
+            }
+        }
+
+        /** The carriages a far-half pass draws: the map its selection (a lambda in Immersive Portals) holds. */
+        Map<?, ?> captured(Object selection) throws ReflectiveOperationException {
+            Class<?> type = selection.getClass();
+            if (!capturedMaps.containsKey(type)) {
+                Field found = null;
+                for (Field f : type.getDeclaredFields()) {
+                    if (Map.class.isAssignableFrom(f.getType())) found = open(f);
+                }
+                capturedMaps.put(type, found);
+            }
+            Field f = capturedMaps.get(type);
+            return f == null ? null : (Map<?, ?>) f.get(selection);
         }
 
         private static <T extends java.lang.reflect.AccessibleObject> T open(T member) {

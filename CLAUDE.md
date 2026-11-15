@@ -50,14 +50,25 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `ClrwlEngine.prepareFrame` reads each environment's plane from `IPStraddleRender.flywheelPlane` (far-half pass:
   `IPFlywheelStraddleClip.farHalf` by reflection, `flywheelFarHalfPlane` for that ship, reject the rest), as a uniform at
   `setupDraw` (instancing) and a buffer on shader storage binding 10 indexed by `matrixIndex` (indirect; Colorwheel uses
-  0 to 9, Immersive Portals' own uses 8). Not covered: train carriages (their plane function takes Flywheel's
-  environment type). Test (2026-11-14, hidden game on the NVIDIA card: `__NV_PRIME_RENDER_OFFLOAD=1
+  0 to 9, Immersive Portals' own uses 8). Train carriages: `mixin/ColorwheelCarriageMixin` at the head of Immersive
+  Portals' `IPCreateCarriageCrossingClient.registerEmbedding` puts Colorwheel's environment into its `EMBEDDINGS` map
+  (it keeps only Flywheel's type; the map is read by object, so its own model rebuilds and copy list then work), and
+  `beginPass` reads the carriage's plane from its private `flywheelPlane(carriage, origin)`, and in a far-half pass
+  from `farHalfPlane` with the crossing in the map its selection lambda holds (a field of the lambda object). Test (2026-11-14, hidden game on the NVIDIA card: `__NV_PRIME_RENDER_OFFLOAD=1
   __GLX_VENDOR_LIBRARY_NAME=nvidia`, else the headless desktop uses the built-in graphics): a ship is made with `/sable
   assemble area`, pushed on blue ice with `/sable physics impulse @l linear 0 0 30 global` until `/ip_aeronautics
   straddle status` says 1 session; `/sable teleport` into a portal makes no session. Results: shaft behind the portal
   gone (was sticking out 2.6 blocks), far half inside the portal as without Colorwheel, cogwheel behind the nether
   portal's plane gone from the portal view. A ship is not drawn at all for a player in the other dimension, with or
   without Colorwheel.
+  Train test (same day): tracks (`create:track[shape=zo]`) up to the portal block on both sides link by themselves
+  ("[IPCreatePortalTracks] linked the tracks"); a station by NBT (`create:track_station{TargetTrack:[I;-2,0,0],
+  TargetDirection:1b}`), a `create:small_bogey[axis=z]` above the first track after the target, a block behind it and
+  `create:controls[facing=south]` in front (a bogey attaches along its axis, not upward; no controls, no train). The
+  station's `enterAssemblyMode(null)` and `assemble(uuid)` and the train's `speed` need code: a temporary server tick
+  hook that reads a command file did it (not kept). Negative speed went toward the assembly direction. With the carriage
+  in both dimensions: bogey and wheels behind the portal gone (they stuck out without the port), and the nether side
+  shows the carriage coming out as without Colorwheel.
 - `packs/OldPacks` + `OldPacksOptionsMixin` / `OldPacksEntryMixin` (client, vanilla only): `PackCompatibility.isCompatible()`
   reads true in `Options.updateResourcePacks/loadSelectedResourcePacks` and `TransferableSelectionList$PackEntry.render/
   handlePackSelection` (MixinExtras `@ModifyExpressionValue`). HEAD of `loadSelectedResourcePacks`: `forgetIncompatible`

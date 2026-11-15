@@ -69,8 +69,9 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("CopperLookHolderMixin", List.of("sophisticatedstorage", "haven_backports")),
             Map.entry("CopperLookChestMixin", List.of("sophisticatedstorage", "haven_backports")),
             Map.entry("ColorwheelCompileMixin", List.of("colorwheel", "immersive_portals_core")),
-            Map.entry("ColorwheelEngineMixin", List.of("colorwheel", "immersive_portals_core", "sable")),
-            Map.entry("ColorwheelEnvironmentMixin", List.of("colorwheel", "immersive_portals_core", "sable")));
+            Map.entry("ColorwheelEngineMixin", List.of("colorwheel", "immersive_portals_core")),
+            Map.entry("ColorwheelEnvironmentMixin", List.of("colorwheel", "immersive_portals_core")),
+            Map.entry("ColorwheelCarriageMixin", List.of("colorwheel", "immersive_portals_core", "create")));
     /** Mixins that apply on macOS only ({@link Os#macOS()}): on Windows and Linux the target classes stay unchanged. */
     private static final Set<String> MAC_ONLY = Set.of("MacDropStackMixin", "MacDropStackScreenMixin");
 
