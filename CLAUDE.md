@@ -88,17 +88,37 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   of the reserved set and skips their `addExternalSampler` calls (Iris refuses an external sampler on a unit that is
   not reserved); nothing binds or reads those units without OIT. Units 3, 5 and 6 (crumbling, light) stay reserved:
   Colorwheel binds the light textures once per pass, not per program. With OIT supported nothing changes.
+  Test: see `flywheel/LightBufferFix` below (same day, same scenes).
+- `flywheel/LightBufferFix` + `mixin/FlywheelTextureBufferMixin` (client; `flywheel`, which Create carries): a fault of
+  Flywheel 1.0.6 on a driver without Direct State Access (macOS), with or without us. `InstancedLight.bind` (Flywheel's
+  instancing backend and Colorwheel's) attaches its two light buffers to buffer textures at the start of every pass
+  (`TextureBuffer.bind`: `glTexBuffer`), but `InstancedLight.flush` fills them only when the light storage has
+  sections (`capacity() != 0`). Without DSA a buffer is a `glGenBuffers` name that is no buffer object until its first
+  bind, so `glTexBuffer` raised GL_INVALID_OPERATION once per pass. Nothing drew wrong; Immersive Portals reads the
+  error flag each time it draws portals and logged "[iPortal] OpenGL Error1282" with a stack trace on every frame with a
+  portal in view (4,182 in 2 minutes). The mixin binds a not yet existing buffer once before the attach (empty buffer,
+  legal). Found with temporary `glGetError` probes (HEAD/RETURN and after-INVOKE injections into
+  `ClrwlInstancedDrawManager.renderSolid`, `ClrwlProgram.bind`); the error sat between "after bindLightAndOverlay" and
+  "after light.bind". Error 1280 hid it in 0.32.1: the flag holds one error per kind and Immersive Portals reads one.
+  Count every "OpenGL Error" line after a change here, not one code.
   Test (2026-11-15, MacBook Pro M1 Pro, macOS 26.6.2, "OpenGL 4.1 Metal - 90.5", Complementary Unbound r5.9.3): a copy
   of the instance in its own Prism data folder (`open -n -g -a "Prism Launcher" --args -d <folder> -l <instance> -w
-  <world> -o <name>`; `cp -Rc` clones on APFS), no pre-launch command, and a datapack in the world whose tick function
-  holds the player (`tp @a ...`) and builds the scene once: creative motor, cogwheel, shafts, a mechanical pump with
-  glass fluid pipes between two water sources, a lit nether portal behind. The game window alone:
-  `screencapture -o -l <window id>` (the id from `CGWindowListCopyWindowInfo`), never the whole screen. Results, 90 s
-  in the world each: as shipped (0.32.1) 4,340 "OpenGL Error1280" and the texture unit error; our five Colorwheel
-  mixins off: 0 and the texture unit error (so that one is Colorwheel's); Colorwheel removed: neither; 0.32.2:
-  neither, water in the glass pipes drawn (missing before), portal view drawn. Not tested on a Mac: a Sable ship or a
-  train half through a portal (the uniform path of the ship plane), other shader packs, an Intel Mac. Worth reporting
-  to Colorwheel (reserve the OIT units only when OIT is on).
+  <world> -o <name>`; `cp -Rc` clones on APFS), no pre-launch command. The game is driven without the desktop: a
+  KubeJS server script in the copy reads `kubejs/hc_cmd.json` every 5 ticks and runs its commands when the `id`
+  changes (`server.runCommand`; feedback lands in latest.log), with two extra words: a station's
+  `enterAssemblyMode(null)` + `assemble(uuid)` and `Create.RAILWAYS.trains` `speed` (a script reload resets the last id:
+  never put `kubejs reload` in a batch). Pictures of the game window alone: `screencapture -o -l <window id>` (the id
+  from `CGWindowListCopyWindowInfo`), never the whole screen. Scenes: creative motor, cogwheel, shafts, a mechanical
+  pump with glass fluid pipes between two water sources, a mechanical bearing turning stained glass and slime, a
+  nether portal with a large cogwheel behind its nether plane and a small one beyond it; a 1x2x4 Sable ship (`/sable
+  assemble area`, `/sable physics impulse @l linear 0 0 5 global` on blue ice, `/sable paused true` when `/ip_aeronautics
+  straddle status` says 1 session); a train (tracks to the portal on both sides, station by NBT, small bogey, controls,
+  speed -0.05 until the carriage stands in the portal plane). Results: as shipped (0.32.1) 4,340 "OpenGL Error1280"
+  and the texture unit error; our five Colorwheel mixins off: no 1280, the texture unit error and 3,041 "OpenGL
+  Error1282" (so those two are not our patch's); Colorwheel removed: none; 0.32.2: no "OpenGL Error" line of any code, water in
+  the glass pipes and the contraption's glass drawn, the large cogwheel cut from the portal view, the ship's and the
+  carriage's parts cut at the portal (nothing behind the frame, far half in the portal), one resource reload per
+  launch as before. Not tested: an Intel Mac.
 - `colorwheel/ColorwheelWarm` + `mixin/ColorwheelSourcesMixin` (client; `colorwheel`; compiles against Colorwheel from
   Modrinth's Maven, version id `lV874ox8` = 1.3.2): Colorwheel keeps a `ClrwlProgramSources` per Iris pipeline and rewrites
   the pack's program sources there on first use (`ClrwlTransformPatcher`, a glsl-transformer parse: 30 to 50 ms per

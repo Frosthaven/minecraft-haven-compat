@@ -41,6 +41,7 @@
     "ColorwheelCarriageMixin",
     "ColorwheelSourcesMixin",
     "ColorwheelProgramMixin",
+    "FlywheelTextureBufferMixin",
     "OldPacksOptionsMixin",
     "OldPacksEntryMixin",
     "LoadDefaultsMixin",
