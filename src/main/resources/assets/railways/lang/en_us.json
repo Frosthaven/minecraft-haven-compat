@@ -1,0 +1,14 @@
+{
+  "block.railways.track_haven_backports_pale_oak": "Pale Oak Train Track",
+  "item.railways.track_incomplete_haven_backports_pale_oak": "Incomplete Pale Oak Track",
+  "block.railways.track_haven_backports_pale_oak_narrow": "Narrow Pale Oak Train Track",
+  "item.railways.track_incomplete_haven_backports_pale_oak_narrow": "Incomplete Narrow Pale Oak Track",
+  "block.railways.track_haven_backports_pale_oak_wide": "Wide Pale Oak Train Track",
+  "item.railways.track_incomplete_haven_backports_pale_oak_wide": "Incomplete Wide Pale Oak Track",
+  "block.railways.track_haven_backports_poplar": "Poplar Train Track",
+  "item.railways.track_incomplete_haven_backports_poplar": "Incomplete Poplar Track",
+  "block.railways.track_haven_backports_poplar_narrow": "Narrow Poplar Train Track",
+  "item.railways.track_incomplete_haven_backports_poplar_narrow": "Incomplete Narrow Poplar Track",
+  "block.railways.track_haven_backports_poplar_wide": "Wide Poplar Train Track",
+  "item.railways.track_incomplete_haven_backports_poplar_wide": "Incomplete Wide Poplar Track"
+}

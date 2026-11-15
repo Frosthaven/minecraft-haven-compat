@@ -1,0 +1,8 @@
+{
+  "parent": "railways:block/narrow_gauge_base/segment_right",
+  "textures": {
+    "0": "haven_compat:block/track/pale_oak/standard_track_pale_oak",
+    "1": "haven_compat:block/track/pale_oak/standard_track_mip_pale_oak",
+    "particle": "haven_compat:block/track/pale_oak/standard_track_crossing_pale_oak"
+  }
+}

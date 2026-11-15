@@ -1,0 +1,9 @@
+{
+  "parent": "railways:block/wide_gauge_base/x_ortho",
+  "textures": {
+    "1": "haven_compat:block/track/poplar/standard_track_poplar",
+    "2": "haven_compat:block/track/poplar/standard_track_mip_poplar",
+    "3": "haven_compat:block/track/poplar/standard_track_crossing_poplar",
+    "particle": "haven_compat:block/track/poplar/standard_track_crossing_poplar"
+  }
+}

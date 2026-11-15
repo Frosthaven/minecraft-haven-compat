@@ -1,0 +1,31 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "railways"
+    },
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "haven_backports"
+    }
+  ],
+  "type": "minecraft:block",
+  "random_sequence": "railways:blocks/track_haven_backports_pale_oak",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "railways:track_haven_backports_pale_oak"
+        }
+      ]
+    }
+  ]
+}

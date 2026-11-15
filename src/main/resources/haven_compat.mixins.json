@@ -31,7 +31,8 @@
     "CopperLookTabMixin",
     "RepositoryCatalogMixin",
     "RepositoryTileMixin",
-    "RepositoryStorageMixin"
+    "RepositoryStorageMixin",
+    "RailwaysSetupMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",

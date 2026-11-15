@@ -1,0 +1,28 @@
+{
+  "values": [
+    {
+      "id": "railways:track_haven_backports_pale_oak",
+      "required": false
+    },
+    {
+      "id": "railways:track_haven_backports_pale_oak_narrow",
+      "required": false
+    },
+    {
+      "id": "railways:track_haven_backports_pale_oak_wide",
+      "required": false
+    },
+    {
+      "id": "railways:track_haven_backports_poplar",
+      "required": false
+    },
+    {
+      "id": "railways:track_haven_backports_poplar_narrow",
+      "required": false
+    },
+    {
+      "id": "railways:track_haven_backports_poplar_wide",
+      "required": false
+    }
+  ]
+}

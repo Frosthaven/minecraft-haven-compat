@@ -73,6 +73,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("RepositoryCatalogMixin", List.of("ars_nouveau", "sophisticatedstorage")),
             Map.entry("RepositoryTileMixin", List.of("ars_nouveau", "sophisticatedstorage")),
             Map.entry("RepositoryStorageMixin", List.of("ars_nouveau", "sophisticatedstorage")),
+            Map.entry("RailwaysSetupMixin", List.of("railways", "haven_backports")),
             Map.entry("ColorwheelCompileMixin", List.of("colorwheel", "immersive_portals_core")),
             Map.entry("ColorwheelEngineMixin", List.of("colorwheel", "immersive_portals_core")),
             Map.entry("ColorwheelEnvironmentMixin", List.of("colorwheel", "immersive_portals_core")),

@@ -199,6 +199,22 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   0.18.0 5/12, 0.18.1 12/12; all mods: 0.19.0 12/12. The spin for a turned front and top is searched
   (`AeBlockTurn.spin`): `BlockOrientation.get(front, up)` can return a spin whose top is not `up`. Storage Drawers:
   drawers beside a controller store no link (the controller finds them, `updateCache` on load); only remote upgrades do.
+- `tracks/WoodTracks` + `mixin/RailwaysSetupMixin` (both sides, `mixins` list; `railways`, `haven_backports`; compiles
+  against Steam 'n' Rails from CurseForge's Maven and Create's Registrate): pale oak and poplar train tracks (0.34.0),
+  three gauges each. Steam 'n' Rails 0.2.1 makes tracks for other mods' woods in `GenericTrackCompat`, which takes only
+  the mods of its own `Mods` enum, so `WoodTracks` makes the same calls (`TrackCompatUtils.makeTrack`, the gauge maps of
+  `CRTrackMaterials`, `CRBlocks.WIDE_GAUGE_TRACKS` / `NARROW_GAUGE_TRACKS`, `CRItems.ITEM_INCOMPLETE_TRACK`) at the TAIL
+  of `ModSetup.register` (its Registrate still takes entries; the same thread). Ids as its own compat tracks:
+  `railways:track_haven_backports_<wood>[_wide|_narrow]`, `railways:track_incomplete_...`. Steam 'n' Rails writes
+  blockstates, models, names, tags, loot and recipes only in its data generation, so they are files here, made by
+  `tools/wood_tracks.py` (its docstring has the command and the texture method: birch track textures, wood pixels moved
+  to the new wood's planks colour); never hand-edit them. A material's models must not be read from the material inside
+  `customModels` (it runs at once on a client, before `build()` returns: the first build crashed mod loading there).
+  A new Haven Backports wood: add it to `WOODS` in both files and run the tool. A Steam 'n' Rails update: compare
+  `GenericTrackCompat.register` and `TrackCompatUtils.makeTrack`. Test (2026-11-15, test server and hidden client): the
+  six blocks place and render (straight, crossing), names and icons, `create:tracks`, `create:girdable_tracks`,
+  `mineable/pickaxe`, each drops itself, the six recipes load. Not tested: a curve (the tie and segment models), a
+  train on them, a recipe run in a deployer line, the portal track piece.
 - `repository/` + `mixin/RepositoryCatalogMixin`, `RepositoryTileMixin`, `RepositoryStorageMixin` (both sides, `mixins`
   list; `ars_nouveau`, `sophisticatedstorage`; compiles against both, Sophisticated Core and GeckoLib from Modrinth's
   Maven): the Repository Upgrade (`haven_compat:repository_upgrade`, 0.33.0), a Sophisticated Storage upgrade that makes

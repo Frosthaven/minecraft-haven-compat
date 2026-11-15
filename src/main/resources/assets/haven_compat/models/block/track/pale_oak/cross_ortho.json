@@ -1,0 +1,9 @@
+{
+  "parent": "create:block/track/cross_ortho",
+  "textures": {
+    "1": "haven_compat:block/track/pale_oak/standard_track_pale_oak",
+    "2": "haven_compat:block/track/pale_oak/standard_track_mip_pale_oak",
+    "3": "haven_compat:block/track/pale_oak/standard_track_crossing_pale_oak",
+    "particle": "haven_compat:block/track/pale_oak/standard_track_crossing_pale_oak"
+  }
+}
