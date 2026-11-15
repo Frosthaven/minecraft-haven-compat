@@ -30,7 +30,7 @@ repositories {
     // Other mods are reached by class name (mixin targets, reflection) where possible. A fix that must call a mod's API
     // compiles against it (compileOnly, never shipped) and lives in a class loaded only when that mod is present.
     maven { url 'https://maven.createmod.net' }   // Create
-    exclusiveContent {   // Colorwheel (colorwheel/: its program source and id types)
+    exclusiveContent {   // Colorwheel (colorwheel/: its program source and id types) and Iris (its sampler builder type)
         forRepository { maven { url 'https://api.modrinth.com/maven' } }
         filter { includeGroup 'maven.modrinth' }
     }
@@ -105,6 +105,7 @@ dependencies {
     compileOnly('dev.engine-room.flywheel:flywheel-neoforge-api-1.21.1:1.0.6') { transitive = false }   // colorwheel/: the embedding type in Immersive Portals' carriage hook
     compileOnly('dev.engine-room.flywheel:flywheel-neoforge-1.21.1:1.0.6') { transitive = false }   // colorwheel/ColorwheelWarm: ContextShader, a part of Colorwheel's program key
     compileOnly('maven.modrinth:colorwheel:lV874ox8') { transitive = false }   // colorwheel/ColorwheelWarm: Colorwheel 1.3.2 for NeoForge 1.21.1
+    compileOnly('maven.modrinth:iris:KduFYu4t') { transitive = false }   // mixin/ColorwheelProgramMixin: the sampler builder type of Iris 1.8.14-beta.1
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'

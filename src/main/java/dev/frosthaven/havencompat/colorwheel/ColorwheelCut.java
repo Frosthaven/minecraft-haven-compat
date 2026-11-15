@@ -11,11 +11,13 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.ChunkPos;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL43;
+import org.lwjgl.opengl.GLCapabilities;
 
 /**
  * Immersive Portals' cuts for Create's instanced parts, for Colorwheel (the Flywheel backend that runs with Iris
@@ -68,6 +70,7 @@ public final class ColorwheelCut {
     private static final Map<Integer, Integer> LOCATIONS = new java.util.HashMap<>();
     private static boolean enabled, far, broken;
     private static int buffer, bufferSize;
+    private static Boolean storage;
     private static Handles handles;
     private static Map<?, ?> carriageMap;
     private static boolean carriageMapBroken;
@@ -150,22 +153,7 @@ public final class ColorwheelCut {
                 if (plane != null) PLANES.put(o, plane);
             }
             boolean cut = far || !PLANES.isEmpty();
-            // The indirect shaders read this buffer on every embedded draw, so it always holds an entry per environment.
-            int size = (maxIndex + 1) * 4;
-            if (cut || buffer == 0 || size > bufferSize) {
-                float[] fill = far ? REJECT : NEUTRAL;
-                float[] data = new float[size];
-                for (int i = 0; i < size; i += 4) System.arraycopy(fill, 0, data, i, 4);
-                for (Map.Entry<Object, float[]> e : PLANES.entrySet()) {
-                    System.arraycopy(e.getValue(), 0, data, ((Env) e.getKey()).haven_compat$index() * 4, 4);
-                }
-                if (buffer == 0) buffer = GL15.glGenBuffers();
-                GL15.glBindBuffer(GL43.GL_SHADER_STORAGE_BUFFER, buffer);
-                GL15.glBufferData(GL43.GL_SHADER_STORAGE_BUFFER, data, GL15.GL_DYNAMIC_DRAW);
-                GL15.glBindBuffer(GL43.GL_SHADER_STORAGE_BUFFER, 0);
-                bufferSize = cut ? 0 : size;   // after a cut the next pass writes the neutral values back
-            }
-            if (buffer != 0) GL30.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, BINDING, buffer);
+            if (storageBuffers()) uploadPlanes(cut, maxIndex);
             if (!cut) return;
             GL11.glEnable(CLIP_DISTANCE1);
             enabled = true;
@@ -175,6 +163,39 @@ public final class ColorwheelCut {
             PLANES.clear();
             LOG.error("begin", "could not cut Colorwheel's parts of straddling ships; they draw whole", e);
         }
+    }
+
+    /**
+     * The indirect shaders read this buffer on every embedded draw, so it always holds an entry per environment. Only on
+     * a context with shader storage buffers: without them (macOS, OpenGL 4.1) Colorwheel runs its instancing backend,
+     * which takes the plane from the uniform at {@link #setupDraw}, and each bind here was a GL_INVALID_ENUM.
+     */
+    private static void uploadPlanes(boolean cut, int maxIndex) {
+        int size = (maxIndex + 1) * 4;
+        if (cut || buffer == 0 || size > bufferSize) {
+            float[] fill = far ? REJECT : NEUTRAL;
+            float[] data = new float[size];
+            for (int i = 0; i < size; i += 4) System.arraycopy(fill, 0, data, i, 4);
+            for (Map.Entry<Object, float[]> e : PLANES.entrySet()) {
+                System.arraycopy(e.getValue(), 0, data, ((Env) e.getKey()).haven_compat$index() * 4, 4);
+            }
+            if (buffer == 0) buffer = GL15.glGenBuffers();
+            GL15.glBindBuffer(GL43.GL_SHADER_STORAGE_BUFFER, buffer);
+            GL15.glBufferData(GL43.GL_SHADER_STORAGE_BUFFER, data, GL15.GL_DYNAMIC_DRAW);
+            GL15.glBindBuffer(GL43.GL_SHADER_STORAGE_BUFFER, 0);
+            bufferSize = cut ? 0 : size;   // after a cut the next pass writes the neutral values back
+        }
+        GL30.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, BINDING, buffer);
+    }
+
+    /** Shader storage buffers exist on this context (OpenGL 4.3 or the extension); asked once, on the render thread. */
+    private static boolean storageBuffers() {
+        if (storage == null) {
+            GLCapabilities caps = GL.getCapabilities();
+            storage = caps.OpenGL43 || caps.GL_ARB_shader_storage_buffer_object;
+            if (!storage) LOG.once("no storage", "no shader storage buffers on this OpenGL context: the ship plane goes to Colorwheel's instancing shaders as a uniform only");
+        }
+        return storage;
     }
 
     /**

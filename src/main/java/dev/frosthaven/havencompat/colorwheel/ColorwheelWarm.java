@@ -205,8 +205,11 @@ public final class ColorwheelWarm {
         } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
             LOG.error("levels", "could not make the other dimensions' renderers at the join; their programs are built at the first look", e);
         }
-        for (ClrwlEngine engine : List.copyOf(ClrwlEngine.ENGINES)) warmEngine(engine);
-        dev.frosthaven.havencompat.portals.PrewarmScreen.done();
+        try {
+            for (ClrwlEngine engine : List.copyOf(ClrwlEngine.ENGINES)) warmEngine(engine);
+        } finally {
+            dev.frosthaven.havencompat.portals.PrewarmScreen.done();   // the loading screen never waits on a failure
+        }
     }
 
     private static void warmEngine(Object engine) {
