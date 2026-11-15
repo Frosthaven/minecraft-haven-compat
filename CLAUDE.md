@@ -39,7 +39,7 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   portal, a second one lit 10 blocks behind its nether side; no "Creating pipeline" line after the join.
 - `colorwheel/ColorwheelCut` + `mixin/ColorwheelCompileMixin` / `ColorwheelEngineMixin` / `ColorwheelEnvironmentMixin`
   (client; `colorwheel` + `immersive_portals_core`, the last two also `sable`): Immersive Portals' two cuts of Create's
-  instanced parts, ported to Colorwheel (not in the pack yet, 2026-11-14; without it Flywheel is off under Iris and the
+  instanced parts, ported to Colorwheel (an optional client mod of the pack since 2026-11-14; without it Flywheel is off under Iris and the
   parts are block entity draws on the CPU). Immersive Portals patches Flywheel's `Compilation`, `EmbeddedEnvironment` and
   `EngineImpl`; Colorwheel has its own (`ClrwlCompilation`, its `EmbeddedEnvironment`, `ClrwlEngine`), so with Colorwheel
   parts behind a portal's far side showed in the portal view and a straddling ship's parts drew whole (log:
