@@ -106,6 +106,10 @@ dependencies {
     compileOnly('dev.engine-room.flywheel:flywheel-neoforge-1.21.1:1.0.6') { transitive = false }   // colorwheel/ColorwheelWarm: ContextShader, a part of Colorwheel's program key
     compileOnly('maven.modrinth:colorwheel:lV874ox8') { transitive = false }   // colorwheel/ColorwheelWarm: Colorwheel 1.3.2 for NeoForge 1.21.1
     compileOnly('maven.modrinth:iris:KduFYu4t') { transitive = false }   // mixin/ColorwheelProgramMixin: the sampler builder type of Iris 1.8.14-beta.1
+    compileOnly('maven.modrinth:ars-nouveau:yWDnir1o') { transitive = false }   // repository/: Ars Nouveau 5.13.3 (Repository Catalog, map inventory)
+    compileOnly('maven.modrinth:geckolib:Grwn5rUB') { transitive = false }   // repository/: a supertype of Ars Nouveau's Repository Catalog (GeckoLib 4.9.3)
+    compileOnly('maven.modrinth:sophisticated-core:p09oohxN') { transitive = false }   // repository/: Sophisticated Core 1.5.7.2381 (upgrade base classes)
+    compileOnly('maven.modrinth:sophisticated-storage:f7c8aEld') { transitive = false }   // repository/: Sophisticated Storage 1.6.2.2159 (storage block entities)
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'

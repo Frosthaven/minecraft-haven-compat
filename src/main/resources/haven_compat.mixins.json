@@ -28,7 +28,10 @@
     "ArsTreeCutMixin",
     "CopperLookHolderMixin",
     "CopperLookChestMixin",
-    "CopperLookTabMixin"
+    "CopperLookTabMixin",
+    "RepositoryCatalogMixin",
+    "RepositoryTileMixin",
+    "RepositoryStorageMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",

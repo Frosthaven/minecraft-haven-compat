@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "haven_compat:repository_upgrade",
+      "required": false
+    }
+  ]
+}

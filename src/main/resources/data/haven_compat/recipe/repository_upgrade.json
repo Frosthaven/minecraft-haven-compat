@@ -1,0 +1,34 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "sophisticatedstorage"
+    },
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "ars_nouveau"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "N": {
+      "tag": "c:nuggets/gold"
+    },
+    "L": {
+      "tag": "c:logs/archwood"
+    },
+    "B": {
+      "item": "sophisticatedstorage:upgrade_base"
+    }
+  },
+  "pattern": [
+    "NLN",
+    "LBL",
+    "NLN"
+  ],
+  "result": {
+    "count": 1,
+    "id": "haven_compat:repository_upgrade"
+  }
+}

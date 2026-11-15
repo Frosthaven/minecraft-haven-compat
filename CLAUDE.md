@@ -166,6 +166,32 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   0.18.0 5/12, 0.18.1 12/12; all mods: 0.19.0 12/12. The spin for a turned front and top is searched
   (`AeBlockTurn.spin`): `BlockOrientation.get(front, up)` can return a spin whose top is not `up`. Storage Drawers:
   drawers beside a controller store no link (the controller finds them, `updateCache` on load); only remote upgrades do.
+- `repository/` + `mixin/RepositoryCatalogMixin`, `RepositoryTileMixin`, `RepositoryStorageMixin` (both sides, `mixins`
+  list; `ars_nouveau`, `sophisticatedstorage`; compiles against both, Sophisticated Core and GeckoLib from Modrinth's
+  Maven): the Repository Upgrade (`haven_compat:repository_upgrade`, 0.33.0), a Sophisticated Storage upgrade that makes
+  a chest, barrel, limited barrel or shulker box an Ars Nouveau Repository. Ars Nouveau 5.13.3's Repository has no
+  logic others use: the Repository Catalog joins the repositories that touch it into one inventory (`ControllerInv`)
+  and knows them by `instanceof RepositoryBlock` and the `MAP_INV_CAP` capability; Wixies, Starbuncles and the Storage
+  Lectern talk to the Catalog. So: the capability is registered for the four storage block entity types and answers
+  only with the upgrade in (`StorageMapInventory`, `RepositoryTile`'s rules over the storage's own handler: item frame
+  and scroll filters by position, read again every 20 ticks; stack upgrades and Sophisticated's filters hold);
+  `RepositoryNetwork.build` replaces the Catalog's private `buildRepositoryNetwork` (HEAD, cancelled) and
+  `RepositoryNetwork.changed` replaces `RepositoryTile.invalidateNetwork()`, both also passing through upgraded
+  storages; a storage calls `changed` when its upgrade caches are invalidated and on load. One inventory enters once,
+  at the block that holds it (`RepositoryUpgrade.key`: a double chest's main half; a linked storage group's id); the
+  other block passes the search on and is watched. The item is in the `sophisticatedstorage:upgrade` tag only (not for
+  backpacks), one per storage, no settings tab. Recipe: the Repository's pattern (gold nuggets, archwood logs) around
+  an Upgrade Base. Icon: Sophisticated's plate with the swirl of `blue_archwood_log_2` in its ink colour.
+  An Ars Nouveau update: compare `RepositoryCatalogTile.buildRepositoryNetwork`, `RepositoryTile.invalidateNetwork`
+  and `IMapInventory` with 5.13.3. Test (2026-11-15, test server, a temporary command, not committed): Catalog, a
+  double chest, a Repository behind it, barrels, a chest without the upgrade. Catalog slots 189 = 27 + 54 + 27 + 54 + 27
+  (the double chest once, the plain chest out); 1,064 cobblestone in, 1,064 counted; extract by item; an item frame on
+  the second half sent logs to the double chest, a frame on a barrel kept other items out; a Repository placed behind a
+  barrel joined; the upgrade taken out or a half broken dropped exactly the members that lost contact; chunks
+  unloaded and loaded again gave the same network. Client: icon, the storage screen with the upgrade in its slot, the
+  recipe unlocks. Not tested: two endpoints of one linked storage group in one network (the key is from code only), a
+  real Wixie or Starbuncle, the right-click on the front face (it is Sophisticated's `tryAddSingleUpgrade`; its three
+  conditions were each checked).
 - `copperchest/CopperLook` + `mixin/CopperLookChestMixin`, `CopperLookHolderMixin` (both sides, `mixins` list;
   `sophisticatedstorage`, `haven_backports`): Backports' Copper Chest as a look of Sophisticated Storage's chests. Why
   (Sophisticated Storage 1.6.2): a chest's look is a `WoodType` in its block entity and item component; textures come

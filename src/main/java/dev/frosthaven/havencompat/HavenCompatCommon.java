@@ -15,6 +15,8 @@ import net.neoforged.fml.common.Mod;
  *  - {@code dyeing}: the Brass Dye Nozzle and Controlled Fan Dyeing Catalysts (bulk dyeing with the dye placed left,
  *    right, top, bottom or all around the item), with Create, Create Connected and Create Dragons Plus loaded.
  *  - {@code bleach}: the Bleach fluid and bulk bleaching (a fan through bleach takes dye off, or turns an item white), with Create loaded.
+ *  - {@code repository}: the Repository Upgrade, a Sophisticated Storage upgrade that makes a storage an Ars Nouveau
+ *    Repository for the Repository Catalog ({@code RepositoryUpgrade}), with both mods loaded.
  *  - {@code copperchest}: Haven Backports' Copper Chest as a look of Sophisticated Storage's chests: tier upgrades work on
  *    it and the chest keeps aging, waxing and scraping ({@code CopperLook}), with both mods loaded.
  */
@@ -34,6 +36,9 @@ public final class HavenCompatCommon {
         }
         if (ModList.get().isLoaded("sophisticatedstorage") && ModList.get().isLoaded("haven_backports")) {
             dev.frosthaven.havencompat.copperchest.CopperLook.register(modBus);
+        }
+        if (ModList.get().isLoaded("sophisticatedstorage") && ModList.get().isLoaded("ars_nouveau")) {
+            dev.frosthaven.havencompat.repository.RepositoryUpgrade.register(modBus);
         }
         if (ModList.get().isLoaded("create") && ModList.get().isLoaded("create_connected") && ModList.get().isLoaded("create_dragons_plus")) {
             dev.frosthaven.havencompat.dyeing.Dyeing.register(modBus);
