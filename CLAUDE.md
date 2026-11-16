@@ -557,7 +557,7 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   Nausea as the sulfur lakes give it (80 ticks, refreshed every 10, ambient) and 1 damage (`haven_compat:bleach`) every
   40 ticks; sheep in the stream turn white. `BleachingType` (Create fan type, the fluid is the catalyst): `BleachProcess`,
   first change wins: Create's own washing recipe when its result has no colour; the water cauldron's dye action
-  (vanilla `DYED_ITEM`, `BANNER`, `SHULKER_BOX`; Sophisticated classes by name) run by a `FakePlayer` against a cauldron
+  (vanilla `DYED_ITEM`, `BANNER`, `SHULKER_BOX`; Sophisticated classes and Drekki Rancher's `LeatherWash` by name) run by a `FakePlayer` against a cauldron
   below the build height (refused level change), repeated until it stops (all banner layers); a mod's un-dye recipe
   (`UNDYE_RECIPES`); the family's base item (`DyeFamilies`, read from the crafting recipes: the id without its colour,
   which is an ingredient of the dye recipe); dye data on a `minecraft:dyeable` item; then an item still coloured with no

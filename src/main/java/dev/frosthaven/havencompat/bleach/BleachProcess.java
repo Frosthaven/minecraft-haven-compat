@@ -38,7 +38,7 @@ import net.neoforged.neoforge.common.util.FakePlayerFactory;
  * first that changes the item:
  *  1. Create's own washing recipe, when it only takes the dye off (red wool -> white wool; not powder -> concrete);
  *  2. the water cauldron's own dye-removing action (vanilla dyed items, banners, shulker boxes, Sophisticated
- *     Backpacks and Storage), run by a fake player against a cauldron below the build height (the cauldron's level
+ *     Backpacks and Storage, Drekki Rancher's hatchery and trough), run by a fake player against a cauldron below the build height (the cauldron's level
  *     change is refused, the item changes), repeated until it stops changing, so a banner loses every layer;
  *  3. a mod's un-dye recipe (Electro Energetics' electrical panel, Aeroworks' wheel module), assembled as the mod does;
  *  4. the family's undyed base item ({@link DyeFamilies#base}: red candle -> candle), data kept;
@@ -57,7 +57,8 @@ public final class BleachProcess {
             "net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems$BackpackCauldronInteraction",
             "net.p3pp3rf1y.sophisticatedstorage.init.ModBlocks$StorageCauldronInteraction",
             "net.p3pp3rf1y.sophisticatedstorage.init.ModBlocks$WoodStorageCauldronInteraction",
-            "net.p3pp3rf1y.sophisticatedstorage.init.ModBlocks$BarrelCauldronInteraction");
+            "net.p3pp3rf1y.sophisticatedstorage.init.ModBlocks$BarrelCauldronInteraction",
+            "dev.frosthaven.ranchercompanion.item.LeatherWash");  /* Drekki Rancher: a hatchery's or trough's leather dye */
     private static final ResourceLocation SPLASHING = ResourceLocation.fromNamespaceAndPath("create", "splashing");
     private static final Map<Key, Optional<ItemStack>> CACHE = new ConcurrentHashMap<>();
     private static final int MAX_STEPS = 16;
