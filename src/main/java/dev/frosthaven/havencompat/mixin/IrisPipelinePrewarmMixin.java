@@ -38,6 +38,7 @@ public abstract class IrisPipelinePrewarmMixin implements PipelinePrewarm.Pipeli
 
     @Inject(method = "preparePipeline", at = @At("RETURN"))
     private void haven_compat$afterCreate(CallbackInfoReturnable<?> cir) {
+        dev.frosthaven.havencompat.portals.PipelineMipmaps.warm(cir.getReturnValue());
         Set<Object> before = haven_compat$before;
         haven_compat$before = null;
         if (before == null) return;

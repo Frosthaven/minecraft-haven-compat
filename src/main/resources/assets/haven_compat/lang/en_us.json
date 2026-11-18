@@ -41,6 +41,8 @@
   "haven_compat.settings.portal_view": "Immersive Portal Rendering",
   "haven_compat.settings.portal_view.disabled": "Disabled",
   "haven_compat.settings.portal_view.disabled.tip": "Portals show a purple plane and do not render the world behind them. This can raise FPS a lot. Teleporting still works.",
+  "haven_compat.settings.portal_view.fast": "Fast",
+  "haven_compat.settings.portal_view.fast.tip": "The view through portals, drawn cheaper: with a shader pack, the Nether seen through a portal is drawn without its shadow pass (the Nether has no sun, so it looks the same).",
   "haven_compat.settings.portal_view.normal": "Normal",
   "haven_compat.settings.portal_view.normal.tip": "The full view through portals.",
   "haven_compat.settings.title": "Haven Compat",
