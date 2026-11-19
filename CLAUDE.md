@@ -418,9 +418,32 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
 - `signs/SignEditorLayout` (client; `bigsignwriter`, `unlocked_typing`): moves Unlocked Typing's row up one row and
   hides an inactive Done under Big Sign Writer's font list.
 - `portals/PortalView` (setting in `config/haven-compat-portal-view.json`, volatile, Normal on any read
-  error) + `PortalViewSkipMixin` (Disabled: IP skips the portal view) + `PortalViewPlaneMixin` -> `PortalPlane` (the
-  portal entity's renderer draws a purple tile per block; shape getters cached per class in a `ClassValue`; a tile is
-  left out when the blocks on both sides of the plane are solid). `HavenSettingsScreen`: Mods > Haven Compat > Config.
+  error; levels Normal, Fast, Disabled) + `PortalViewSkipMixin` (Disabled: IP skips every portal view at the HEAD of
+  `PortalRenderer.shouldSkipRenderingPortal`; Fast: at its RETURN, a portal IP would draw while
+  `PortalRendering.isRendering()` loses its view and is noted in `PortalView.lostView`) + `PortalViewPlaneMixin` ->
+  `PortalPlane` (the portal entity's renderer draws a purple tile per block for Disabled and for a portal that lost
+  its view in the last 250 ms; shape getters cached per class in a `ClassValue`; a tile is left out when the blocks on
+  both sides of the plane are solid). The RETURN hook matters: a HEAD hook also catches the back of the portal being
+  looked through and its plane covers the whole view (tested). Same effect as IP's `maxPortalLayer: 1` (black
+  rectangles there), per player and switchable in play. `HavenSettingsScreen`: Mods > Haven Compat > Config.
+- `portals/PortalVisibility` + `PortalVisibilityMixin` / `PortalVisibilityEntryMixin` / `PortalQueryMixin` (client,
+  `immersive_portals_core`): IP's `PortalRenderInfo.renderAndDecideVisibility` reads an occlusion query with a blocking
+  `glGetQueryObjecti(GL_QUERY_RESULT)`; for a portal hidden in the last frame it reads this frame's own query ("no
+  predict": `isFrequentlyMispredicted()` or `queryStallCounter <= 3`), a full CPU-GPU sync per hidden portal per frame.
+  The mixins turn "no predict" off, and `GlQueryObject.fetchQueryResult` returns the portal's last decision when
+  `GL_QUERY_RESULT_AVAILABLE` is 0 (at most 2 frames in a row, kept per `Visibility` object in a `WeakHashMap`).
+  Found with async-profiler in wall mode on the render thread of Shane's real game (28 % at the base, 40 % at a
+  portal). Off: `portals.exactVisibility = true`.
+- `portals/PipelineMipmaps` (called from `IrisPipelinePrewarmMixin` after every `preparePipeline`, once per pipeline
+  object): calls Iris's own `CompositeRenderer.setupMipmapping` for the targets each pass lists in `mipmappedBuffers`.
+- `journeymap/JourneyMapReset` + `JourneyMapResetMixin` (client, `journeymap`): `JourneymapClient.loadConfigProperties`
+  inside `reset()` runs once per connection.
+- Portal performance test method (2026-11-18): a hidden game on a headless sway at the player's real resolution
+  (`WLR_RENDER_DRM_DEVICE` = the NVIDIA render node, else it runs on the integrated GPU), a smoke server on a copy of
+  the world regions, a throwaway client mod that logs every frame and runs a camera script, async-profiler
+  `-e wall -t --filter <render thread tid>`. Dead ends, do not repeat: an empty shadow pass for portal views (the
+  Nether has none; in the overworld an empty shadow map lights rooms like open ground), and a scissor rectangle
+  around the portal for the portal view's passes (Complementary has passes that need the whole frame: washed-out view).
 - `contraptions/ContraptionSpawn` + `mixin/ContraptionSpawnPositionMixin` (server, `mixins` list; `create`): `@Pseudo`, the mixin
   extends `Entity` and adds `getAddEntityPacket(ServerEntity)` to Create's `CarriageContraptionEntity` and
   `ControlledContraptionEntity` (siblings; neither they nor `AbstractContraptionEntity` override it): a `ClientboundAddEntityPacket` with the entity's own position, not
