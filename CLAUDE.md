@@ -387,7 +387,9 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   fails as a whole. Ours repeats its three hooks (rim attachment wrap, portal faces at RETURN, filler quads at RETURN) and
   calls IP's public `IPCreatePortalPipeModel` through method handles; it does nothing when `Mixins.getMixinsForClass` lists
   IP's mixin (a failed one still leaves its `ip$...` handler methods merged, so their presence proves nothing). Test: a fluid pipe ending at a portal shows a connection
-  piece reaching the plane, not a rim (screenshots 2026-10-21).
+  piece reaching the plane, not a rim (screenshots 2026-10-21). TFMG Community Edition (1.3.x, the pack's TFMG since
+  2026-11-18) has no `PipeAttachmentModelMixin`: IP's own mixin applies again, and `CompatMixinPlugin` leaves ours out
+  when TFMG's jar lacks `com/drmangotea/tfmg/mixin/PipeAttachmentModelMixin.class` (no `[portal pipes]` line then).
 - `mixin/NtglProjectileSyncMixin` (client; `ntgl`): NTGL 3.2.0 makes `NetworkProjectileManager` only in the server's
   `AddReloadListenerEvent`, so `ClientPlayHandler.handleUpdateProjectile` hit null on every dedicated-server join. HEAD
   inject without target args (no NTGL types on the classpath), `Class.forName` + `get()` by reflection, cancel when null.

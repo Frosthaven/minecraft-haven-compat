@@ -100,7 +100,24 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             return false;
         }
         List<String> mods = MODS_OF.get(name);
-        return mods != null && mods.stream().allMatch(mod -> LoadingModList.get().getModFileById(mod) != null);
+        if (mods == null || !mods.stream().allMatch(mod -> LoadingModList.get().getModFileById(mod) != null)) {
+            return false;
+        }
+        // TFMG 1.2 replaced Create's pipe model (Immersive Portals' own pipe mixin then fails and this one does its
+        // work); TFMG Community Edition 1.3 dropped that mixin, Immersive Portals' applies again and this one must not.
+        if (name.equals("PortalPipesTfmgMixin")) {
+            return tfmgReplacesPipeModel();
+        }
+        return true;
+    }
+
+    private static boolean tfmgReplacesPipeModel() {
+        try {
+            var tfmg = LoadingModList.get().getModFileById("tfmg");
+            return java.nio.file.Files.exists(tfmg.getFile().findResource("com/drmangotea/tfmg/mixin/PipeAttachmentModelMixin.class"));
+        } catch (RuntimeException e) {
+            return false;   // unknown TFMG layout: leave Immersive Portals' own mixin alone
+        }
     }
 
     @Override public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {}
