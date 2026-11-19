@@ -32,7 +32,8 @@
     "RepositoryCatalogMixin",
     "RepositoryTileMixin",
     "RepositoryStorageMixin",
-    "RailwaysSetupMixin"
+    "RailwaysSetupMixin",
+    "OxidationScrapeToolMixin"
   ],
   "client": [
     "PortalStencilHoldMixin",

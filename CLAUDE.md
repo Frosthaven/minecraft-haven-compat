@@ -270,6 +270,12 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `storage_tier_upgrade` recipes copy the components, so tiers need none) and `mixin/CopperLookTabMixin` (TAIL of
   `WoodStorageBlockBase.addCreativeTabItems`, chests only: the eight looks for every tier; JEI reads that list). Seen in
   a hidden game: both recipes unlock by `/recipe give`, item icons draw in the hotbar in each stage's colour.
+- `mixin/OxidationScrapeToolMixin` (both sides, `mixins` list; `createoxidized`): Create: Oxidation 1.0.0's
+  `CreateOxidizedNeoForge.onRightClickBlock` scrapes and takes wax off only for `getItem() instanceof AxeItem`; a
+  `@ModifyExpressionValue` on that `instanceof` also accepts `canPerformAction(AXE_SCRAPE | AXE_WAX_OFF)`, the question
+  vanilla copper asks (Mekanism Tools' paxels are no AxeItem). Test (2026-11-19, `just smoke --serve` with this jar, the
+  pinned one set to client side for the run): a powered Deployer in USE mode holding `mekanismtools:diamond_paxel`
+  facing `create:copper_casing`: exposed -> unaffected; waxed weathered -> unwaxed weathered -> exposed; 3 damage.
 - `trees/HangingLogs` (pure, unit tested) + `mixin/ArsTreeCutMixin` (server, `mixins` list; `create`, `ars_nouveau`): a
   Mechanical Saw takes the whole Ars tree. Why (Create 6.0.10, Ars Nouveau 5.13.3): `TreeCutter.findTree` follows logs
   sideways and up only; Ars' `MagicTrunkPlacer.addBranch` ends each branch with a log one block under the branch tip,
