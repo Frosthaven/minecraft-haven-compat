@@ -10,7 +10,7 @@ import dev.frosthaven.havencompat.settings.SavedChoice;
 public final class PortalView {
     public enum Level { NORMAL, FAST, DISABLED }
 
-    public static final SavedChoice<Level> SETTING = new SavedChoice<>(Level.class, Level.NORMAL,
+    public static final SavedChoice<Level> SETTING = new SavedChoice<>(Level.class, Level.FAST,
             "haven-compat-portal-view.json", "portalView", "Immersive Portal Rendering", new Log("[portal view] "));
 
     private PortalView() {}

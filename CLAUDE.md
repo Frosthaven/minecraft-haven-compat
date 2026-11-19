@@ -419,7 +419,7 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   vanilla click with a stale state still runs, on the moved slots), and stops after 3 tries of the same order.
 - `signs/SignEditorLayout` (client; `bigsignwriter`, `unlocked_typing`): moves Unlocked Typing's row up one row and
   hides an inactive Done under Big Sign Writer's font list.
-- `portals/PortalView` (setting in `config/haven-compat-portal-view.json`, volatile, Normal on any read
+- `portals/PortalView` (setting in `config/haven-compat-portal-view.json`, volatile, Fast (the default since 0.35.0) on any read
   error; levels Normal, Fast, Disabled) + `PortalViewSkipMixin` (Disabled: IP skips every portal view at the HEAD of
   `PortalRenderer.shouldSkipRenderingPortal`; Fast: at its RETURN, a portal IP would draw while
   `PortalRendering.isRendering()` loses its view and is noted in `PortalView.lostView`) + `PortalViewPlaneMixin` ->
