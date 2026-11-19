@@ -52,8 +52,6 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("PortalVisibilityEntryMixin", List.of("immersive_portals_core")),
             Map.entry("PortalQueryMixin", List.of("immersive_portals_core")),
             Map.entry("JourneyMapResetMixin", List.of("journeymap")),
-            Map.entry("PortalFastShadowMixin", List.of("immersive_portals_core", "iris")),
-            Map.entry("PortalFastColorwheelShadowMixin", List.of("immersive_portals_core", "iris", "colorwheel")),
             Map.entry("PortalViewPlaneMixin", List.of("immersive_portals_core")),
             Map.entry("PlayerAnimationDataMixin", List.of("entity_texture_features")),
             Map.entry("ContraptionSpawnPositionMixin", List.of("create")),

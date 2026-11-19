@@ -67,8 +67,6 @@
     "PortalVisibilityEntryMixin",
     "PortalQueryMixin",
     "JourneyMapResetMixin",
-    "PortalFastShadowMixin",
-    "PortalFastColorwheelShadowMixin",
     "PortalViewPlaneMixin",
     "PlayerAnimationDataMixin",
     "TooltipOnTopMixin",
