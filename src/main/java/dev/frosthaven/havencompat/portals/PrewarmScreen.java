@@ -52,8 +52,26 @@ public final class PrewarmScreen {
         return held;
     }
 
+    /**
+     * The held screen, drawn whole: black, the line of text, and a bar of the round's steps. Each step blocks one frame
+     * (the driver links shaders), so anything that moves behind the text (the panorama) would stutter; a still screen
+     * with a bar does not. False when the screen is not held: vanilla draws its own.
+     */
+    public static boolean draw(net.minecraft.client.gui.GuiGraphics g, net.minecraft.client.gui.Font font, int width, int height) {
+        if (!held) return false;
+        g.fill(0, 0, width, height, 0xFF000000);
+        g.drawCenteredString(font, text(TEXT), width / 2, height / 2 - 14, 0xFFFFFF);
+        int w = Math.min(240, width - 40), x = (width - w) / 2, y = height / 2 + 4, h = 8;
+        g.fill(x - 1, y - 1, x + w + 1, y + h + 1, 0xFFFFFFFF);
+        g.fill(x, y, x + w, y + h, 0xFF000000);
+        int done = WarmQueue.busy() ? WarmQueue.percent() : started ? 100 : 0;
+        g.fill(x + 1, y + 1, x + 1 + (w - 2) * done / 100, y + h - 1, 0xFFFFFFFF);
+        return true;
+    }
+
     /** The loading screen's line of text. */
     public static Component text(Component loadingTerrain) {
-        return held ? TEXT : loadingTerrain;
+        if (!held) return loadingTerrain;
+        return WarmQueue.busy() ? Component.translatable("haven_compat.compiling_shaders_percent", WarmQueue.percent()) : TEXT;
     }
 }

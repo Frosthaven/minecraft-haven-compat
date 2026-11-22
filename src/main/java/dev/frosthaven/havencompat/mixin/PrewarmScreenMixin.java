@@ -22,6 +22,12 @@ public abstract class PrewarmScreenMixin {
         if (PrewarmScreen.holds()) ci.cancel();
     }
 
+    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
+    private void haven_compat$still(net.minecraft.client.gui.GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+        var mc = net.minecraft.client.Minecraft.getInstance();
+        if (PrewarmScreen.draw(graphics, mc.font, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight())) ci.cancel();
+    }
+
     @ModifyArg(method = "render", index = 1, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/gui/GuiGraphics;drawCenteredString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V"))
     private Component haven_compat$text(Component loadingTerrain) {

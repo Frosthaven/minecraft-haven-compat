@@ -46,8 +46,15 @@ public final class PipelinePrewarm {
     static final List<String[]> DIMENSIONS = List.of(
             new String[] {"minecraft", "overworld"}, new String[] {"minecraft", "the_nether"}, new String[] {"minecraft", "the_end"});
     private static final String IP_VIEWS = "qouteall.imm_ptl.core.compat.iris_integration.IPIrisPortalViewPipelines";
-    private static final int DEFAULT_VIEWS = 2;
+    private static final int DEFAULT_VIEWS = 3;
     private static boolean active, broken;
+    /** Dimension pairs a portal links: each one's engine also draws with the other's pipelines (a carriage's far half). */
+    public static final java.util.Set<String> LINKS = new java.util.concurrent.ConcurrentSkipListSet<>(List.of(
+            "minecraft:overworld|minecraft:the_nether", "minecraft:overworld|minecraft:the_end"));
+
+    public static boolean linked(String a, String b) {
+        return LINKS.contains(a + "|" + b) || LINKS.contains(b + "|" + a);
+    }
     private static Boolean enabled;
     private static int round;
 
@@ -87,49 +94,45 @@ public final class PipelinePrewarm {
             Constructor<?> id = idType.getConstructor(String.class, String.class);
             String namespace = (String) idType.getMethod("getNamespace").invoke(createdId);
             String name = (String) idType.getMethod("getName").invoke(createdId);
-            round++;
-            PrewarmScreen.roundStarted();
-            active = true;
             boolean fresh = false;
-            try {
+            for (String[] dim : DIMENSIONS) if (!own.containsKey(id.newInstance(dim[0], dim[1]))) fresh = true;
+            // Only a new set of pipelines (a join, a shader reload) starts a round: a single late build (a modded
+            // dimension's first look) is handled by PortalWarm when a portal to it loads.
+            if (!fresh) return;
+            round++;
+            int thisRound = round;
+            PrewarmScreen.roundStarted();
+            WarmQueue.clear();
+            Session session = new Session(manager, prepare, id, idType, views);
+            current = session;
+            for (String[] dim : DIMENSIONS) {
+                if (dim[0].equals(namespace) && dim[1].equals(name)) continue;
+                WarmQueue.add(() -> session.main(dim, thisRound));
+            }
+            int count = Math.min(views.size(), viewCount());
+            List<String[]> viewed = new java.util.ArrayList<>(DIMENSIONS);
+            if (DIMENSIONS.stream().noneMatch(d -> d[0].equals(namespace) && d[1].equals(name))) viewed.add(new String[] {namespace, name});
+            for (String[] dim : viewed) for (int i = 0; i < count; i++) {
+                int view = i;
+                WarmQueue.add(() -> session.view(dim, view, thisRound));
+            }
+            if (ModList.get().isLoaded("colorwheel")) {
+                WarmQueue.add(() -> session.guard(() -> warmColorwheel(own, id, idType)));
+                int pairs = 0;   // an engine's steps: its own pipelines and each linked dimension's (main and views)
                 for (String[] dim : DIMENSIONS) {
-                    if (dim[0].equals(namespace) && dim[1].equals(name)) continue;
-                    long t = System.nanoTime();
-                    Object other = id.newInstance(dim[0], dim[1]);
-                    if (own.containsKey(other)) continue;
-                    fresh = true;
-                    prepare.invoke(manager, other);
-                    LOG.once("warm:" + round + ":" + dim[1], "shader pipeline for {}:{} built behind the loading screen ({} ms)",
-                            dim[0], dim[1], (System.nanoTime() - t) / 1_000_000);
+                    int links = 0;
+                    for (String[] other : DIMENSIONS) if (other != dim && linked(dim[0] + ":" + dim[1], other[0] + ":" + other[1])) links++;
+                    pairs += (1 + count) * (1 + links);
                 }
-                // Portal views only with a new set of pipelines (a join, a shader reload): a single late build (a
-                // modded dimension's first look) happens in play, and more builds there would be a longer stall.
-                int count = fresh ? Math.min(views.size(), viewCount()) : 0;
-                for (int i = 0; i < count; i++) {
-                    if (views.get(i).containsKey(createdId)) continue;
-                    long t = System.nanoTime();
-                    ((Pipelines) manager).haven_compat$pipelines(views.get(i));
-                    Object made;
-                    try {
-                        made = prepare.invoke(manager, createdId);
-                    } finally {
-                        ((Pipelines) manager).haven_compat$pipelines(own);
-                    }
-                    for (Method m : Class.forName(IP_VIEWS).getMethods()) {
-                        if (m.getName().equals("onCreated")) m.invoke(null, createdId, made);
-                    }
-                    LOG.once("view:" + round + ":" + i, "shader pipeline for portal view {} of {}:{} built behind the loading screen ({} ms)",
-                            i + 1, namespace, name, (System.nanoTime() - t) / 1_000_000);
-                }
-                if (fresh && ModList.get().isLoaded("colorwheel")) {
-                    warmColorwheel(own, id, idType);
-                    dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.warmEngines();   // ends the loading screen's hold itself
-                } else {
-                    PrewarmScreen.done();
-                }
-                prepare.invoke(manager, createdId);   // the player's stays current: an id that exists is a lookup
-            } finally {
-                active = false;
+                dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.queueEngines(pairs + 1, PrewarmScreen::done);
+            } else {
+                WarmQueue.add(PrewarmScreen::done);
+            }
+            // links found earlier in the session (a shader reload destroyed their pipelines too)
+            for (String link : LINKS) {
+                if (VANILLA_LINKS.contains(link)) continue;
+                String[] ends = link.split("\\|");
+                link(ends[0], ends[1]);
             }
         } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
             broken = true;
@@ -137,6 +140,102 @@ public final class PipelinePrewarm {
             LOG.error("prewarm", "could not pre-build Iris's pipelines; portals build them on first look as before", e);
         }
     }
+
+    /** The round's tools: Iris's manager and how to ask it for a pipeline. Kept for PortalWarm's late builds. */
+    static final class Session {
+        final Object manager;
+        final Method prepare;
+        final Constructor<?> id;
+        final Class<?> idType;
+        final List<Map<?, ?>> views;
+
+        Session(Object manager, Method prepare, Constructor<?> id, Class<?> idType, List<Map<?, ?>> views) {
+            this.manager = manager; this.prepare = prepare; this.id = id; this.idType = idType; this.views = views;
+        }
+
+        interface Work { void run() throws ReflectiveOperationException; }
+
+        /** One step's work with the mixin kept out of our own preparePipeline calls; a failure ends the prewarm. */
+        void guard(Work work) {
+            if (broken) return;
+            active = true;
+            try {
+                work.run();
+                restore();
+            } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
+                broken = true;
+                WarmQueue.clear();
+                PrewarmScreen.done();
+                LOG.error("prewarm", "could not pre-build Iris's pipelines; portals build them on first look as before", e);
+            } finally {
+                active = false;
+            }
+        }
+
+        /** The player's dimension stays the current pipeline: an id that exists is a lookup. */
+        private void restore() throws ReflectiveOperationException {
+            var level = Minecraft.getInstance().level;
+            if (level == null) return;
+            var at = level.dimension().location();
+            prepare.invoke(manager, id.newInstance(at.getNamespace(), at.getPath()));
+        }
+
+        void main(String[] dim, int round) {
+            guard(() -> {
+                Object other = id.newInstance(dim[0], dim[1]);
+                if (((Pipelines) manager).haven_compat$pipelines().containsKey(other)) return;
+                long t = System.nanoTime();
+                prepare.invoke(manager, other);
+                LOG.once("warm:" + round + ":" + dim[1], "shader pipeline for {}:{} built behind the loading screen ({} ms)",
+                        dim[0], dim[1], (System.nanoTime() - t) / 1_000_000);
+            });
+        }
+
+        void view(String[] dim, int i, int round) {
+            guard(() -> {
+                Object viewed = id.newInstance(dim[0], dim[1]);
+                Map<?, ?> own = ((Pipelines) manager).haven_compat$pipelines();
+                if (!own.containsKey(viewed) || views.get(i).containsKey(viewed)) return;
+                long t = System.nanoTime();
+                ((Pipelines) manager).haven_compat$pipelines(views.get(i));
+                Object made;
+                try {
+                    made = prepare.invoke(manager, viewed);
+                } finally {
+                    ((Pipelines) manager).haven_compat$pipelines(own);
+                }
+                for (Method m : Class.forName(IP_VIEWS).getMethods()) {
+                    if (m.getName().equals("onCreated")) m.invoke(null, viewed, made);
+                }
+                LOG.once("view:" + round + ":" + dim[1] + ":" + i, "shader pipeline for portal view {} of {}:{} built ({} ms)",
+                        i + 1, dim[0], dim[1], (System.nanoTime() - t) / 1_000_000);
+            });
+        }
+    }
+
+    static Session current;
+    private static final java.util.Set<String> VANILLA_LINKS = java.util.Set.copyOf(LINKS);
+
+    /**
+     * Queues everything a portal between these two dimensions ("namespace:path") needs that does not exist yet: each
+     * side's pipeline and portal views, its client level and Colorwheel engine, and each engine's programs for both
+     * sides' pipelines. Steps that find their work done cost nothing.
+     */
+    public static void link(String from, String to) {
+        Session session = current;
+        if (session == null || broken) return;
+        int count = Math.min(session.views.size(), viewCount());
+        for (String side : List.of(from, to)) {
+            String[] dim = side.split(":", 2);
+            WarmQueue.add(() -> session.main(dim, round));
+            for (int i = 0; i < count; i++) {
+                int view = i;
+                WarmQueue.add(() -> session.view(dim, view, round));
+            }
+        }
+        if (ModList.get().isLoaded("colorwheel")) dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.queueLink(from, to);
+    }
+
 
     /**
      * Colorwheel's rewritten shader sources for the three dimensions, behind the same loading screen (see
@@ -161,6 +260,10 @@ public final class PipelinePrewarm {
      * Every Iris pipeline that exists for this dimension id now: the manager's own and Immersive Portals' portal views.
      * Empty before Iris has a manager or a pipeline for it.
      */
+    public static List<Object> pipelinesOf(String namespace, String name, Class<?> idType) throws ReflectiveOperationException {
+        return pipelinesOf(idType.getConstructor(String.class, String.class).newInstance(namespace, name));
+    }
+
     public static List<Object> pipelinesOf(Object dimension) throws ReflectiveOperationException {
         List<Object> out = new java.util.ArrayList<>();
         Object manager = Class.forName("net.irisshaders.iris.Iris").getMethod("getPipelineManager").invoke(null);

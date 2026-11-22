@@ -14,6 +14,7 @@ import dev.engine_room.flywheel.api.material.MaterialShaders;
 import dev.engine_room.flywheel.api.material.Transparency;
 import dev.frosthaven.havencompat.Log;
 import dev.frosthaven.havencompat.portals.PipelinePrewarm;
+import dev.frosthaven.havencompat.portals.WarmQueue;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -50,7 +51,7 @@ import net.minecraft.resources.ResourceLocation;
  * world on a cold driver cache, three pipelines in a row at the first look at a portal (2026-11-15, 0.32.1). At a join
  * Colorwheel does not know yet which keys it will need, so this class keeps the list: {@link #compiled} writes every
  * key Colorwheel builds to {@value #FILE} in the game folder (by the names of its shader parts), and
- * {@link #warmEngines} builds the listed programs, and the six culling programs of the indirect backend, for every
+ * {@link #queueEngines} builds the listed programs, and the six culling programs of the indirect backend, for every
  * pipeline of every Colorwheel engine behind the loading screen. A key whose parts no loaded class names yet (another
  * mod's instance type) is skipped; it is built at first use as before.
  */
@@ -156,24 +157,26 @@ public final class ColorwheelWarm {
      * three vanilla dimensions' client levels and engines (Immersive Portals makes those levels itself when a portal
      * loads and keeps them for the session) and builds everything in that one frame, while the world has just appeared.
      */
-    public static void warmEngines() {
+    public static void queueEngines(int expected, Runnable after) {
         if (programsBroken) {
-            dev.frosthaven.havencompat.portals.PrewarmScreen.done();
+            WarmQueue.add(after);
             return;
         }
         long deadline = System.currentTimeMillis() + WAIT_MS;
-        Minecraft.getInstance().tell(() -> whenEngineExists(deadline));
+        // Wait (one check per frame) until Colorwheel has an engine; give up quietly after the deadline or without a level.
+        WarmQueue.add(() -> !ClrwlEngine.ENGINES.isEmpty() || System.currentTimeMillis() >= deadline || Minecraft.getInstance().level == null);
+        WarmQueue.add(() -> {
+            if (!ClrwlEngine.ENGINES.isEmpty()) {
+                makeEngines(List.of(net.minecraft.world.level.Level.OVERWORLD, net.minecraft.world.level.Level.NETHER, net.minecraft.world.level.Level.END));
+                for (ClrwlEngine engine : List.copyOf(ClrwlEngine.ENGINES)) queueEngine(engine, null);
+            }
+            WarmQueue.add(after);   // ends the loading screen's hold, after the programs
+        });
+        WarmQueue.reserve(expected);
     }
 
-    private static void whenEngineExists(long deadline) {
-        if (ClrwlEngine.ENGINES.isEmpty()) {
-            if (System.currentTimeMillis() < deadline && Minecraft.getInstance().level != null) {
-                Minecraft.getInstance().tell(() -> whenEngineExists(deadline));
-            } else {
-                dev.frosthaven.havencompat.portals.PrewarmScreen.done();
-            }
-            return;
-        }
+    /** The client levels, Flywheel managers and Colorwheel engines of these dimensions, made now (Immersive Portals only). */
+    public static void makeEngines(List<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>> dimensions) {
         try {
             if (net.neoforged.fml.ModList.get().isLoaded("immersive_portals_core")) {
                 Class<?> worlds = Class.forName("qouteall.imm_ptl.core.ClientWorldLoader");
@@ -182,8 +185,7 @@ public final class ColorwheelWarm {
                     Method world = worlds.getMethod("getWorld", net.minecraft.resources.ResourceKey.class);
                     // Flywheel makes a manager (and so an engine) only for the level that is current: ask as that level.
                     Method asLevel = worlds.getMethod("withSwitchedWorld", net.minecraft.client.multiplayer.ClientLevel.class, Runnable.class);
-                    for (var dimension : List.of(net.minecraft.world.level.Level.OVERWORLD, net.minecraft.world.level.Level.NETHER,
-                            net.minecraft.world.level.Level.END)) {
+                    for (var dimension : dimensions) {
                         if (served.contains(dimension)) {
                             Object level = world.invoke(null, dimension);
                             // The manager makes its engine at its first tick or frame ("lateInit"): ask for it now.
@@ -203,16 +205,50 @@ public final class ColorwheelWarm {
                 }
             }
         } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
-            LOG.error("levels", "could not make the other dimensions' renderers at the join; their programs are built at the first look", e);
-        }
-        try {
-            for (ClrwlEngine engine : List.copyOf(ClrwlEngine.ENGINES)) warmEngine(engine);
-        } finally {
-            dev.frosthaven.havencompat.portals.PrewarmScreen.done();   // the loading screen never waits on a failure
+            LOG.error("levels", "could not make the other dimensions' renderers ahead; their programs are built at the first look", e);
         }
     }
 
-    private static void warmEngine(Object engine) {
+    /** A portal links these two dimensions: their levels and engines, then every engine's programs for both. */
+    public static void queueLink(String from, String to) {
+        if (programsBroken) return;
+        WarmQueue.add(() -> {
+            if (ClrwlEngine.ENGINES.isEmpty()) return;
+            List<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>> keys = new ArrayList<>();
+            for (String side : List.of(from, to)) {
+                keys.add(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, ResourceLocation.parse(side)));
+            }
+            makeEngines(keys);
+            for (ClrwlEngine engine : List.copyOf(ClrwlEngine.ENGINES)) {
+                try {
+                    Object dimension = open(engine.getClass().getDeclaredField("dimension")).get(engine);
+                    String name = dimension.getClass().getMethod("getNamespace").invoke(dimension) + ":" + dimension.getClass().getMethod("getName").invoke(dimension);
+                    if (name.equals(from) || name.equals(to)) queueEngine(engine, null);
+                } catch (ReflectiveOperationException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        });
+    }
+
+    /**
+     * One step per pipeline this engine draws with (see {@link #pipelinesFor}); {@code only}: just the pipelines of that
+     * dimension name ("namespace:path"), for a dimension that came later.
+     */
+    public static void queueEngine(Object engine, String only) {
+        if (programsBroken) return;
+        try {
+            Object dimension = open(engine.getClass().getDeclaredField("dimension")).get(engine);
+            for (Object irisPipeline : pipelinesFor(dimension, only)) {
+                WarmQueue.add(() -> warmPair(engine, dimension, irisPipeline));
+            }
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            programsBroken = true;
+            LOG.error("programs", "could not prepare Colorwheel's programs ahead; they are built at first use as before", e);
+        }
+    }
+
+    private static void warmPair(Object engine, Object dimension, Object irisPipeline) {
         if (programsBroken || !ClrwlEngine.ENGINES.contains(engine)) return;
         try {
             load();
@@ -222,10 +258,9 @@ public final class ColorwheelWarm {
                 if (key != null) keys.add(key);
             }
             if (keys.isEmpty()) {
-                if (!LINES.isEmpty()) LOG.info("none of the {} recorded Colorwheel programs names parts that are loaded; nothing built ahead", LINES.size());
+                if (!LINES.isEmpty()) LOG.once("no keys", "none of the {} recorded Colorwheel programs names parts that are loaded; nothing built ahead", LINES.size());
                 return;
             }
-            Object dimension = open(engine.getClass().getDeclaredField("dimension")).get(engine);
             Object drawManager = open(engine.getClass().getDeclaredField("drawManager")).get(engine);
             Method pipelineData = null;
             for (Method m : drawManager.getClass().getDeclaredMethods()) {
@@ -233,36 +268,49 @@ public final class ColorwheelWarm {
             }
             if (pipelineData == null) throw new NoSuchMethodException("getPipelineData");
             long t = System.nanoTime();
-            int pipelines = 0, built = 0;
+            int built = 0;
             replaying = true;
             try {
-                for (Object irisPipeline : PipelinePrewarm.pipelinesOf(dimension)) {
-                    Object programs = open(pipelineData.invoke(drawManager, irisPipeline).getClass().getRecordComponents()[0].getAccessor())
-                            .invoke(pipelineData.invoke(drawManager, irisPipeline));
-                    Method get = programs.getClass().getMethod("get", ClrwlShaderKey.class);
-                    for (ClrwlShaderKey key : keys) {
-                        if (get.invoke(programs, key) != null) built++;
+                Object data = pipelineData.invoke(drawManager, irisPipeline);
+                Object programs = open(data.getClass().getRecordComponents()[0].getAccessor()).invoke(data);
+                Method get = programs.getClass().getMethod("get", ClrwlShaderKey.class);
+                for (ClrwlShaderKey key : keys) {
+                    if (get.invoke(programs, key) != null) built++;
+                }
+                for (Method m : programs.getClass().getMethods()) {
+                    if (m.getName().equals("getCullingProgram")) {
+                        for (Object culling : m.getParameterTypes()[0].getEnumConstants()) m.invoke(programs, culling);
                     }
-                    for (Method m : programs.getClass().getMethods()) {
-                        if (m.getName().equals("getCullingProgram")) {
-                            for (Object culling : m.getParameterTypes()[0].getEnumConstants()) m.invoke(programs, culling);
-                        }
-                    }
-                    pipelines++;
                 }
             } finally {
                 replaying = false;
             }
-            if (pipelines == 0) {
-                LOG.info("no shader pipeline for {} yet; Colorwheel's programs for it are built at first use", dimension);
-            } else {
-                LOG.info("Colorwheel's programs for {} prepared ahead of their first draw ({} pipelines, {} programs, {} ms)",
-                        dimension, pipelines, built, (System.nanoTime() - t) / 1_000_000);
-            }
+            long ms = (System.nanoTime() - t) / 1_000_000;
+            if (ms >= 5) LOG.info("Colorwheel's programs for {} with shader pipeline {} prepared ahead of their first draw ({} programs, {} ms)",
+                    dimension, Integer.toHexString(System.identityHashCode(irisPipeline)), built, ms);
         } catch (Exception | LinkageError e) {
             programsBroken = true;
             LOG.error("programs", "could not prepare Colorwheel's programs ahead; they are built at first use as before", e);
         }
+    }
+
+    /**
+     * The pipelines an engine draws with. Its own dimension's, and the other portal-linked dimension's too: the far half
+     * of a train carriage or ship in a portal is drawn by its own level's engine inside the other dimension's view, with
+     * that dimension's pipeline. Those pairs were built in play, 0.75 to 1.8 s at a train's first crossings (2026-11-22).
+     */
+    private static List<Object> pipelinesFor(Object dimension, String only) throws ReflectiveOperationException {
+        String self = dimension.getClass().getMethod("getNamespace").invoke(dimension) + ":" + dimension.getClass().getMethod("getName").invoke(dimension);
+        List<Object> out = new ArrayList<>();
+        if (only == null || only.equals(self)) out.addAll(PipelinePrewarm.pipelinesOf(dimension));
+        for (String link : PipelinePrewarm.LINKS) {
+            String[] ends = link.split("\\|");
+            String other = ends[0].equals(self) ? ends[1] : ends[1].equals(self) ? ends[0] : null;
+            if (other == null || only != null && !only.equals(other)) continue;
+            String[] id = other.split(":", 2);
+            for (Object pipeline : PipelinePrewarm.pipelinesOf(id[0], id[1], dimension.getClass())) if (!out.contains(pipeline)) out.add(pipeline);
+        }
+        return out;
     }
 
     private static void load() throws Exception {
