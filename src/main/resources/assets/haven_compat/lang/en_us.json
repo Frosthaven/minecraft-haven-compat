@@ -60,6 +60,7 @@
   "haven_compat.compiling_shaders": "Compiling shaders...",
   "haven_compat.compiling_shaders_percent": "Compiling shaders... %s%%",
   "haven_compat.loading_portals": "Loading portals...",
+  "haven_compat.loading_terrain_percent": "Loading terrain... %s%%",
   "item.haven_compat.repository_upgrade": "Repository Upgrade",
   "item.haven_compat.repository_upgrade.tooltip": "The storage works as an Ars Nouveau Repository\nPlace it so it touches a Repository Catalog, a Repository or another storage with this upgrade",
   "haven_compat.megatorch_map.on": "Hide Mega Torch areas",

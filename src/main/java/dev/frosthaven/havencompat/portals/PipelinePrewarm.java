@@ -43,14 +43,20 @@ public final class PipelinePrewarm {
     public static final String TARGET = "net.irisshaders.iris.pipeline.PipelineManager";
     private static final Log LOG = new Log("[iris prewarm] ");
     private static final String IP_GLOBAL = "qouteall.imm_ptl.core.IPCGlobal";
-    static final List<String[]> DIMENSIONS = List.of(
+    public static final List<String[]> DIMENSIONS = List.of(
             new String[] {"minecraft", "overworld"}, new String[] {"minecraft", "the_nether"}, new String[] {"minecraft", "the_end"});
     private static final String IP_VIEWS = "qouteall.imm_ptl.core.compat.iris_integration.IPIrisPortalViewPipelines";
     private static final int DEFAULT_VIEWS = 3;
     private static boolean active, broken;
     /** Dimension pairs a portal links: each one's engine also draws with the other's pipelines (a carriage's far half). */
     public static final java.util.Set<String> LINKS = new java.util.concurrent.ConcurrentSkipListSet<>(List.of(
-            "minecraft:overworld|minecraft:the_nether", "minecraft:overworld|minecraft:the_end"));
+            "minecraft:overworld|minecraft:the_nether"));   // the End's portals are rare: PortalWarm adds its link when one loads
+
+    /** This dimension is one end of a known portal link: it gets portal-view pipelines. */
+    public static boolean linkedDimension(String name) {
+        for (String link : LINKS) for (String end : link.split("\\|")) if (end.equals(name)) return true;
+        return false;
+    }
 
     public static boolean linked(String a, String b) {
         return LINKS.contains(a + "|" + b) || LINKS.contains(b + "|" + a);
@@ -110,21 +116,16 @@ public final class PipelinePrewarm {
                 WarmQueue.add(() -> session.main(dim, thisRound));
             }
             int count = Math.min(views.size(), viewCount());
-            List<String[]> viewed = new java.util.ArrayList<>(DIMENSIONS);
-            if (DIMENSIONS.stream().noneMatch(d -> d[0].equals(namespace) && d[1].equals(name))) viewed.add(new String[] {namespace, name});
+            List<String[]> viewed = new java.util.ArrayList<>();
+            for (String[] dim : DIMENSIONS) if (linkedDimension(dim[0] + ":" + dim[1])) viewed.add(dim);
+            if (viewed.stream().noneMatch(d -> d[0].equals(namespace) && d[1].equals(name))) viewed.add(new String[] {namespace, name});
             for (String[] dim : viewed) for (int i = 0; i < count; i++) {
                 int view = i;
                 WarmQueue.add(() -> session.view(dim, view, thisRound));
             }
             if (ModList.get().isLoaded("colorwheel")) {
                 WarmQueue.add(() -> session.guard(() -> warmColorwheel(own, id, idType)));
-                int pairs = 0;   // an engine's steps: its own pipelines and each linked dimension's (main and views)
-                for (String[] dim : DIMENSIONS) {
-                    int links = 0;
-                    for (String[] other : DIMENSIONS) if (other != dim && linked(dim[0] + ":" + dim[1], other[0] + ":" + other[1])) links++;
-                    pairs += (1 + count) * (1 + links);
-                }
-                dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.queueEngines(pairs + 1, PrewarmScreen::done);
+                dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.queueEngines(pairs(count) + 1, PrewarmScreen::done);
             } else {
                 WarmQueue.add(PrewarmScreen::done);
             }
@@ -138,6 +139,140 @@ public final class PipelinePrewarm {
             broken = true;
             PrewarmScreen.done();
             LOG.error("prewarm", "could not pre-build Iris's pipelines; portals build them on first look as before", e);
+        }
+    }
+
+    private static boolean startupTried, startupDone;
+
+    /** The startup round built every pipeline and they still exist: a join has only the Colorwheel engines left. */
+    public static boolean builtAtStartup() {
+        if (!startupDone || current == null) return false;
+        try {
+            Map<?, ?> own = ((Pipelines) current.manager).haven_compat$pipelines();
+            for (String[] dim : DIMENSIONS) if (!own.containsKey(current.id.newInstance(dim[0], dim[1]))) return false;
+            return true;
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            return false;
+        }
+    }
+
+    /**
+     * At the title screen (once per game start, and again after a shader reload there): the same round as at a join,
+     * without a world. Iris can build a pipeline with no level (it builds the Overworld's itself when the game has
+     * loaded), and Immersive Portals' switch to its Iris renderer, which destroys every pipeline, happens once per game
+     * session and can be asked for now. So the seconds of shader work are spent before "Multiplayer", not with the
+     * character already standing in the world behind a loading screen. What is left for the join are Colorwheel's
+     * programs, which belong to a level's engine. Any failure leaves the join's own round in place.
+     */
+    public static void startup() {
+        if (active || broken || startupTried || WarmQueue.busy()) return;
+        startupTried = true;
+        try {
+            if (!expected()) return;
+            Object manager = Class.forName("net.irisshaders.iris.Iris").getMethod("getPipelineManager").invoke(null);
+            if (!(manager instanceof Pipelines)) return;
+            if (ModList.get().isLoaded("immersive_portals_core")) {
+                Class.forName("qouteall.imm_ptl.core.render.renderer.PortalRenderer").getMethod("switchToCorrectRenderer").invoke(null);
+                if (!portalRendererReady()) {
+                    LOG.info("Immersive Portals did not switch to its Iris renderer at the title screen; the pipelines are built at the join as before");
+                    return;
+                }
+            }
+            Class<?> idType = Class.forName("net.irisshaders.iris.shaderpack.materialmap.NamespacedId");
+            Method prepare = manager.getClass().getMethod("preparePipeline", idType);
+            Constructor<?> id = idType.getConstructor(String.class, String.class);
+            List<Map<?, ?>> views = portalViews();
+            round++;
+            int thisRound = round;
+            long t0 = System.currentTimeMillis();
+            WarmQueue.clear();
+            Session session = new Session(manager, prepare, id, idType, views);
+            current = session;
+            startupDone = false;
+            for (String[] dim : DIMENSIONS) WarmQueue.add(() -> session.main(dim, thisRound));
+            int count = Math.min(views.size(), viewCount());
+            for (String[] dim : DIMENSIONS) for (int i = 0; i < count && linkedDimension(dim[0] + ":" + dim[1]); i++) {
+                int view = i;
+                WarmQueue.add(() -> session.view(dim, view, thisRound));
+            }
+            if (ModList.get().isLoaded("colorwheel")) {
+                WarmQueue.add(() -> session.guard(() -> warmColorwheel(((Pipelines) manager).haven_compat$pipelines(), id, idType)));
+                WarmQueue.reserve(pairs(count));
+                WarmQueue.add(() -> dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.queueSpares(idType));
+            }
+            WarmQueue.add(() -> {
+                startupDone = !broken;
+                LOG.info("the shader pipelines of the vanilla dimensions were built at the game's start ({} ms)", System.currentTimeMillis() - t0);
+            });
+        } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
+            LOG.error("startup", "could not build the shader pipelines at the title screen; they are built at the join as before", e);
+        }
+    }
+
+    private static boolean joining;
+
+    /** From {@code mixin/IrisKeepPipelinesMixin}: the game is setting a client level (a join, a vanilla dimension change). */
+    public static void joining(boolean now) {
+        joining = now;
+    }
+
+    /**
+     * Iris destroys every pipeline when the client level is set ("Reloading pipeline on dimension change", also for
+     * overworld to overworld): its handler compares {@code Iris.getCurrentDimension()} with {@code Iris.lastDimension}
+     * by identity, and the first is a new object at every call. With Immersive Portals all pipelines live side by side
+     * anyway and a portal crossing destroys none; and a destroy also takes Immersive Portals' portal-view pipelines with
+     * it. So while a level is being set, {@code mixin/IrisCurrentDimensionMixin} makes the two the same object: the
+     * destroy is not asked for, and Iris looks up (or builds) the one pipeline it needs. What the title screen built is
+     * still there at the join. A shader pack reload is not a level change and destroys them as before.
+     */
+    public static boolean keeping() {
+        if (!joining || broken || current == null) return false;
+        try {
+            if (!enabled() || ((Pipelines) current.manager).haven_compat$pipelines().isEmpty()) return false;
+        } catch (RuntimeException e) {
+            return false;
+        }
+        LOG.once("keep:" + round, "the shader pipelines are kept through the join (Iris would rebuild all of them)");
+        return true;
+    }
+
+    /** How many engine and pipeline pairs a join prepares: each engine's own pipelines and each linked dimension's. */
+    private static int pairs(int views) {
+        int pairs = 0;
+        for (String[] dim : DIMENSIONS) {
+            String name = dim[0] + ":" + dim[1];
+            pairs += 1 + (linkedDimension(name) ? views : 0);
+            for (String[] other : DIMENSIONS) {
+                String o = other[0] + ":" + other[1];
+                if (other != dim && linked(name, o)) pairs += 1 + (linkedDimension(o) ? views : 0);
+            }
+        }
+        return pairs;
+    }
+
+    /** The game start's round has not been tried yet (or the pipelines were destroyed since) and a shader pack is on. */
+    public static boolean startupDue() {
+        return !startupTried && !broken && expected();
+    }
+
+    /** Iris destroyed its pipelines (a shader reload): the title screen may build them again. */
+    public static void destroyed() {
+        startupTried = false;
+        startupDone = false;
+        if (ModList.get().isLoaded("colorwheel")) dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.dropSpares();
+    }
+
+    /**
+     * A join after {@link #startup}: no pipeline is created, so no round starts by itself. This queues what a join still
+     * needs (Colorwheel's programs for the engines of this connection) and ends the loading screen's hold after it.
+     */
+    public static void joinAfterStartup() {
+        PrewarmScreen.roundStarted();
+        if (ModList.get().isLoaded("colorwheel")) {
+            int count = current == null ? 0 : Math.min(current.views.size(), viewCount());
+            dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.queueEngines(pairs(count) + 1, PrewarmScreen::done);
+        } else {
+            WarmQueue.add(PrewarmScreen::done);
         }
     }
 

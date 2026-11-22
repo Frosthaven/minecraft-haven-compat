@@ -209,6 +209,104 @@ public final class ColorwheelWarm {
         }
     }
 
+    private record Spare(Object backend, Object manager) {}
+    /** draw managers built at the title screen, by the dimension's program set, until an engine takes them */
+    private static final Map<Object, Spare> SPARES = new java.util.IdentityHashMap<>();
+
+    /**
+     * At the title screen, after the pipelines: a draw manager per vanilla dimension with every program built, kept as a
+     * spare. Colorwheel makes a draw manager (the holder of its programs) when it makes a level's engine, from the shader
+     * pack and the dimension's program set only; no level is needed for it. {@code mixin/ColorwheelSpareMixin} gives the
+     * spare to the engine when the level appears, so a join links no program at all. A spare that no engine took is
+     * deleted when Iris destroys its pipelines ({@link #dropSpares}).
+     */
+    public static void queueSpares(Class<?> idType) {
+        if (programsBroken) return;
+        for (String[] dim : PipelinePrewarm.DIMENSIONS) {
+            WarmQueue.add(() -> {
+                try {
+                    var pack = net.irisshaders.iris.Iris.getCurrentPack().orElse(null);
+                    Object backend = dev.engine_room.flywheel.api.backend.BackendManager.currentBackend();
+                    if (pack == null) return;
+                    var id = new net.irisshaders.iris.shaderpack.materialmap.NamespacedId(dim[0], dim[1]);
+                    var set = pack.getProgramSet(id);
+                    if (SPARES.containsKey(set)) return;
+                    boolean fallback = ((dev.djefrey.colorwheel.accessors.iris.ProgramSetAccessor) set).colorwheel$isFallbackMode();
+                    var sources = dev.engine_room.flywheel.backend.compile.FlwPrograms.SOURCES;
+                    Object manager;
+                    if (backend == dev.djefrey.colorwheel.ClrwlBackend.IRIS_INDIRECT) {
+                        manager = dev.djefrey.colorwheel.indirect.ClrwlIndirectDrawManager.build(sources, pack, set, fallback);
+                    } else if (backend == dev.djefrey.colorwheel.ClrwlBackend.IRIS_INSTANCING) {
+                        manager = dev.djefrey.colorwheel.instancing.ClrwlInstancedDrawManager.build(sources, pack, set, fallback);
+                    } else {
+                        return;   // Colorwheel is not the backend: nothing to prepare
+                    }
+                    if (manager == null) return;
+                    SPARES.put(set, new Spare(backend, manager));
+                    for (Object irisPipeline : pipelinesFor(id, null)) WarmQueue.add(() -> warmManager(manager, id, irisPipeline));
+                } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
+                    programsBroken = true;
+                    LOG.error("spares", "could not build Colorwheel's programs at the title screen; they are built at the join as before", e);
+                }
+            });
+        }
+    }
+
+    /** From the mixin, in an engine's constructor: the spare for this program set, if the backend is still the same. */
+    public static Object spare(Object programSet) {
+        Spare spare = SPARES.remove(programSet);
+        if (spare == null) return null;
+        if (spare.backend != dev.engine_room.flywheel.api.backend.BackendManager.currentBackend()) {
+            delete(spare.manager);
+            return null;
+        }
+        LOG.info("an engine took the draw manager that was built at the title screen: no Colorwheel program is linked at this join");
+        return spare.manager;
+    }
+
+    /**
+     * From the mixin, when an engine is deleted: its draw manager becomes the spare for its program set again, programs
+     * and all, unless one is waiting already. Flywheel makes a level's engine, deletes it a moment later and makes
+     * another one at a join (the first took the spare and its programs were deleted with it: 4 s of linking again,
+     * 2026-11-22); and a player who leaves a world and joins again gets a new engine for the same dimension. A draw
+     * manager only draws the instancers it is given, so the next engine can use it as it is. False: delete it as before.
+     */
+    public static boolean recycle(Object pack, Object dimension, Object manager) {
+        if (programsBroken || dropping || manager == null) return false;
+        try {
+            var current = net.irisshaders.iris.Iris.getCurrentPack().orElse(null);
+            if (current == null || current != pack) return false;   // another shader pack by now
+            Object set = current.getProgramSet((net.irisshaders.iris.shaderpack.materialmap.NamespacedId) dimension);
+            if (SPARES.containsKey(set)) return false;
+            SPARES.put(set, new Spare(dev.engine_room.flywheel.api.backend.BackendManager.currentBackend(), manager));
+            LOG.once("recycle", "a deleted engine's draw manager is kept, with its programs, for the next engine of that dimension");
+            return true;
+        } catch (RuntimeException | LinkageError e) {
+            return false;
+        }
+    }
+
+    private static boolean dropping;
+
+    /** Iris destroyed its pipelines: the spares' programs belong to them. */
+    public static void dropSpares() {
+        dropping = true;
+        try {
+            for (Spare spare : SPARES.values()) delete(spare.manager);
+            SPARES.clear();
+        } finally {
+            dropping = false;
+        }
+    }
+
+    private static void delete(Object manager) {
+        try {
+            manager.getClass().getMethod("delete").invoke(manager);
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            LOG.warnOnce("spare-delete", "could not delete an unused Colorwheel draw manager: {}", e.toString());
+        }
+    }
+
     /** A portal links these two dimensions: their levels and engines, then every engine's programs for both. */
     public static void queueLink(String from, String to) {
         if (programsBroken) return;
@@ -251,6 +349,17 @@ public final class ColorwheelWarm {
     private static void warmPair(Object engine, Object dimension, Object irisPipeline) {
         if (programsBroken || !ClrwlEngine.ENGINES.contains(engine)) return;
         try {
+            warmManager(open(engine.getClass().getDeclaredField("drawManager")).get(engine), dimension, irisPipeline);
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            programsBroken = true;
+            LOG.error("programs", "could not prepare Colorwheel's programs ahead; they are built at first use as before", e);
+        }
+    }
+
+    /** Every recorded program, and the culling programs, of this draw manager for this pipeline. Built ones cost nothing. */
+    private static void warmManager(Object drawManager, Object dimension, Object irisPipeline) {
+        if (programsBroken) return;
+        try {
             load();
             List<ClrwlShaderKey> keys = new ArrayList<>();
             for (String line : LINES) {
@@ -261,7 +370,6 @@ public final class ColorwheelWarm {
                 if (!LINES.isEmpty()) LOG.once("no keys", "none of the {} recorded Colorwheel programs names parts that are loaded; nothing built ahead", LINES.size());
                 return;
             }
-            Object drawManager = open(engine.getClass().getDeclaredField("drawManager")).get(engine);
             Method pipelineData = null;
             for (Method m : drawManager.getClass().getDeclaredMethods()) {
                 if (m.getName().equals("getPipelineData") && m.getParameterCount() == 1) pipelineData = open(m);

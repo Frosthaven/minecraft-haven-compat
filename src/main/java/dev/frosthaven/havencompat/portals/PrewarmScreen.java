@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Component;
 public final class PrewarmScreen {
     private static final long START_MS = 20_000, LIMIT_MS = 180_000;
     private static final Component TEXT = Component.translatable("haven_compat.compiling_shaders");
+    private static final Component JOINING = Component.translatable("multiplayer.downloadingTerrain");
     private static boolean warmed, started, held;
     private static long openedAt;
 
@@ -25,12 +26,23 @@ public final class PrewarmScreen {
     public static void opened() {
         openedAt = System.currentTimeMillis();
         held = !warmed && PipelinePrewarm.expected();
+        // The pipelines exist already (built at the title screen), or are being built there: this join starts no round
+        // by itself, so the rest (Colorwheel's programs for this connection's engines) is queued here.
+        if (held && !started && (PipelinePrewarm.builtAtStartup() || WarmQueue.busy())) PipelinePrewarm.joinAfterStartup();
+    }
+
+    /** The player left the world: the next join has new engines to prepare. */
+    public static void left() {
+        warmed = false;
+        started = false;
+        held = false;
     }
 
     /** Iris destroys its pipelines: the next ones need a round again. */
     public static void destroyed() {
         warmed = false;
         started = false;
+        PipelinePrewarm.destroyed();
     }
 
     /** A prewarm round begins its work. */
@@ -60,7 +72,10 @@ public final class PrewarmScreen {
     public static boolean draw(net.minecraft.client.gui.GuiGraphics g, net.minecraft.client.gui.Font font, int width, int height) {
         if (!held) return false;
         g.fill(0, 0, width, height, 0xFF000000);
-        g.drawCenteredString(font, text(TEXT), width / 2, height / 2 - 14, 0xFFFFFF);
+        // Until the first shader step has run the game is doing its ordinary join work: say so, not "0%".
+        // A join says "Loading terrain", as vanilla does: what is left to do here is not the player's concern.
+        g.drawCenteredString(font, WarmQueue.busy() ? Component.translatable("haven_compat.loading_terrain_percent", WarmQueue.percent()) : JOINING,
+                width / 2, height / 2 - 14, 0xFFFFFF);
         int w = Math.min(240, width - 40), x = (width - w) / 2, y = height / 2 + 4, h = 8;
         g.fill(x - 1, y - 1, x + w + 1, y + h + 1, 0xFFFFFFFF);
         g.fill(x, y, x + w, y + h, 0xFF000000);

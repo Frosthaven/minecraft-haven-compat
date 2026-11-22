@@ -68,6 +68,7 @@ public final class HavenCompat {
         PortalShaderGuard.register(NeoForge.EVENT_BUS);
         dev.frosthaven.havencompat.portals.WarmQueue.register(NeoForge.EVENT_BUS);
         dev.frosthaven.havencompat.portals.PortalWarm.register(NeoForge.EVENT_BUS);
+        dev.frosthaven.havencompat.portals.StartupWarm.register(NeoForge.EVENT_BUS);
         dev.frosthaven.havencompat.portals.LatePassengers.register(NeoForge.EVENT_BUS);
         ServerListSync.register(NeoForge.EVENT_BUS);
         JadeNotch.register(NeoForge.EVENT_BUS);
