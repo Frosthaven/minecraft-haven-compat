@@ -41,6 +41,7 @@
     "DeepSeasUpdateCheckMixin",
     "IrisPipelinePrewarmMixin",
     "PrewarmScreenMixin",
+    "LatePassengersMixin",
     "AnimalTrimCacheMixin",
     "VeilShaderEventMixin",
     "ColorwheelCompileMixin",
