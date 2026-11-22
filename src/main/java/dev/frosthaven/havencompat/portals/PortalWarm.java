@@ -28,6 +28,7 @@ public final class PortalWarm {
     private PortalWarm() {}
 
     public static void register(IEventBus bus) {
+        if (ModList.get().isLoaded("colorwheel")) bus.addListener((ClientTickEvent.Post e) -> dev.frosthaven.havencompat.colorwheel.ProgramBinaries.saveUsed());
         if (!ModList.get().isLoaded("immersive_portals_core")) return;
         bus.addListener((ClientTickEvent.Post e) -> {
             Minecraft mc = Minecraft.getInstance();

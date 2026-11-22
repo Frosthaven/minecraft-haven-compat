@@ -17,7 +17,24 @@ public final class JourneyMapReset {
 
     private JourneyMapReset() {}
 
-    public static void resetStarts() { inReset = true; }
+    private static boolean firstOfSession;
+
+    public static void resetStarts() {
+        inReset = true;
+        firstOfSession = Minecraft.getInstance().getConnection() != loadedFor;
+    }
+
+    /**
+     * {@code ThemeLoader.getCurrentTheme(true)} inside a reset: the forced reload throws away every scaled theme texture
+     * (the minimap's frame, its icons), and the minimap scales them all again on the render thread: up to 0.3 s of the
+     * hitch at a portal crossing (2026-11-22). The theme cannot change between two dimensions of one server session, so
+     * in every reset but a session's first the reload is not forced.
+     */
+    public static boolean keepTheme() {
+        if (!inReset || firstOfSession) return false;
+        LOG.once("theme", "JourneyMap's minimap frame and theme textures are kept at a dimension change, not scaled again");
+        return true;
+    }
 
     public static void resetEnds() { inReset = false; }
 

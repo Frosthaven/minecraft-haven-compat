@@ -31,6 +31,9 @@ public final class ProgramBinaries {
     private static String driver;
     private static Boolean usable;
     private static int loaded, linked;
+    /** programs of this session and their files: saved again once they have been drawn with (see {@link #saveUsed}) */
+    private static final java.util.Map<Integer, Path> SESSION = new java.util.LinkedHashMap<>();
+    private static long nextSave;
 
     private ProgramBinaries() {}
 
@@ -47,6 +50,7 @@ public final class ProgramBinaries {
                 GL41.glProgramBinary(program, format, data);
                 if (GL20.glGetProgrami(program, GL20.GL_LINK_STATUS) == GL11.GL_TRUE) {
                     if (++loaded == 1) LOG.info("Colorwheel's programs are loaded from {} when their shaders and the driver are unchanged", DIR);
+                    SESSION.put(program, file);
                     return;
                 }
                 while (GL11.glGetError() != GL11.GL_NO_ERROR) { }   // the refusal is no error of the game's
@@ -58,6 +62,37 @@ public final class ProgramBinaries {
         GL20.glLinkProgram(program);
         linked++;
         if (file == null) return;
+        SESSION.put(program, file);
+        save(program, file);
+    }
+
+    /**
+     * The driver finishes a program's machine code at the first draw with it, for the state it is drawn in, not at the
+     * link: the first Colorwheel draws after a portal crossing stalled 0.3 s in the driver although every program was
+     * linked at the game's start (2026-11-22). A binary read back after the program has been drawn with carries that
+     * finished code. So the session's programs are saved again a while into play and then every few minutes: the next
+     * game start loads programs that are ready to draw. Called once a client tick; does its work in slices.
+     */
+    public static void saveUsed() {
+        if (SESSION.isEmpty() || Minecraft.getInstance().level == null) { nextSave = 0; return; }
+        long now = System.currentTimeMillis();
+        if (nextSave == 0) nextSave = now + 90_000;
+        if (now < nextSave) return;
+        if (pending == null) pending = new java.util.ArrayDeque<>(SESSION.entrySet());
+        for (int i = 0; i < 12 && !pending.isEmpty(); i++) {   // a dozen a tick: no long frame from the saving itself
+            var e = pending.poll();
+            if (GL20.glIsProgram(e.getKey())) save(e.getKey(), e.getValue()); else SESSION.remove(e.getKey());
+        }
+        if (pending.isEmpty()) {
+            pending = null;
+            nextSave = now + 300_000;
+            LOG.once("resaved", "Colorwheel's programs were saved again after use, with the driver's finished code");
+        }
+    }
+
+    private static java.util.ArrayDeque<java.util.Map.Entry<Integer, Path>> pending;
+
+    private static void save(int program, Path file) {
         try {
             if (GL20.glGetProgrami(program, GL20.GL_LINK_STATUS) != GL11.GL_TRUE) return;
             int length = GL20.glGetProgrami(program, GL41.GL_PROGRAM_BINARY_LENGTH);
@@ -72,7 +107,7 @@ public final class ProgramBinaries {
             net.minecraft.Util.ioPool().execute(() -> {
                 try {
                     Files.createDirectories(target.getParent());
-                    Path part = target.resolveSibling(target.getFileName() + ".part");
+                    Path part = target.resolveSibling(target.getFileName() + "." + program + ".part");   // two programs can have one key
                     Files.write(part, out);
                     Files.move(part, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                 } catch (Exception e) {

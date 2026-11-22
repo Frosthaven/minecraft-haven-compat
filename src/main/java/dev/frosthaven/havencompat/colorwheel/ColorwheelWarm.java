@@ -209,6 +209,30 @@ public final class ColorwheelWarm {
         }
     }
 
+    /** the uniforms Colorwheel sets by name at every draw; a program asks the driver for each one's place at its first draw */
+    private static final String[] DRAW_UNIFORMS = {"_clrwl_blendFunc", "_clrwl_atlasSize", "_clrwl_renderPhase", "_flw_baseInstance",
+        "_clrwl_blockEntityIdUniform", "_clrwl_entityIdUniform"};
+
+    /**
+     * A program's uniform places, asked for now. Flywheel's {@code GlProgram} keeps them in a map and asks the driver
+     * the first time a name is used, which is the program's first draw: the question makes the driver finish the
+     * program, 0.1 to 0.3 s over the first Colorwheel draws on a portal's far side (2026-11-22). Asked here, the map is
+     * full before the first draw: the fixed names, and every uniform the program has.
+     */
+    private static void uniforms(dev.engine_room.flywheel.backend.gl.shader.GlProgram program) {
+        for (String name : DRAW_UNIFORMS) program.getUniformLocation(name);
+        int handle = program.handle();
+        int count = org.lwjgl.opengl.GL20.glGetProgrami(handle, org.lwjgl.opengl.GL20.GL_ACTIVE_UNIFORMS);
+        try (var stack = org.lwjgl.system.MemoryStack.stackPush()) {
+            var size = stack.mallocInt(1);
+            var type = stack.mallocInt(1);
+            for (int i = 0; i < count; i++) {
+                String name = org.lwjgl.opengl.GL20.glGetActiveUniform(handle, i, size, type);
+                if (!name.isEmpty() && !name.startsWith("gl_")) program.getUniformLocation(name);
+            }
+        }
+    }
+
     private record Spare(Object backend, Object manager) {}
     /** draw managers built at the title screen, by the dimension's program set, until an engine takes them */
     private static final Map<Object, Spare> SPARES = new java.util.IdentityHashMap<>();
@@ -383,7 +407,9 @@ public final class ColorwheelWarm {
                 Object programs = open(data.getClass().getRecordComponents()[0].getAccessor()).invoke(data);
                 Method get = programs.getClass().getMethod("get", ClrwlShaderKey.class);
                 for (ClrwlShaderKey key : keys) {
-                    if (get.invoke(programs, key) != null) built++;
+                    Object program = get.invoke(programs, key);
+                    if (program != null) built++;
+                    if (program instanceof dev.engine_room.flywheel.backend.gl.shader.GlProgram gl) uniforms(gl);
                 }
                 for (Method m : programs.getClass().getMethods()) {
                     if (m.getName().equals("getCullingProgram")) {
