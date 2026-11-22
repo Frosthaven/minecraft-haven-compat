@@ -276,6 +276,23 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   vanilla copper asks (Mekanism Tools' paxels are no AxeItem). Test (2026-11-19, `just smoke --serve` with this jar, the
   pinned one set to client side for the run): a powered Deployer in USE mode holding `mekanismtools:diamond_paxel`
   facing `create:copper_casing`: exposed -> unaffected; waxed weathered -> unwaxed weathered -> exposed; 3 damage.
+- `hud/HudPoseGuard` (client, any mods): the HUD frame's starting pose is recorded at `RenderGuiEvent.Pre` (highest); when a
+  HUD layer (`RenderGuiLayerEvent.Pre`, lowest, not cancelled) or the open screen (`ScreenEvent.Render.Pre`, lowest) is about
+  to draw from a moved pose (x, y, rotation, scale; z grows per layer on purpose and is kept), a pose of its own is pushed
+  with the start's matrix and popped in the matching Post. Never pops another mod's pose (a first version popped down to
+  the start and underflowed when a mod's own push was part of it: Chisels & Bits crashed on an empty stack). Why
+  (2026-11-21): a Windows player's chat log and input line were drawn on JourneyMap's minimap at GUI scale 2 and off the
+  screen at 3, gone with the minimap off; her JourneyMap log was not available, so the leak inside it is unknown (not
+  reproduced here with her config, her HUD settings and active effects). Logged once per layer or screen (`[hud position]`,
+  names the layer it happened after). Test (hidden client, `just smoke --serve`, throwaway mixin leaving a pushed and
+  translated pose after `MiniMap.drawMap`): without the guard the chat log and input drew on the minimap (her screenshot);
+  with it at the bottom left, no crash.
+- `schematics/PartPrints` (both sides; `create`): Create's Schematicannon skips a block whose item is AIR. Create Ore
+  Excavation's `multiblock`, `io_block` and `kinetic_input` (placed by the Drilling Machine's or Fluid Extractor's item)
+  print for `ItemRequirement.NONE` (the core block still costs its item; a part printed alone falls away, it only stands
+  when the block it faces is a machine part); `create:powered_shaft` prints for a shaft. Test (2026-11-22, `just smoke
+  --serve` with this jar, a Schematicannon set up by commands with a 10x8x14 drill and steam engine schematic, skip missing
+  on): the core and all 17 parts printed, all 9 engine shafts printed and stood as powered shafts.
 - `megatorch/` (both sides; `torchmaster`, the map half also `journeymap`): Mega Torch areas on JourneyMap's fullscreen
   map. Server (`MegatorchAreas`): every 40 ticks each dimension with players reads Torchmaster's torch list once
   (`TorchmasterLights`: the private `lights` map of `FilteredLightManager`, by reflection; its public `getEntries()`

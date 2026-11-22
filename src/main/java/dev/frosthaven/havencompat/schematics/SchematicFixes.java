@@ -41,6 +41,7 @@ public final class SchematicFixes {
             run("refinedstorage", () -> SchematicCopy.registerNamespace(new RsData(), "refinedstorage"), "Refined Storage settings and upgrades");
             run("storagedrawers", () -> SchematicCopy.registerNamespace(new DrawersData(), "storagedrawers"), "Storage Drawers settings, upgrades, framing and controller links");
             run("trashcans", () -> SchematicCopy.registerNamespace(new TrashCansData(), "trashcans"), "Trash Cans filters");
+            run("create", PartPrints::register, "blocks with no item of their own: Create Ore Excavation machine parts (free) and steam engine shafts (as shafts)");
             run("simplemagnets", () -> SchematicCopy.registerNamespace(new MagnetCoilData(), "simplemagnets"), "Simple Magnets coil range and filter");
         }));
     }

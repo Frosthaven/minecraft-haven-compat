@@ -64,6 +64,7 @@ public final class HavenCompat {
         if (net.neoforged.fml.ModList.get().isLoaded("torchmaster") && net.neoforged.fml.ModList.get().isLoaded("journeymap")) {
             dev.frosthaven.havencompat.megatorch.MegatorchAreasClient.register();
         }
+        dev.frosthaven.havencompat.hud.HudPoseGuard.register(NeoForge.EVENT_BUS);
         PortalShaderGuard.register(NeoForge.EVENT_BUS);
         ServerListSync.register(NeoForge.EVENT_BUS);
         JadeNotch.register(NeoForge.EVENT_BUS);
