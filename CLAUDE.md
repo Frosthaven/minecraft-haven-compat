@@ -276,6 +276,21 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   vanilla copper asks (Mekanism Tools' paxels are no AxeItem). Test (2026-11-19, `just smoke --serve` with this jar, the
   pinned one set to client side for the run): a powered Deployer in USE mode holding `mekanismtools:diamond_paxel`
   facing `create:copper_casing`: exposed -> unaffected; waxed weathered -> unwaxed weathered -> exposed; 3 damage.
+- `megatorch/` (both sides; `torchmaster`, the map half also `journeymap`): Mega Torch areas on JourneyMap's fullscreen
+  map. Server (`MegatorchAreas`): every 40 ticks each dimension with players reads Torchmaster's torch list once
+  (`TorchmasterLights`: the private `lights` map of `FilteredLightManager`, by reflection; its public `getEntries()`
+  returns an empty array in 21.1.13), and a player "knows" a torch once they stand within its radius horizontally
+  (attachment `known_megatorches`, per dimension, kept on death; a broken torch is forgotten). Payloads: `megatorch_watch`
+  (C2S, the map is open with the toggle on) and `megatorch_areas` (S2C, the known torches of the player's dimension and
+  the radius), sent to a watcher only when that list changed. No chunk is read or loaded. Client: `MegatorchAreasClient`
+  (toggle `config/haven_compat_megatorch_map.json`, off by default; the last list) and `MegatorchMap` (`@JourneyMapPlugin`,
+  API 2.0.0, `compileOnly` from JourneyMap's maven): a theme toggle button subscribed on the first client tick so it sits
+  under the other add-on buttons, one `PolygonOverlay` per merged shape (`java.awt.geom.Area` union, `PolygonHelper`),
+  fullscreen only, rebuilt only when a list arrives. Test (2026-11-21, `just smoke --serve` with this jar, a hidden client
+  copied from Haven, a throwaway KubeJS client script opening the map and clicking the toggle through
+  `Screen.mouseClicked`): three torches by `setblock`, two within reach of the player and one 300 blocks away; off by
+  default, no outline; on: one outline from the two known torches, the far one absent; relaunch: the choice is kept and the
+  outline shows at once.
 - `trees/HangingLogs` (pure, unit tested) + `mixin/ArsTreeCutMixin` (server, `mixins` list; `create`, `ars_nouveau`): a
   Mechanical Saw takes the whole Ars tree. Why (Create 6.0.10, Ars Nouveau 5.13.3): `TreeCutter.findTree` follows logs
   sideways and up only; Ars' `MagicTrunkPlacer.addBranch` ends each branch with a log one block under the branch tip,

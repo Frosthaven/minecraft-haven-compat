@@ -59,5 +59,7 @@
   "wood_name.sophisticatedstorage.haven_waxed_oxidized_copper": "Waxed Oxidized Copper",
   "haven_compat.compiling_shaders": "Compiling shaders...",
   "item.haven_compat.repository_upgrade": "Repository Upgrade",
-  "item.haven_compat.repository_upgrade.tooltip": "The storage works as an Ars Nouveau Repository\nPlace it so it touches a Repository Catalog, a Repository or another storage with this upgrade"
+  "item.haven_compat.repository_upgrade.tooltip": "The storage works as an Ars Nouveau Repository\nPlace it so it touches a Repository Catalog, a Repository or another storage with this upgrade",
+  "haven_compat.megatorch_map.on": "Hide Mega Torch areas",
+  "haven_compat.megatorch_map.off": "Show Mega Torch areas"
 }

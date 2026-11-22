@@ -61,6 +61,9 @@ public final class HavenCompat {
                 && net.neoforged.fml.ModList.get().isLoaded("create_dragons_plus")) {
             dev.frosthaven.havencompat.dyeing.NozzleValueBox.register(NeoForge.EVENT_BUS);
         }
+        if (net.neoforged.fml.ModList.get().isLoaded("torchmaster") && net.neoforged.fml.ModList.get().isLoaded("journeymap")) {
+            dev.frosthaven.havencompat.megatorch.MegatorchAreasClient.register();
+        }
         PortalShaderGuard.register(NeoForge.EVENT_BUS);
         ServerListSync.register(NeoForge.EVENT_BUS);
         JadeNotch.register(NeoForge.EVENT_BUS);

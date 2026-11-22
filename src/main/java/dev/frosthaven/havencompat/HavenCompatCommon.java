@@ -24,6 +24,9 @@ import net.neoforged.fml.common.Mod;
 public final class HavenCompatCommon {
     public HavenCompatCommon(IEventBus modBus) {
         SchematicFixes.register(modBus);
+        if (ModList.get().isLoaded("torchmaster")) {
+            dev.frosthaven.havencompat.megatorch.MegatorchAreas.register(modBus);
+        }
         BinderSortMessage.register(modBus);
         if (ModList.get().isLoaded("ars_nouveau")) {
             dev.frosthaven.havencompat.spells.TouchTargetMessage.register(modBus);
