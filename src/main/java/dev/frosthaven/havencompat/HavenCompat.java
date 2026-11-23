@@ -70,6 +70,8 @@ public final class HavenCompat {
         dev.frosthaven.havencompat.portals.PortalWarm.register(NeoForge.EVENT_BUS);
         dev.frosthaven.havencompat.portals.StartupWarm.register(NeoForge.EVENT_BUS);
         dev.frosthaven.havencompat.portals.LatePassengers.register(NeoForge.EVENT_BUS);
+        if (net.neoforged.fml.ModList.get().isLoaded("immersive_portals_core")) dev.frosthaven.havencompat.leaks.LevelUnloads.register(NeoForge.EVENT_BUS);
+        if (net.neoforged.fml.ModList.get().isLoaded("ntgl")) dev.frosthaven.havencompat.leaks.NtglPlayers.register(NeoForge.EVENT_BUS);
         ServerListSync.register(NeoForge.EVENT_BUS);
         JadeNotch.register(NeoForge.EVENT_BUS);
         dev.frosthaven.havencompat.binder.BinderFix.register(NeoForge.EVENT_BUS);

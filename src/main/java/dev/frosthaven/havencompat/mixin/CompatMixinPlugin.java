@@ -66,6 +66,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("JourneyMapCacheMixin", List.of("journeymap")),
             Map.entry("JourneyMapIconMixin", List.of("journeymap")),
             Map.entry("JourneyMapIconButtonMixin", List.of("journeymap")),
+            Map.entry("IpLevelUnloadMixin", List.of("immersive_portals_core")),
             Map.entry("PortalViewPlaneMixin", List.of("immersive_portals_core")),
             Map.entry("PlayerAnimationDataMixin", List.of("entity_texture_features")),
             Map.entry("ContraptionSpawnPositionMixin", List.of("create")),

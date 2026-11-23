@@ -37,6 +37,12 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   display fails Immersive Portals' depth blit and it falls back to the compatibility renderer (no portal in portal);
   `-Dhaven_compat.assumeNoCopyImage=true` in the instance's JVM arguments keeps the normal renderer. Scene: a nether
   portal, a second one lit 10 blocks behind its nether side; no "Creating pipeline" line after the join.
+- Leaks at a rejoin (`leaks/LevelUnloads` + `mixin/IpLevelUnloadMixin` on `ClientWorldLoader.cleanUp` and
+  `disposeDimensionDynamically`: LevelEvent.Unload for Immersive Portals' other client levels; `leaks/NtglPlayers`:
+  NTGL's `lastSelectedSlots`; `colorwheel/ColorwheelWarm.worldLeft`: Flywheel's resetAll at a logout). Check: join, leave
+  and join again, `jcmd <pid> GC.class_histogram`: 3 ClientLevel and 1 LocalPlayer (was 6 and 2). To find a holder:
+  `jcmd <pid> GC.heap_dump`, Eclipse MAT `ParseHeapDump.sh <hprof> "-command=path2gc 0x<address> -excludes
+  java.lang.ref.WeakReference:referent java.lang.ref.SoftReference:referent" -format=txt -unzip org.eclipse.mat.api:query`.
 - Waypoint icons (`journeymap/WaypointIcons`, `mixin/JourneyMapIconMixin` on `TextureCache.getWaypointIcon`'s
   `resolveImage`, `mixin/JourneyMapIconButtonMixin` on `ImageSelectButton.renderWidget`'s `getTexture`): a missing icon
   texture falls back to `journeymap:textures/waypoint/icon/waypoint-icon.png`. Reproduce: a waypoint with icon
