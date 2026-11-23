@@ -354,6 +354,22 @@ public final class ColorwheelWarm {
 
     private static boolean dropping;
 
+    /**
+     * A world exit: every level's Flywheel visualization is reset, Immersive Portals' other client levels included.
+     * Flywheel deleted only the player's level's; the Nether's and End's engines (and with them those old levels) stayed
+     * registered, so their draw managers never became spares and the next join built new ones: about 1.3 s of Colorwheel
+     * programs (Complementary, 2026-11-22). Deleted now, each manager is kept by {@link #recycle} for the next join.
+     */
+    public static void worldLeft() {
+        if (programsBroken) return;
+        try {
+            Class.forName("dev.engine_room.flywheel.impl.visualization.VisualizationManagerImpl").getMethod("resetAll").invoke(null);
+            LOG.once("left", "every level's Colorwheel engine was released at the world exit; their programs are kept for the next join");
+        } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
+            LOG.warnOnce("left", "could not release the other levels' Colorwheel engines at the world exit: {}", e.toString());
+        }
+    }
+
     /** Iris destroyed its pipelines: the spares' programs belong to them. */
     public static void dropSpares() {
         dropping = true;

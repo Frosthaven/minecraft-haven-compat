@@ -23,7 +23,10 @@ public final class StartupWarm {
                 if (Minecraft.getInstance().screen == title && WarmQueue.busy()) Minecraft.getInstance().setScreen(new CompileScreen(title, null));
             });
         });
-        bus.addListener((ClientPlayerNetworkEvent.LoggingOut e) -> PrewarmScreen.left());
+        bus.addListener((ClientPlayerNetworkEvent.LoggingOut e) -> {
+            PrewarmScreen.left();
+            if (net.neoforged.fml.ModList.get().isLoaded("colorwheel")) dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.worldLeft();
+        });
     }
 
     /** Shader work is running, or is due and has not been started: a connection waits for it. */
