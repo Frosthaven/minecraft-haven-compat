@@ -57,6 +57,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("BinderPagesMixin", List.of("easy_mob_farm")),
             Map.entry("BinderSlotAccessor", List.of("easy_mob_farm")),
             Map.entry("PortalViewSkipMixin", List.of("immersive_portals_core")),
+            Map.entry("PortalStagnateMessageMixin", List.of("immersive_portals_core")),
             Map.entry("PortalVisibilityMixin", List.of("immersive_portals_core")),
             Map.entry("PortalVisibilityEntryMixin", List.of("immersive_portals_core")),
             Map.entry("PortalQueryMixin", List.of("immersive_portals_core")),

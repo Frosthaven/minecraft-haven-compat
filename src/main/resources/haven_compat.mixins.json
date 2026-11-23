@@ -96,7 +96,8 @@
     "BackpackRmbDragMixin",
     "ArsTouchHintMixin",
     "ArsCastOverMobMixin",
-    "SettingsStacksSyncMixin"
+    "SettingsStacksSyncMixin",
+    "PortalStagnateMessageMixin"
   ],
   "injectors": {
     "defaultRequire": 1

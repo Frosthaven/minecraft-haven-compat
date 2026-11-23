@@ -441,6 +441,9 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   or a mod's own screen first, as Create: Submarine's update screen in the test instance), saves only on a change; any error is logged and
   the list stays as it was.
 - `mixin/PortalStencilHoldMixin`: `@ModifyVariable` on the boolean of `IPPortingLibCompat.setIsStencilEnabled`.
+- `mixin/PortalStagnateMessageMixin` (client; `immersive_portals_core`): MixinExtras `@WrapWithCondition` skips both
+  `Gui.setOverlayMessage` calls in `CollisionHelper.updateClientStagnateStatus` (the "not yet loaded" text and its clear;
+  no IP option for it). The movement hold stays. Test: the mixin applies (`latest.log`, no `Mixin apply` failure).
 - `mixin/PortalDepthCopyMixin`: `@Inject(HEAD, cancellable)` on `IPIrisHelper.newCopyDepthStencil` and `copyColor`.
 - `updates/UpdateNags`: the update-popup fix's log and the Create Deep Seas target class name; `mixin/DeepSeasUpdateCheckMixin`
   cancels `UpdateChecker.check()` at HEAD (no Modrinth request, `updateAvailable` stays false, `DeepSeasUpdateScreen`
