@@ -293,7 +293,7 @@ public final class ColorwheelWarm {
      * and all, unless one is waiting already. Flywheel makes a level's engine, deletes it a moment later and makes
      * another one at a join (the first took the spare and its programs were deleted with it: 4 s of linking again,
      * 2026-11-22); and a player who leaves a world and joins again gets a new engine for the same dimension. A draw
-     * manager only draws the instancers it is given, so the next engine can use it as it is. False: delete it as before.
+     * manager's engine state is emptied first ({@link #reset}). False: delete it as before.
      */
     public static boolean recycle(Object pack, Object dimension, Object manager) {
         if (programsBroken || dropping || manager == null) return false;
@@ -302,12 +302,54 @@ public final class ColorwheelWarm {
             if (current == null || current != pack) return false;   // another shader pack by now
             Object set = current.getProgramSet((net.irisshaders.iris.shaderpack.materialmap.NamespacedId) dimension);
             if (SPARES.containsKey(set)) return false;
+            reset(manager);
             SPARES.put(set, new Spare(dev.engine_room.flywheel.api.backend.BackendManager.currentBackend(), manager));
             LOG.once("recycle", "a deleted engine's draw manager is kept, with its programs, for the next engine of that dimension");
             return true;
-        } catch (RuntimeException | LinkageError e) {
+        } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
+            LOG.warnOnce("recycle-reset", "could not empty a deleted engine's draw manager; it is deleted as before: {}", e.toString());
             return false;
         }
+    }
+
+    /**
+     * What a draw manager holds for its engine goes, as in its own delete(): the instancers (keyed by the old level's
+     * visuals and contraption environments), the indirect culling groups with their buffers, the draw lists. Left are
+     * the programs, the per-pipeline data, the buffers that are written anew each frame, and the mesh pool (model
+     * meshes, which are not the level's; one whose draws went stays uploaded, bounded by the game's models).
+     * Throws when a field is not as expected: the caller then deletes the manager whole.
+     */
+    private static void reset(Object manager) throws ReflectiveOperationException {
+        Class<?> base = dev.djefrey.colorwheel.engine.ClrwlDrawManager.class;
+        Map<?, ?> instancers = (Map<?, ?>) field(base, "instancers").get(manager);
+        java.util.Collection<?> queue = (java.util.Collection<?>) field(base, "initializationQueue").get(manager);
+        Class<?> type = manager.getClass();
+        if (manager instanceof dev.djefrey.colorwheel.indirect.ClrwlIndirectDrawManager) {
+            Map<?, ?> groups = (Map<?, ?>) field(type, "cullingGroups").get(manager);
+            List<?> shadowSolid = (List<?>) field(type, "shadowSolidDraws").get(manager);
+            List<?> shadowTranslucent = (List<?>) field(type, "shadowTranslucentDraws").get(manager);
+            for (Object group : groups.values()) ((dev.djefrey.colorwheel.indirect.ClrwlIndirectCullingGroup<?>) group).delete();
+            groups.clear();
+            shadowSolid.clear();
+            shadowTranslucent.clear();
+        } else if (manager instanceof dev.djefrey.colorwheel.instancing.ClrwlInstancedDrawManager) {
+            List<?> all = (List<?>) field(type, "allDraws").get(manager);
+            List<?> solid = (List<?>) field(type, "solidDraws").get(manager), translucent = (List<?>) field(type, "translucentDraws").get(manager),
+                    oit = (List<?>) field(type, "oitDraws").get(manager);
+            for (Object instancer : instancers.values()) instancer.getClass().getMethod("delete").invoke(instancer);
+            for (Object draw : all) draw.getClass().getMethod("delete").invoke(draw);
+            solid.clear(); translucent.clear(); oit.clear(); all.clear();
+        } else {
+            throw new NoSuchFieldException("unknown draw manager " + type.getName());
+        }
+        instancers.clear();
+        queue.clear();
+    }
+
+    private static java.lang.reflect.Field field(Class<?> type, String name) throws NoSuchFieldException {
+        java.lang.reflect.Field f = type.getDeclaredField(name);
+        f.setAccessible(true);
+        return f;
     }
 
     private static boolean dropping;

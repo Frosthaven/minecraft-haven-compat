@@ -109,7 +109,9 @@ public final class ProgramBinaries {
                     Files.createDirectories(target.getParent());
                     Path part = target.resolveSibling(target.getFileName() + "." + program + ".part");   // two programs can have one key
                     Files.write(part, out);
-                    Files.move(part, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    synchronized (ProgramBinaries.class) {   // two programs with one key: a replace is not atomic on every file system
+                        Files.move(part, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    }
                 } catch (Exception e) {
                     LOG.warnOnce("save", "could not save a program to {} ({})", DIR, e.toString());
                 }

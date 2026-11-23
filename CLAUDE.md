@@ -65,6 +65,10 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   - `mixin/AnimalTrimCacheMixin`, `mixin/VeilShaderEventMixin`, `mixin/MissingResourceMixin` (negative cache per
     `FallbackResourceManager`), `mixin/JourneyMapThemeMixin` / `JourneyMapMiniMapMixin` / `JourneyMapCacheMixin`
     (`JourneyMapReset.keepTheme()`: every reset of a server session but the first).
+  - Review fixes (2026-11-22): `ColorwheelWarm.reset` empties a recycled draw manager's engine state (instancers,
+    culling groups, draw lists) as its own delete() does; `MissingResourceMixin` records and answers only in play
+    (render thread, a level, no overlay), because dynamic packs fill up during a reload; `LatePassengers.reseat` gives
+    up when the player is more than 16 blocks from the vehicle.
   - Not done: the outer ring of the far side and its entities still load on arrival (about four frames of 0.1 to 0.2 s
     at a first crossing); video memory of 3 + 2 x 3 + 1 pipelines at a high resolution is not measured; KubeJS's local
     web server thread spins on `accept` (one core; `kubejs/config/web_server.json` `enabled`, the pack's file).

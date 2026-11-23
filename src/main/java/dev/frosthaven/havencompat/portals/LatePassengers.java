@@ -75,6 +75,7 @@ public final class LatePassengers {
         if (System.currentTimeMillis() - s.at > RESEAT_MS) { seat = null; return; }
         var vehicle = mc.level.getEntity(s.packet.getVehicle());
         if (vehicle == null || mc.player.level() != mc.level || mc.player.getVehicle() == vehicle || reseats >= 3) return;
+        if (mc.player.distanceToSqr(vehicle) > 16 * 16) { seat = null; return; }   // moved elsewhere (a teleport, a death), not this crossing
         reseats++;
         applying = true;
         try {
