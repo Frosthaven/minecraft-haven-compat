@@ -42,7 +42,7 @@ public final class PortalLookAround {
      * wanted; the next drawing sets up the real view again.
      */
     public static Frustum next() {
-        if (broken) return null;
+        if (broken || Boolean.getBoolean("haven_compat.noLookAround")) return null;
         try {
             if (isRendering == null) {
                 Class<?> rendering = Class.forName("qouteall.imm_ptl.core.render.context_management.PortalRendering");

@@ -85,6 +85,7 @@
     "JourneyMapResetMixin",
     "JourneyMapThemeMixin",
     "JourneyMapMiniMapMixin",
+    "JourneyMapCacheMixin",
     "PortalViewPlaneMixin",
     "PlayerAnimationDataMixin",
     "TooltipOnTopMixin",

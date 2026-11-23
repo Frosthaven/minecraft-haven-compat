@@ -37,6 +37,37 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   display fails Immersive Portals' depth blit and it falls back to the compatibility renderer (no portal in portal);
   `-Dhaven_compat.assumeNoCopyImage=true` in the instance's JVM arguments keeps the normal renderer. Scene: a nether
   portal, a second one lit 10 blocks behind its nether side; no "Creating pipeline" line after the join.
+- 0.37.0, portals with shaders (found with the harness in `minecraft-rancher-companion/run/traintest`: a snapshot of the
+  live world's rail regions, a server container, a copy of Haven, a probe mod that rides a train through two nether
+  portals and samples the render thread on a long frame; `run.py <label> --nowalk [--pure] [--title] [--ahead]`):
+  - `portals/WarmQueue` (steps, one a frame, `percent()`), `portals/CompileScreen` + `portals/StartupWarm`
+    (`PipelinePrewarm.startup()` when the title screen opens: IP's `PortalRenderer.switchToCorrectRenderer()`, then
+    every pipeline, portal view and Colorwheel source), `mixin/ConnectAfterCompileMixin` (a connection waits),
+    `mixin/IrisKeepPipelinesMixin` + `mixin/IrisCurrentDimensionMixin` (Iris's `updateLevelInEngines` handler compares
+    `getCurrentDimension()` with `lastDimension` by identity and destroyed everything at every join; while
+    `Minecraft.setLevel` runs the two are made the same object). `PrewarmScreen.draw` (black, bar, "Loading terrain").
+  - `ColorwheelWarm.queueSpares` + `mixin/ColorwheelSpareMixin`: a `ClrwlDrawManager` needs only the pack and the program
+    set; built ahead per dimension, given to `ClrwlEngine.<init>`, and taken back at `ClrwlEngine.delete` (Flywheel
+    makes, deletes and makes again a level's engine at a join). Pairs: an engine's own pipelines plus those of each
+    dimension in `PipelinePrewarm.LINKS` (a carriage's far half is drawn by level A's engine with dimension B's
+    pipeline; that was the 1 to 1.8 s freeze at a train's first crossings).
+  - `colorwheel/ProgramBinaries` + `mixin/ColorwheelLinkerMixin`: `glProgramBinary` in place of `glLinkProgram`, key =
+    SHA-1 of the attached shaders' sources and the driver strings; saved again 90 s into play (the binary then holds
+    the code the driver finishes at a first draw). `ColorwheelWarm.uniforms` asks for every uniform location.
+  - `mixin/ColorwheelCullMixin`: `ClrwlPackDirectives.getOcclusionCulling/getFrustumCulling` read false for GBUFFERS with
+    Immersive Portals (per-engine cull state, several cameras a frame). `colorwheel/ColorwheelFrame` + three mixins:
+    Colorwheel's shared frame and pass uniform buffers are written again before a draw of another view.
+  - `portals/LatePassengers` + `mixin/LatePassengersMixin` (on `ClientboundSetPassengersPacket.handle`, because ntgl
+    cancels `handleSetEntityPassengersPacket` from its head): reseat within 1.5 s, keep an unusable list 10 s.
+  - `portals/PortalLookAround` + mixin (TAIL of `LevelRenderer.renderLevel`: `needsUpdate(); setupRender(camera, look,
+    false, false); needsUpdate()`; a first version swapped the drawing's own frustum and the portal view flickered).
+    `portals/PortalEye` + mixin (TAIL of `Camera.setup`). `portals/PortalWarm` (portals to other dimensions; untested).
+  - `mixin/AnimalTrimCacheMixin`, `mixin/VeilShaderEventMixin`, `mixin/MissingResourceMixin` (negative cache per
+    `FallbackResourceManager`), `mixin/JourneyMapThemeMixin` / `JourneyMapMiniMapMixin` / `JourneyMapCacheMixin`
+    (`JourneyMapReset.keepTheme()`: every reset of a server session but the first).
+  - Not done: the outer ring of the far side and its entities still load on arrival (about four frames of 0.1 to 0.2 s
+    at a first crossing); video memory of 3 + 2 x 3 + 1 pipelines at a high resolution is not measured; KubeJS's local
+    web server thread spins on `accept` (one core; `kubejs/config/web_server.json` `enabled`, the pack's file).
 - `colorwheel/ColorwheelCut` + `mixin/ColorwheelCompileMixin` / `ColorwheelEngineMixin` / `ColorwheelEnvironmentMixin`
   (client; `colorwheel` + `immersive_portals_core`, the last two also `sable`): Immersive Portals' two cuts of Create's
   instanced parts, ported to Colorwheel (an optional client mod of the pack since 2026-11-14; without it Flywheel is off under Iris and the
