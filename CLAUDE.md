@@ -37,6 +37,11 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   display fails Immersive Portals' depth blit and it falls back to the compatibility renderer (no portal in portal);
   `-Dhaven_compat.assumeNoCopyImage=true` in the instance's JVM arguments keeps the normal renderer. Scene: a nether
   portal, a second one lit 10 blocks behind its nether side; no "Creating pipeline" line after the join.
+- Waypoint icons (`journeymap/WaypointIcons`, `mixin/JourneyMapIconMixin` on `TextureCache.getWaypointIcon`'s
+  `resolveImage`, `mixin/JourneyMapIconButtonMixin` on `ImageSelectButton.renderWidget`'s `getTexture`): a missing icon
+  texture falls back to `journeymap:textures/waypoint/icon/waypoint-icon.png`. Reproduce: a waypoint with icon
+  `tfmg:textures/item/converter.png` (ClientWaypointFactoryImpl.at, getIcon().setResourceLocation), open it in the editor,
+  save, open the waypoint manager; without the fix the game crashes (NPE "from"/"texture" is null).
 - 0.37.0, portals with shaders (found with the harness in `minecraft-rancher-companion/run/traintest`: a snapshot of the
   live world's rail regions, a server container, a copy of Haven, a probe mod that rides a train through two nether
   portals and samples the render thread on a long frame; `run.py <label> --nowalk [--pure] [--title] [--ahead]`):

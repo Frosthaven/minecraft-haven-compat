@@ -143,6 +143,12 @@ public final class PipelinePrewarm {
     }
 
     private static boolean startupTried, startupDone;
+    /**
+     * True while {@link #startup} asks Immersive Portals for its Iris renderer. That switch destroys every pipeline
+     * (once per game) and the destroy reported {@link #destroyed}, which marked the start's round as not tried: every
+     * later title screen or connect ran the whole round again (seconds of shader work after each world exit, until 0.37.0).
+     */
+    private static boolean switching;
 
     /** The startup round built every pipeline and they still exist: a join has only the Colorwheel engines left. */
     public static boolean builtAtStartup() {
@@ -172,7 +178,12 @@ public final class PipelinePrewarm {
             Object manager = Class.forName("net.irisshaders.iris.Iris").getMethod("getPipelineManager").invoke(null);
             if (!(manager instanceof Pipelines)) return;
             if (ModList.get().isLoaded("immersive_portals_core")) {
-                Class.forName("qouteall.imm_ptl.core.render.renderer.PortalRenderer").getMethod("switchToCorrectRenderer").invoke(null);
+                switching = true;
+                try {
+                    Class.forName("qouteall.imm_ptl.core.render.renderer.PortalRenderer").getMethod("switchToCorrectRenderer").invoke(null);
+                } finally {
+                    switching = false;
+                }
                 if (!portalRendererReady()) {
                     LOG.info("Immersive Portals did not switch to its Iris renderer at the title screen; the pipelines are built at the join as before");
                     return;
@@ -211,7 +222,8 @@ public final class PipelinePrewarm {
 
     private static boolean joining;
 
-    /** From {@code mixin/IrisKeepPipelinesMixin}: the game is setting a client level (a join, a vanilla dimension change). */
+    /** From {@code mixin/IrisKeepPipelinesMixin}: the game is setting or clearing its client level (a join, a vanilla
+     *  dimension change, leaving a world). */
     public static void joining(boolean now) {
         joining = now;
     }
@@ -223,7 +235,9 @@ public final class PipelinePrewarm {
      * anyway and a portal crossing destroys none; and a destroy also takes Immersive Portals' portal-view pipelines with
      * it. So while a level is being set, {@code mixin/IrisCurrentDimensionMixin} makes the two the same object: the
      * destroy is not asked for, and Iris looks up (or builds) the one pipeline it needs. What the title screen built is
-     * still there at the join. A shader pack reload is not a level change and destroys them as before.
+     * still there at the join. Leaving a world is the same check (its clear sets no level): the pipelines stay for the
+     * next join, so the title screen builds nothing again (until 0.37.0 it rebuilt them all after every world exit). A
+     * shader pack reload is not a level change and destroys them as before.
      */
     public static boolean keeping() {
         if (!joining || broken || current == null) return false;
@@ -232,7 +246,7 @@ public final class PipelinePrewarm {
         } catch (RuntimeException e) {
             return false;
         }
-        LOG.once("keep:" + round, "the shader pipelines are kept through the join (Iris would rebuild all of them)");
+        LOG.once("keep:" + round, "the shader pipelines are kept through a join or a world exit (Iris would rebuild all of them)");
         return true;
     }
 
@@ -257,6 +271,7 @@ public final class PipelinePrewarm {
 
     /** Iris destroyed its pipelines (a shader reload): the title screen may build them again. */
     public static void destroyed() {
+        if (switching) return;  /* the round's own renderer switch: what it builds next is this round's */
         startupTried = false;
         startupDone = false;
         if (ModList.get().isLoaded("colorwheel")) dev.frosthaven.havencompat.colorwheel.ColorwheelWarm.dropSpares();
