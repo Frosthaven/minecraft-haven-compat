@@ -442,6 +442,14 @@ public final class PipelinePrewarm {
 
     private static int viewCount() {
         try {
+            // Immersive Portal Rendering is Disabled: no world is drawn behind a portal, so no view pipeline is needed
+            // (each holds a full set of render targets; a card with little memory is why a player picks Disabled).
+            // Switched back on in play, a view is built at the first look, as without the prewarm.
+            if (PortalView.disabled()) return 0;
+        } catch (RuntimeException e) {
+            // the setting is not loaded yet: build as configured
+        }
+        try {
             var portals = PackDefaults.section(PackDefaults.file(), "portals");
             if (portals != null && portals.has("prewarmPortalViews")) return Math.max(0, portals.get("prewarmPortalViews").getAsInt());
         } catch (Exception e) {
