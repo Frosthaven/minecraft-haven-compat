@@ -559,6 +559,13 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   The legs go Overworld -> Nether and back. The client logs every frame near the plane and every move-vehicle packet.
   Control (0.39.0): 4 of 4 westward crossings got the stale Overworld correction; at local ping one left the horse at
   Nether x -835 with its rider stuck at the plane. Fix: 8 of 8 legs OK, rider and mount together, 4 corrections dropped.
+  0.41.1: only the latest crossing counts, at most 6 drops per crossing (`MountCorrection.stale`, `MAX_DROPS`). 0.41.0
+  kept every crossing spot for 3 s, so after a run back through the portal the server's real correction lay near the
+  spot of the crossing before and was dropped, 20 in a row: the server refused the drekki's moves while the client ran
+  on, then pulled the rider back to the portal (live, 2026-11-24 14:33). Test: the traintest rig's `trainprobe-drekki`
+  flag (`probe/DrekkiRun.java`: a roster-registered Mature drekki at the train-track portal, 60 ms each way, turns 6
+  ticks after each arrival, every 4th arrival runs out 3 s): 0.41.0 dropped same-dimension corrections, 0.41.1 none,
+  stale other-dimension drops kept (7), 20 legs on the drekki.
 - `portals/PortalPipeModel` + `mixin/PortalPipesTfmgMixin` (client, priority 1500; needs `immersive_portals_core`, `tfmg`,
   `create`): TFMG `@Overwrite`s Create's `PipeAttachmentModel.gatherModelData` and redefines `getQuads`, and Mixin refuses
   IP's injections into methods merged at the same priority (1000), so IP 2.4.15's `MixinPipeAttachmentModel_PortalPipes`

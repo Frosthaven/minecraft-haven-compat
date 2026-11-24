@@ -27,8 +27,10 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
  * <p>
  * Each client tick (and at each correction) the ridden mount's dimension and position are noted; a change of dimension or
  * a jump of more than {@value #JUMP} blocks is kept {@value #KEEP_MS} ms as a "before" spot. A correction that points to
- * within {@value MountCorrection#NEAR} blocks of a before spot, and is for another dimension or nearer the before spot than the mount
- * now ({@link MountCorrection}), is one the server sent before it knew of the crossing: it is dropped ({@link #stale}). The server learns of the
+ * within {@value MountCorrection#NEAR} blocks of the latest before spot, and is for another dimension or nearer that spot than the mount
+ * now ({@link MountCorrection}), is one the server sent before it knew of the crossing: it is dropped ({@link #stale}), at most
+ * {@value MountCorrection#MAX_DROPS} per crossing. Earlier spots are left out: after a run back through the portal the
+ * server's real correction lay near the spot of the crossing before, and dropping every one held the mount for 3 s. The server learns of the
  * crossing from Immersive Portals' own teleport request and moves its mount with the player; its later corrections are
  * applied as usual.
  */
@@ -41,7 +43,7 @@ public final class MountCrossing {
     private static int vehicle = -1;
     private static ResourceKey<Level> dim;
     private static Vec3 pos;
-    private static int dropped;
+    private static int dropped, droppedThisCrossing;
 
     private MountCrossing() {}
 
@@ -58,7 +60,7 @@ public final class MountCrossing {
         long now = System.currentTimeMillis();
         ResourceKey<Level> d = v.level().dimension();
         Vec3 at = v.position();
-        if (v.getId() == vehicle && pos != null && (d != dim || at.distanceTo(pos) > JUMP)) BEFORE.addLast(new Before(dim, pos, now));
+        if (v.getId() == vehicle && pos != null && (d != dim || at.distanceTo(pos) > JUMP)) { BEFORE.addLast(new Before(dim, pos, now)); droppedThisCrossing = 0; }
         vehicle = v.getId(); dim = d; pos = at;
         while (!BEFORE.isEmpty() && now - BEFORE.peekFirst().at > KEEP_MS) BEFORE.removeFirst();
     }
@@ -72,13 +74,16 @@ public final class MountCrossing {
         note(root);   // a crossing since the last tick
         double[] at = {packet.getX(), packet.getY(), packet.getZ()};
         double[] now = {root.getX(), root.getY(), root.getZ()};
-        for (Before b : BEFORE) {
-            if (!MountCorrection.towardBefore(at, new double[]{b.pos.x, b.pos.y, b.pos.z}, b.dim != root.level().dimension(), now)) continue;
+        Before b = BEFORE.peekLast();   // the latest crossing only (MountCorrection.stale)
+        if (b != null && MountCorrection.stale(at, new double[]{b.pos.x, b.pos.y, b.pos.z}, b.dim != root.level().dimension(), now, droppedThisCrossing)) {
+            droppedThisCrossing++;
             if (dropped++ < 20) LOG.info("a correction of {} to {} {} came after its crossing to {} ({}): dropped",
                     root.getName().getString(), b.dim.location(), String.format("%.2f %.2f %.2f", at[0], at[1], at[2]), root.level().dimension().location(),
                     String.format("%.2f %.2f %.2f", now[0], now[1], now[2]));
             return true;
         }
+        if (b != null && droppedThisCrossing == MountCorrection.MAX_DROPS && dropped++ < 20)
+            LOG.info("{} corrections of {} after one crossing: the server holds it there, applied", MountCorrection.MAX_DROPS, root.getName().getString());
         return false;
     }
 }

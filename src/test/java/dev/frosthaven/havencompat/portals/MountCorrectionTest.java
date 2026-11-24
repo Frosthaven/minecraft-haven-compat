@@ -26,4 +26,18 @@ class MountCorrectionTest {
         assertFalse(MountCorrection.towardBefore(new double[]{39.5, 64, 0}, new double[]{0, 64, 0}, false, new double[]{40, 64, 0}));
         assertTrue(MountCorrection.towardBefore(new double[]{0.3, 64, 0}, new double[]{0, 64, 0}, false, new double[]{40, 64, 0}));
     }
+
+    @Test
+    void backAndForthKeepsTheServersCorrection() {
+        // 2026-11-24 14:33: Overworld -> Nether -> Overworld within 1.7 s; the latest crossing's spot is the Nether one,
+        // so the Overworld correction (the server's real hold at the arrival) applies
+        double[] netherBefore = {-101.24, 97.13, 201.48};
+        assertFalse(MountCorrection.stale(new double[]{-835.34, 71.13, 1650.27}, netherBefore, true, new double[]{-834.5, 71.13, 1650.33}, 0));
+    }
+
+    @Test
+    void stopsDroppingWhenTheServerRepeatsIt() {
+        assertTrue(MountCorrection.stale(new double[]{-835.229, 71.125, 1650.5}, BEFORE, true, NETHER_NOW, MountCorrection.MAX_DROPS - 1));
+        assertFalse(MountCorrection.stale(new double[]{-835.229, 71.125, 1650.5}, BEFORE, true, NETHER_NOW, MountCorrection.MAX_DROPS));
+    }
 }
