@@ -29,7 +29,8 @@ public final class NtglAltHand {
         return true;
     }
 
-    private static boolean isWeapon(Object item) {
+    /** True when item is an NTGL weapon ({@code IWeapon}, by class name). */
+    static boolean isWeapon(Object item) {
         if (!looked) {
             looked = true;
             try {

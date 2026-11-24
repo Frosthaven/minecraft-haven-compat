@@ -89,6 +89,31 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   sneak, tank main + nailgun off -> only the gun (ModeHand); G (NTGL alt + Create tool menu), wrench main + one-handed
   `ntgl:classic10mm` off -> `[ntgl alt hand]`, gun unchanged; chest mode on the middle button (from `haven-keys.txt`) with a
   jetpack -> HOVER. Move rules G -> ' -> `key.keyboard.7:ALT` ended on Alt+7; the import changed its 3 lines and nothing else.
+- `animations/SpeedStep` (pure, unit tested) + `AnimSpeedGuard` (log) + `mixin/AnimSpeedGuardMixin` (0.41.0, client,
+  `playeranimator`; `@ModifyVariable` at HEAD of `SpeedModifier.step(F)V`, require 0): playerAnimator 2.0.4's step
+  loops `while (delta > 1) { delta--; tick(); }` on `delta * speed + shiftedDelta`; `speed` is a public field. NTGL
+  3.2.0's `PlayerAnimationHelper.playAnim` sets it to `animation.getLength() / length`; `PlayerAnimations.playReloadAnimation`
+  gives length 0 for a per-cartridge gun the client sees as full (`maxAmmo - ammoCount` cartridges). An ammo switch
+  (`ServerPlayHandler.handleAmmoChange`: unload, then `handleReload`) sends the reload animation while the client still
+  has the full magazine: speed +Infinity, the render thread hung for good (2026-11-24, Create Gunsmithing shotgun with
+  the pump, 10/10, switch to Flechette; a plain reload of a full gun starts no reload, so no animation). Every client
+  that sees the player runs that animation. The guard: a speed that is not finite plays at 1, a remainder that is not
+  finite or above 1 is 0, one step advances at most 200 ticks. `[anim speed guard]` once with the values.
+- `ntgl/NtglReloadWheel` + `WheelEntries` (pure, unit tested) + `mixin/NtglReloadWheelMixin` (0.41.0, client, `ntgl`;
+  INVOKE `ActionWheelManager.showWheel` in `InputHandler.reloadUnload(Z)V`, cancellable, `@Local` heldItem, modes
+  (ArrayList ordinal 0) and actions (ordinal 1), require 0): NTGL lists every mode with max ammo above 0 and adds
+  PRIMARY again; Create Gunsmithing's pump and drum set max ammo for every mode, so the shotgun's scope mode
+  (`ntgl:secondary`, action `ntgl:scope`) got a second "Main Weapon" entry for the same magazine (`AMMO_COUNT` is one
+  component for all modes). Entries are matched to modes by colour (`WheelAction.getColor` = `WeaponMode.getColor`);
+  scope modes and repeated modes are left out; one entry left: its action runs at once (for the shotgun
+  `startReloading(PRIMARY)` / `unloadAmmo(hand, PRIMARY)`, what a tap ran: press opened the wheel, release ran the
+  default). Unload uses the same path. `[reload wheel]` once per key.
+- `ntgl/NtglAmmoSelectHand` + `mixin/NtglAmmoSelectHandMixin` (0.41.0, client, `ntgl`; HEAD of
+  `InputHandler.selectAmmoKeyPressed()V`, cancellable, require 0): NTGL 3.2.0 showed the ammo wheel on a press of
+  `key.ntgl.ammo_select` (C in the pack) with any item in the hand (off hand while sneaking, else main hand), and its
+  `MouseHandlerMixin` cancels `turnPlayer` while a wheel is shown: held with no gun, mouse look froze on an empty wheel.
+  Now the press is skipped unless that hand holds an `IWeapon` (`NtglAltHand.isWeapon`); the release's `closeWheel`
+  finds no wheel. `[ammo select hand]` once. With a gun and no other ammo NTGL still shows an empty wheel (unchanged).
 - 0.37.0, portals with shaders (found with the harness in `minecraft-rancher-companion/run/traintest`: a snapshot of the
   live world's rail regions, a server container, a copy of Haven, a probe mod that rides a train through two nether
   portals and samples the render thread on a long frame; `run.py <label> --nowalk [--pure] [--title] [--ahead]`):
