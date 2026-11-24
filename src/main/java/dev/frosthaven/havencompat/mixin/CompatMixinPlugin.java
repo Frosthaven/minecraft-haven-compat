@@ -40,6 +40,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("MacDropStackScreenMixin", List.of()),
             Map.entry("TooltipOnTopMixin", List.of()),   // vanilla only
             Map.entry("RefusedCrossingMixin", List.of("immersive_portals_core")),
+            Map.entry("MountCrossingMixin", List.of("immersive_portals_core")),
             Map.entry("PortalPipesTfmgMixin", List.of("immersive_portals_core", "tfmg", "create")),
             Map.entry("NtglProjectileSyncMixin", List.of("ntgl")),
             Map.entry("AeBlockTurnMixin", List.of("ae2")),
@@ -55,6 +56,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("MekanismChemicalGlowMixin", List.of("mekanism", "iris")),
             Map.entry("MekanismModeHandMixin", List.of("mekanism")),
             Map.entry("NtglKeyQueueMixin", List.of("ntgl")),
+            Map.entry("NtglAltHandMixin", List.of("ntgl")),
             Map.entry("BinderSlotMixin", List.of("easy_mob_farm")),
             Map.entry("BinderPagesMixin", List.of("easy_mob_farm")),
             Map.entry("BinderSlotAccessor", List.of("easy_mob_farm")),

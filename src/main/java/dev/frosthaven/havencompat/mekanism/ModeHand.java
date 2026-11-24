@@ -12,7 +12,8 @@ import net.minecraft.world.entity.EquipmentSlot;
  * Haven binds it and NTGL's fire select to the same key (";"): with a gun in the main hand and a fluid tank in the off
  * hand, one press switched both. Here the off hand is used only while sneaking (as NTGL's fire select does); without
  * sneaking only the main hand, and nothing when it holds no mode item. Sneaking on the main hand keeps Mekanism's
- * reverse step; the off hand, chosen by sneaking, steps forward. The radial selector (Configurator and others, key
+ * reverse step, except when the off hand holds an NTGL weapon: the same press then switches that gun's fire mode (NTGL
+ * reads the off hand while sneaking), and the main hand stays. The off hand, chosen by sneaking, steps forward. The radial selector (Configurator and others, key
  * held) is Mekanism's own tick code and unchanged. Mekanism is reached by reflection: IModeItem.isModeItem(Player,
  * EquipmentSlot, false) (false: radial items are not stepped by a press, as in Mekanism), PacketModeChange(slot,
  * shift), PacketUtils.sendToServer.
@@ -21,6 +22,8 @@ public final class ModeHand {
     private static final Log LOG = new Log("[mekanism mode hand] ");
     private static Method isModeItem, send;
     private static Constructor<?> packet;
+    private static Class<?> weapon;            // NTGL's IWeapon, null without NTGL
+    private static boolean weaponLooked;
     private static boolean broken;
 
     private ModeHand() {}
@@ -42,6 +45,7 @@ public final class ModeHand {
             EquipmentSlot slot = sneaking ? EquipmentSlot.OFFHAND : EquipmentSlot.MAINHAND;
             if (!(boolean) isModeItem.invoke(null, player, slot, false)) {
                 if (!sneaking) return true;   // main hand only: nothing to change
+                if (ntglWeapon(player.getOffhandItem().getItem())) return true;   // NTGL's fire select takes this press
                 slot = EquipmentSlot.MAINHAND;   // sneaking with no off-hand mode item: Mekanism's reverse step on the main hand
                 if (!(boolean) isModeItem.invoke(null, player, slot, false)) return true;
             }
@@ -52,5 +56,20 @@ public final class ModeHand {
             LOG.error("reflect", "cannot reach Mekanism's mode change; its own hand choice stays", e);
             return false;
         }
+    }
+
+    /** True for an NTGL weapon (its items implement IWeapon); false without NTGL. */
+    private static boolean ntglWeapon(Object item) {
+        if (!weaponLooked) {
+            weaponLooked = true;
+            try {
+                weapon = Class.forName("com.nukateam.ntgl.common.foundation.item.interfaces.IWeapon");
+            } catch (ClassNotFoundException | LinkageError e) {
+                weapon = null;
+            }
+        }
+        boolean gun = weapon != null && weapon.isInstance(item);
+        if (gun) LOG.once("gun", "sneak with an NTGL gun in the off hand: the press is the gun's, the main hand stays");
+        return gun;
     }
 }

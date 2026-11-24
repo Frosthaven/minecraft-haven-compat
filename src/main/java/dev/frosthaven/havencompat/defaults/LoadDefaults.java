@@ -34,11 +34,14 @@ import java.util.Map;
  * once (state {@code darkLoadingScreen}); NeoForge's early loading window reads it at launch and is black, not red, from
  * the next launch. {@code keys}: key binding moves ({@link KeyDefaults}; state {@code keys}); mod keys read options.txt
  * later in the same start, so a move works on the first launch. The player's later choices always win ({@link DefaultsState}).
+ * <p>A {@code haven-keys.txt} in the game folder ({@link KeymapImport}) is applied here too, after the key moves, with
+ * or without a pack defaults file.
  * <p>The changes reach options.txt as text ({@link OptionsFile}), not through {@code Options.save()}: at this point only
  * vanilla's key mappings exist, and a save dropped every mod's key binding.
  */
 public final class LoadDefaults {
     private static final Log LOG = new Log("[pack defaults] ");
+    private static final Log IMPORT = new Log("[keymap import] ");
     private static final Gson GSON = new Gson();   // options.txt writes its pack lists as compact JSON
     private static boolean done;
 
@@ -54,6 +57,7 @@ public final class LoadDefaults {
             JsonObject spec = PackDefaults.root(PackDefaults.file());
             if (spec == null) {
                 LOG.once("absent", "no {} in config: nothing to apply", PackDefaults.FILE);
+                importKeys(new LinkedHashMap<>());
                 return;
             }
             DefaultsState state = DefaultsState.load();
@@ -89,12 +93,24 @@ public final class LoadDefaults {
                 keys.forEach((key, to) -> LOG.once("key:" + key, "{} moved to {}", key, to));
                 lines.putAll(keys);
             }
-            if (!lines.isEmpty()) {
-                OptionsFile.write(file, lines);
-            }
             state.save();
+            importKeys(lines);
         } catch (Throwable t) {
             LOG.error("apply", "pack defaults left as they were", t);
+        }
+    }
+
+    /** Adds the key import file's lines to {@code lines}, writes them to options.txt, then renames the import file. */
+    private static void importKeys(Map<String, String> lines) throws java.io.IOException {
+        Path dir = FMLPaths.GAMEDIR.get();
+        Map<String, String> keys = KeymapImport.read(dir);
+        lines.putAll(keys);
+        if (!lines.isEmpty()) {
+            OptionsFile.write(dir.resolve("options.txt"), lines);
+        }
+        if (java.nio.file.Files.exists(dir.resolve(KeymapImport.FILE))) {
+            KeymapImport.done(dir);
+            IMPORT.info("applied {} keys from {} (renamed {})", keys.size(), KeymapImport.FILE, KeymapImport.APPLIED);
         }
     }
 

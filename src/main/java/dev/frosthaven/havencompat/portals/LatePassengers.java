@@ -45,6 +45,7 @@ public final class LatePassengers {
 
     public static void register(IEventBus bus) {
         bus.addListener((ClientTickEvent.Post e) -> { if (!KEPT.isEmpty()) retry(); if (seat != null) reseat(); });
+        if (ModList.get().isLoaded("immersive_portals_core")) MountCrossing.register(bus);   // the other rider fix at portals
     }
 
     /** From the mixin, on the client thread, before vanilla handles the list in {@code level}. */

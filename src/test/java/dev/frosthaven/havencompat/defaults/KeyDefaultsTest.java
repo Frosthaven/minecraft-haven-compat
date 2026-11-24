@@ -36,4 +36,29 @@ class KeyDefaultsTest {
         assertEquals(Map.of("key_justzoom.keybinds.keybind.zoom", "key.keyboard.y"),
                 KeyDefaults.moves(List.of("version:3955"), ZOOM, new JsonObject()));
     }
+
+    private static final String CHEST = "key_key.mekanism.chest_mode";
+    private static final JsonArray TWICE = JsonParser.parseString("[{\"key\": \"" + CHEST + "\", \"from\": \"key.keyboard.g\", \"to\": \"key.keyboard.apostrophe\"},"
+            + "{\"key\": \"" + CHEST + "\", \"from\": \"key.keyboard.apostrophe\", \"to\": \"key.keyboard.7:ALT\"}]").getAsJsonArray();
+
+    @Test
+    void movesChainToTheLastTarget() {
+        JsonObject done = new JsonObject();
+        assertEquals(Map.of(CHEST, "key.keyboard.7:ALT"), KeyDefaults.moves(List.of(CHEST + ":key.keyboard.g"), TWICE, done));
+        assertTrue(done.has(CHEST + " -> key.keyboard.apostrophe") && done.has(CHEST + " -> key.keyboard.7:ALT"));
+    }
+
+    @Test
+    void aPlayerOnTheFirstTargetTakesTheSecondMove() {
+        JsonObject done = new JsonObject();
+        done.addProperty(CHEST + " -> key.keyboard.apostrophe", true);
+        assertEquals(Map.of(CHEST, "key.keyboard.7:ALT"), KeyDefaults.moves(List.of(CHEST + ":key.keyboard.apostrophe"), TWICE, done));
+    }
+
+    @Test
+    void aModifierIsPartOfTheValue() {
+        // the player's Ctrl+' is not the rule's plain ', so it stays; a chained result with a modifier stays too
+        assertEquals(Map.of(), KeyDefaults.moves(List.of(CHEST + ":key.keyboard.apostrophe:CONTROL"), TWICE, new JsonObject()));
+        assertEquals(Map.of(), KeyDefaults.moves(List.of(CHEST + ":key.keyboard.7:ALT"), TWICE, new JsonObject()));
+    }
 }

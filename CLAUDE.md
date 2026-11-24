@@ -64,7 +64,8 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   mode item, or the off hand's when the main hand holds none. Haven binds it and NTGL's fire select to ";": gun in
   the main hand + fluid tank in the off hand switched both. Now: off hand only while sneaking, else the main hand only
   (nothing when it has no mode item); sneaking with no off-hand mode item keeps Mekanism's reverse step on the main
-  hand. Radial items (Configurator etc.) are not stepped by a press, as in Mekanism; its radial (key held,
+  hand, except (0.40.0) when the off hand holds an NTGL gun (`IWeapon`, by class name): that press is NTGL's fire select
+  on the off-hand gun, so Mekanism does nothing. Radial items (Configurator etc.) are not stepped by a press, as in Mekanism; its radial (key held,
   `ClientTickHandler`: main hand first, then off hand; sneak not read) is unchanged. `[mekanism mode hand]` at the
   first press. Test (same run): gun + tank, ";" -> gun auto to semi, tank unchanged; sneak + ";" -> tank bucket mode
   on, and the gun switched too (NTGL's queued click, fixed by `ntgl/NtglKeyQueue`). Holding a key by `setDown` every tick
@@ -74,6 +75,20 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   the hand it picks (off hand while sneaking, else main hand) holds an `IWeapon`; otherwise the click stayed queued and
   fired later (sneak + ";" with a tank in the off hand: the main-hand gun switched once sneaking ended). The left-over
   clicks of those keys are dropped at the end of each `handleKeys`. `[ntgl key queue]` at the first dropped press.
+- `ntgl/NtglAltHand` + `mixin/NtglAltHandMixin` (0.40.0, client, `ntgl`; HEAD of `InputHandler.handleInput(WeaponData,
+  InteractionHand, KeyMapping)`, require 0): NTGL 3.2.0's `handleWeaponKeys` gives `key.ntgl.alt` to the off-hand gun when the
+  main hand holds no weapon (and `canUseOffhandWeapon`: a one-handed gun). Haven binds it to G with Create's item menus,
+  so G with a Create item in the main hand also worked the off-hand gun. The off-hand call for the alt key is skipped
+  while the main hand holds no `IWeapon`; the main-hand path and other off-hand keys are unchanged. `[ntgl alt hand]`
+  when it first skips.
+  Test of 0.40.0 (2026-11-24, visible nested sway, copy of the traintest rig, server in creative with force-gamemode (the
+  snapshot's spawn is in fire: a survival player died before the probe ran), a throwaway client mod: presses through
+  `KeyboardHandler.keyPress` / `MouseHandler.onPress`, sneak = the sneak key's own key, item state from the stack's
+  component patch, `Screenshot.grab`, a stop with a log line on death): mouse 4 bound to Mekanism's mode and NTGL's fire
+  select: tank main -> bucket mode on; nailgun main -> fire mode semi; sneak, nailgun main + tank off -> only the tank;
+  sneak, tank main + nailgun off -> only the gun (ModeHand); G (NTGL alt + Create tool menu), wrench main + one-handed
+  `ntgl:classic10mm` off -> `[ntgl alt hand]`, gun unchanged; chest mode on the middle button (from `haven-keys.txt`) with a
+  jetpack -> HOVER. Move rules G -> ' -> `key.keyboard.7:ALT` ended on Alt+7; the import changed its 3 lines and nothing else.
 - 0.37.0, portals with shaders (found with the harness in `minecraft-rancher-companion/run/traintest`: a snapshot of the
   live world's rail regions, a server container, a copy of Haven, a probe mod that rides a train through two nether
   portals and samples the render thread on a long frame; `run.py <label> --nowalk [--pure] [--title] [--ahead]`):
@@ -440,7 +455,13 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   (`mixin/LoadDefaultsMixin`, TAIL of `Options.loadSelectedResourcePacks`, once; before the first resource load, so no
   reload): `resourcePacks` enabled once in order (`PackList` pure, unit tested), `resourcePackOrder` rules once each (state
   `ordered`, `PackOrder` pure, unit tested), `darkLoadingScreen` sets `darkMojangStudiosBackground` once, `keys` rules move a key line once from its old default
-  (`KeyDefaults` pure, unit tested; a key the player bound stays; mod keys read options.txt later in the same start); the pack lists
+  (`KeyDefaults` pure, unit tested; a key the player bound stays; mod keys read options.txt later in the same start; 0.40.0:
+  rules chain in list order, a rule sees the value an earlier rule wrote in the same run, so G -> ' then ' -> Alt+7 ends on
+  Alt+7 for a player still on G; values with a modifier (`key.keyboard.7:ALT`) compare as whole strings); `KeymapImport`
+  (0.40.0, pure `parse` unit tested): a `haven-keys.txt` in the game folder (lines as options.txt stores keys, `key_<id>:<value>`;
+  blank, `#` and non-`key_` lines skipped) is applied after the key moves, with or without a pack defaults file, as text
+  like the rest (only those key lines replaced or added), then renamed `haven-keys.applied.txt` (an older one replaced);
+  `[keymap import] applied N keys`; the pack lists
   are copied back into Options as `updateResourcePacks` does (without its reload), then `options.save()`.
   `TitleDefaults`: first title screen, `shader` set per OS on the first run (Iris by reflection:
   `getIrisConfig().setShaderPackName/setShadersEnabled/save`, `reload`). `ShaderOptions`: at mod construction (before Iris
@@ -494,6 +515,25 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   as the way back. Only for the reason text "has awaiting teleport" (an upstream rename turns the fix off).
   Test (2026-10-21): a throwaway server mod held the client's confirmation and set the server position 2 cm past the
   plane on the crossing request, then nudged the player 0.15 back; without the fix the nudge crossed the reverse portal.
+- `portals/MountCrossing` + `MountCorrection` (pure rule, unit test) + `mixin/MountCrossingMixin` (client, `client` list;
+  `immersive_portals_core`; registered from `LatePassengers.register`): wrong-side exits while mounted. Immersive Portals
+  never refuses a crossing for a rider (`validatePlayerTeleportationAndGetReason` returns early for `getVehicle() != null`),
+  so `RefusedCrossing` does not cover it. The cause is vanilla: the server often rejects the vehicle move that carries a
+  mount through the plane ("<mount> (vehicle of <player>) moved wrongly!", or the silent collision check). It then sends
+  `ClientboundMoveVehiclePacket` with the old position. That packet has no dimension, and it arrives after the client
+  has already crossed, so vanilla's handler gave the mount in the Nether its Overworld coordinates. Then the rider hung at
+  the plane, or the next server correction ("moved too quickly! -734,-26,1449") carried the rider back over it. IP took
+  that as a crossing of the reverse portal, in a ping-pong to "Combo teleport out of limit", and the player stayed on the
+  wrong side (a drekki rider, client log 2026-11-24 03:25). The mixin (HEAD of the packet's `handle`, client thread)
+  drops a correction that points to within 8 blocks of the mount's spot before a dimension change or a jump of more than
+  3 blocks in the last 3 s, if that correction is for the other dimension or nearer the old spot than the mount's
+  current spot. Log: `[mount crossing] a correction of <mount> to <old dim> ... came after its crossing ...: dropped`.
+  Test (2026-11-24, copy of the traintest rig at `~/.cache/traintest-portal`, own container): the throwaway mod
+  `portalprobe` adds 60 ms each way on the player's connection (a Netty handler first in the server pipeline), puts a
+  tamed horse (or a Mature drekki by reflection) 6 blocks before the rig's nether portal, mounts the player, and holds W.
+  The legs go Overworld -> Nether and back. The client logs every frame near the plane and every move-vehicle packet.
+  Control (0.39.0): 4 of 4 westward crossings got the stale Overworld correction; at local ping one left the horse at
+  Nether x -835 with its rider stuck at the plane. Fix: 8 of 8 legs OK, rider and mount together, 4 corrections dropped.
 - `portals/PortalPipeModel` + `mixin/PortalPipesTfmgMixin` (client, priority 1500; needs `immersive_portals_core`, `tfmg`,
   `create`): TFMG `@Overwrite`s Create's `PipeAttachmentModel.gatherModelData` and redefines `getQuads`, and Mixin refuses
   IP's injections into methods merged at the same priority (1000), so IP 2.4.15's `MixinPipeAttachmentModel_PortalPipes`
