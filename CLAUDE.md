@@ -48,6 +48,32 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   texture falls back to `journeymap:textures/waypoint/icon/waypoint-icon.png`. Reproduce: a waypoint with icon
   `tfmg:textures/item/converter.png` (ClientWaypointFactoryImpl.at, getIcon().setResourceLocation), open it in the editor,
   save, open the waypoint manager; without the fix the game crashes (NPE "from"/"texture" is null).
+- `journeymap/MapSecondKey` (0.39.0, client, `journeymap`): `key.haven_compat.open_map`, default M, IN_GAME, JourneyMap's
+  category (`jm.common.hotkeys_keybinding_category`). Mirrors JourneyMap 6.0.10's J (`KeybindingHandler`): in play
+  `UIManager.getOrOpenFullscreenMap()`, on `Fullscreen` with no chat and no focused search `UIManager.closeAll()`
+  (`ScreenEvent.KeyPressed.Pre`, cancelled). Reflection only; `[map key]` once. Structurize's `mirror` is also on M
+  but its conflict context is active only in a blueprint manipulation window: no clash.
+  `journeymap/JourneyMapSplash` + `mixin/JourneyMapSplashMixin` (HEAD of `Fullscreen.init()V`): sets
+  `CoreProperties.splashViewed` to the running version (StringField set + save, as the About screen does), so the
+  "About JourneyMap" splash never covers the map; the About button still works. `[journeymap splash]` when it acts.
+  Test (2026-11-24, visible nested sway, copy of the traintest rig, JourneyMap 6.0.10, no `journeymap/config`;
+  presses through `KeyboardHandler.keyPress`, KubeJS client hook, `Screenshot.grab`): M opens the map with no splash,
+  J on the map closes it, J opens, M on the map closes.
+- `mekanism/ModeHand` + `mixin/MekanismModeHandMixin` (0.39.0, client, `mekanism`; HEAD of `MekanismKeyHandler`
+  `lambda$static$0`, the `key.mekanism.mode` key-down action, require 0): Mekanism 10.7.19 changes the main hand's
+  mode item, or the off hand's when the main hand holds none. Haven binds it and NTGL's fire select to ";": gun in
+  the main hand + fluid tank in the off hand switched both. Now: off hand only while sneaking, else the main hand only
+  (nothing when it has no mode item); sneaking with no off-hand mode item keeps Mekanism's reverse step on the main
+  hand. Radial items (Configurator etc.) are not stepped by a press, as in Mekanism; its radial (key held,
+  `ClientTickHandler`: main hand first, then off hand; sneak not read) is unchanged. `[mekanism mode hand]` at the
+  first press. Test (same run): gun + tank, ";" -> gun auto to semi, tank unchanged; sneak + ";" -> tank bucket mode
+  on, and the gun switched too (NTGL's queued click, fixed by `ntgl/NtglKeyQueue`). Holding a key by `setDown` every tick
+  makes the radial open and close each tick (flashing): never hold a screen-opening key that way in a visible test.
+- `ntgl/NtglKeyQueue` + `mixin/NtglKeyQueueMixin` (0.39.0, client, `ntgl`; RETURN of `InputHandler.handleKeys`,
+  require 0): NTGL 3.2.0 reads attachments, inspect, fire select, tips and debug show with `consumeClick()` only when
+  the hand it picks (off hand while sneaking, else main hand) holds an `IWeapon`; otherwise the click stayed queued and
+  fired later (sneak + ";" with a tank in the off hand: the main-hand gun switched once sneaking ended). The left-over
+  clicks of those keys are dropped at the end of each `handleKeys`. `[ntgl key queue]` at the first dropped press.
 - 0.37.0, portals with shaders (found with the harness in `minecraft-rancher-companion/run/traintest`: a snapshot of the
   live world's rail regions, a server container, a copy of Haven, a probe mod that rides a train through two nether
   portals and samples the render thread on a long frame; `run.py <label> --nowalk [--pure] [--title] [--ahead]`):

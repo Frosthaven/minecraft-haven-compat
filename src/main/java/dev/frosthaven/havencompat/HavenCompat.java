@@ -43,6 +43,8 @@ import net.neoforged.neoforge.common.NeoForge;
  *    {@link dev.frosthaven.havencompat.binder.BinderFix}.
  *  - {@code portals}: the Immersive Portal Rendering setting (mod list, Config): Normal, or Disabled for a purple plane
  *    with no view through it ({@link dev.frosthaven.havencompat.portals.PortalView}).
+ *  - {@code journeymap}: a second key for the fullscreen map (default M, beside JourneyMap's J), see
+ *    {@link dev.frosthaven.havencompat.journeymap.MapSecondKey}.
  *  - {@code signs}: Unlocked Typing's row on the sign screen moves off Big Sign Writer's row when both are installed.
  *  - {@code defaults}: the pack's one-time defaults (moved here from haven-create-ui-ux, an optional mod): the listed
  *    resource packs enabled once and order fixes, before the first resource load (no extra reload), the loading
@@ -63,6 +65,9 @@ public final class HavenCompat {
         }
         if (net.neoforged.fml.ModList.get().isLoaded("torchmaster") && net.neoforged.fml.ModList.get().isLoaded("journeymap")) {
             dev.frosthaven.havencompat.megatorch.MegatorchAreasClient.register();
+        }
+        if (net.neoforged.fml.ModList.get().isLoaded("journeymap")) {
+            dev.frosthaven.havencompat.journeymap.MapSecondKey.register(modBus, NeoForge.EVENT_BUS);
         }
         dev.frosthaven.havencompat.hud.HudPoseGuard.register(NeoForge.EVENT_BUS);
         PortalShaderGuard.register(NeoForge.EVENT_BUS);
