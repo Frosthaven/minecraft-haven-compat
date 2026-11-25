@@ -33,9 +33,13 @@
     "RepositoryTileMixin",
     "RepositoryStorageMixin",
     "RailwaysSetupMixin",
-    "OxidationScrapeToolMixin"
+    "OxidationScrapeToolMixin",
+    "CarriedRidersMixin",
+    "SeatsAtPortalsMixin",
+    "ZeroMoveCollideMixin"
   ],
   "client": [
+    "FancyMenuScaleMixin",
     "PortalStencilHoldMixin",
     "PortalDepthCopyMixin",
     "DeepSeasUpdateCheckMixin",

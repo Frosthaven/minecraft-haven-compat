@@ -566,6 +566,34 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   flag (`probe/DrekkiRun.java`: a roster-registered Mature drekki at the train-track portal, 60 ms each way, turns 6
   ticks after each arrival, every 4th arrival runs out 3 s): 0.41.0 dropped same-dimension corrections, 0.41.1 none,
   stale other-dimension drops kept (7), 20 legs on the drekki.
+- `portals/CarriedRiders` + `mixin/CarriedRidersMixin` (server, `mixins` list; `create` + `immersive_portals_core`; on
+  `Carriage$DimensionalCarriageEntity`: RETURN of `dismountPlayer`, HEAD of `updatePassengerLoadout`): a train passenger
+  whose seat crosses a portal before the carriage has a copy on the far side was left standing on the old side, never
+  seated (gooplife, 2026-11-24). Such a player (filed under "PlayerPassenger", not teleported) is remembered 5 s; when a
+  copy in another dimension loads its passengers with that player filed and the player is within 4 blocks of the spot,
+  the player goes through with IP's `IPCreateRiderTeleport.teleport` (vanilla's when that fails) and Create seats them in
+  the same call. Log: `[carried riders]`.
+- `portals/SeatsAtPortals` + `mixin/SeatsAtPortalsMixin` (server, `mixins` list; `create` + `immersive_portals_core`;
+  HEAD of `SeatMovementBehaviour.visitNewPosition`, cancellable): Create ejects a seated rider when the seat moves into a
+  block that occludes (or a bottom slab), and a portal set in a wall has those right behind its plane. On a carriage the
+  eject is skipped when the block is past the crossing's plane (`IPCreateCarriageCrossing.of`, `Crossing.isBeyond`) or
+  within 4 blocks of an IP `Portal` entity (the crossing is often not set up yet when the front seat meets the wall);
+  IP's hand-over then moves the rider. Log: `[portal seats] ... rider kept for the hand-over`.
+  Test for both (2026-11-25, traintest rig, `run_pair.py`: Tester drives, Tester2 on the front seat, the drill portal
+  at x -1088, z 1274 both ways): before, both runs (pair-hints-on-2, trip-seats) logged "P2 PASSENGER LOST" with the
+  dismount stack in `SeatMovementBehaviour.visitNewPosition`; after, 4 runs (trip-seats2, seat42-1..3 with 0.42.0 on
+  all three sides), 0 lost, Tester2 through all 4 portals with the driver each run. `CarriedRiders` fired in none of them
+  (the seat fix kept the rider first): it is the fallback for a rider who still gets off before the far copy exists, and
+  has not run in a real crossing yet.
+- `mixin/ZeroMoveCollideMixin` (`immersive_portals_core`; HEAD of `Entity.collide`, priority 500, before IP's own hook):
+  a zero movement returns at once. A seated player runs `move` with a zero vector every tick, and IP's portal-aware
+  collision (`PortalCollisionHandler.handleOtherSideMove`) next to a train portal in a wall took over 100 ms of render
+  thread on it (traintest JFR stall stack, 2026-11-24). Collision only shortens a movement: same result, no work.
+- `mixin/FancyMenuScaleMixin` (client, `@Pseudo` on `de.keksuccino.fancymenu.util.rendering.RenderScaleUtil`;
+  `fancymenu`): FancyMenu 3.9 sets a ThreadLocal (with a boxed Float) on every `PoseStack` push, pop and scale in the
+  game; on the render thread the value lives in a plain static field instead, other threads keep the ThreadLocal. 111
+  render-thread samples (about 2.2 s) on one traintest trip before. Same values; recheck the target names after a
+  FancyMenu update (the mixin is `@Pseudo`: a rename turns it off without an error).
 - `portals/PortalPipeModel` + `mixin/PortalPipesTfmgMixin` (client, priority 1500; needs `immersive_portals_core`, `tfmg`,
   `create`): TFMG `@Overwrite`s Create's `PipeAttachmentModel.gatherModelData` and redefines `getQuads`, and Mixin refuses
   IP's injections into methods merged at the same priority (1000), so IP 2.4.15's `MixinPipeAttachmentModel_PortalPipes`
