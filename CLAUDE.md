@@ -620,6 +620,18 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   had ("Index 1 out of bounds for length 1" in `SpriteContents.upload`), a crash at game start (traintest rig, 2 of about
   150 starts, 2026-11-25, with hotbar 1.6.1 and 1.7.0). That upload is skipped and logged once (`[phantom tracks]`); not
   reproducible on demand, so the test is that the mixin applies (no `Mixin apply` failure) and phantom tracks still show.
+- `mixin/VeilIrisBindMixin` + `VeilIrisClearMixin` (client; `veil` + `iris`; 0.42.1): a black box fixed over the middle
+  of the screen with Complementary Unbound (a player on an RTX 5080, driver 610.88, 2026-11-25: gone with Unbound's
+  Real-Time Shadows OFF or with Reimagined; bigger in survival than in creative; never seen on the rig's AMD card).
+  Veil 4.3.2 (jar-in-jar of Sable 2.0.6) binds a plain framebuffer on Iris's colortex0 main texture for every Veil
+  shader it applies (`ShaderWrapperMixin` -> its merged `IrisRenderingPipeline.veil$bindSimpleFramebuffer`), in the
+  shadow pass and in GUIs too, and never unbinds it (its `@Share` flag does not carry from `apply` to `clear`). The bind
+  mixin (priority 1500, after Veil's merge) replaces that method: outside the shadow pass and only while
+  `shouldOverrideShaders()`, Iris's own `bindDefault()` (the colortex0 copy a flipping pack draws to); else nothing. The
+  clear mixin binds the draw and read framebuffers of before `apply` again at the end of `clear`. The same fix as Veil's
+  open pull 213 (FoundryMC/Veil, not in 4.5.2); drop these when the pack's Sable bundles a Veil with it. Related upstream
+  report: Iris issue 3164 (Sable objects drawn wrong with shadows on). Test: the rig trip with Unbound (no `Mixin apply`
+  failure, `[veil shadows]` in latest.log, normal screenshots); the box itself only on the player's NVIDIA card.
 - `mixin/ZeroMoveCollideMixin` (`immersive_portals_core`; HEAD of `Entity.collide`, priority 500, before IP's own hook):
   a zero movement returns at once. A seated player runs `move` with a zero vector every tick, and IP's portal-aware
   collision (`PortalCollisionHandler.handleOtherSideMove`) next to a train portal in a wall took over 100 ms of render

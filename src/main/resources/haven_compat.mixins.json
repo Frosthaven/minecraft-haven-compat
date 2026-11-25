@@ -40,6 +40,8 @@
   ],
   "client": [
     "RailsPhantomSpriteMixin",
+    "VeilIrisBindMixin",
+    "VeilIrisClearMixin",
     "SeatDrawMixin",
     "FancyMenuScaleMixin",
     "PortalStencilHoldMixin",
