@@ -31,7 +31,7 @@ public final class PortalView {
             .renamed(Map.of("NORMAL", Level.IMMERSIVE, "FAST", Level.PERFORMANCE));
 
     /** Performance mode: the farthest a portal may be from the camera and still show its view, in blocks. */
-    public static final SavedNumber DISTANCE = new SavedNumber(16, 8, 64,
+    public static final SavedNumber DISTANCE = new SavedNumber(24, 8, 64,
             "haven-compat-portal-distance.json", "portalViewDistance", "Portal view distance", new Log("[portal view] "));
 
     private PortalView() {}

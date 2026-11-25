@@ -682,7 +682,7 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
 - `portals/PortalView` (setting in `config/haven-compat-portal-view.json`, volatile, Performance mode (the default) on
   any read error; levels Fully immersive (`IMMERSIVE`), Performance mode (`PERFORMANCE`), Disabled; 0.43.0 renamed
   Normal and Fast, `SavedChoice.renamed` loads a saved `NORMAL`/`FAST` as the new level; the distance slider is
-  `PortalView.DISTANCE`, a `SavedNumber` in `config/haven-compat-portal-distance.json`, default 16, 8 to 64, shown only
+  `PortalView.DISTANCE`, a `SavedNumber` in `config/haven-compat-portal-distance.json`, default 24 (Shane, 2026-11-25), 8 to 64, shown only
   in Performance mode, saved when let go) + `PortalViewSkipMixin` (Disabled: IP skips every portal view at the HEAD of
   `PortalRenderer.shouldSkipRenderingPortal`; Performance mode at its RETURN: a portal IP would draw while
   `PortalRendering.isRendering()` loses its view and is noted in `PortalView.lostView`, and in the player's own view a
