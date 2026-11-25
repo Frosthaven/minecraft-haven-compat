@@ -584,7 +584,8 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   dismount stack in `SeatMovementBehaviour.visitNewPosition`; after, 4 runs (trip-seats2, seat42-1..3 with 0.42.0 on
   all three sides), 0 lost, Tester2 through all 4 portals with the driver each run. `CarriedRiders` fired in none of them
   (the seat fix kept the rider first): it is the fallback for a rider who still gets off before the far copy exists, and
-  has not run in a real crossing yet.
+  has not run in a real crossing yet. With 50 ms each way on both players' connections (the probe's `Latency`, run_pair
+  `--latency 50`): 0.41.1 lost the passenger at the drill return again (rider-lat-1), 0.42.0 lost none (rider-lat-fix-1).
 - `mixin/ZeroMoveCollideMixin` (`immersive_portals_core`; HEAD of `Entity.collide`, priority 500, before IP's own hook):
   a zero movement returns at once. A seated player runs `move` with a zero vector every tick, and IP's portal-aware
   collision (`PortalCollisionHandler.handleOtherSideMove`) next to a train portal in a wall took over 100 ms of render
