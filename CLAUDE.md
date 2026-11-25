@@ -586,6 +586,40 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   (the seat fix kept the rider first): it is the fallback for a rider who still gets off before the far copy exists, and
   has not run in a real crossing yet. With 50 ms each way on both players' connections (the probe's `Latency`, run_pair
   `--latency 50`): 0.41.1 lost the passenger at the drill return again (rider-lat-1), 0.42.0 lost none (rider-lat-fix-1).
+- `contraptions/SeatDraw` + `mixin/SeatDrawMixin` (client; `create`; `@WrapMethod` on `EntityRenderDispatcher.render`, so
+  every pass: world, Iris shadow, Immersive Portals views): other players saw a seated rider on a train drift behind its
+  seat and snap back (live server, 2026-11-25; the position was right, only the drawing). Vanilla draws the carriage at
+  lerp(carriage xOld, x) and the rider at lerp(rider xOld, x); the rider's history goes stale or a tick behind (after a
+  crossing, and a passenger's own `tickCount` stands still across game ticks), so it lagged and popped up to 16 blocks in
+  one frame. A rider of an `OrientedContraptionEntity` (trains, minecart contraptions) other than the camera entity is
+  drawn at the carriage's drawn position plus its seat offset (rider minus carriage), sampled once per game tick and
+  lerped between the last two ticks; a change over 1 block in one tick (another seat, a teleport) is drawn at once. Only
+  the drawn position changes. Not for bearing or other rotating contraptions (their riders turn about another point).
+  Two earlier versions failed: this tick's offset turned by yaw only (stepped on ramps), and sampling on the rider's
+  `tickCount` (2-block flips). Log: `[seat draw]`. Test (traintest `run_pair.py`, the driver turned to Tester2 once per
+  seating and per crossing, the probe's `RiderView` logs `SeatDraw.shift` in rider.csv `shx..shz`; drawn rider minus drawn
+  carriage per frame while moving): before, localhost 20 straight / 39 curve frames over 0.5 block (max 8.8), on a
+  Bisect-like line (`--latency 50,30,5000,250`) 26 / 78 (max 16.6); after, 3 runs (2 on that line, 1 localhost) 0-1 / 1-2
+  (max 0.77), 0 passengers lost.
+- `contraptions/FloorDraw` (client; `create`; called from the same `SeatDrawMixin` hook when `SeatDraw` gives nothing):
+  other players saw a player on a Create elevator duck and stand up over and over (live server, 2026-11-25). The cabin
+  moves smoothly in each game, but the other player's position arrives late and uneven, so on the way up the floor rose
+  past the drawn feet and the model sank into it, then popped up; down, the lag holds them above the floor where the cabin
+  carries them. Create's own guard (`ContraptionCollider.saveRemotePlayerFromClipping`) searches only a few blocks. Another
+  player (not riding, not the camera) whom the server reports on the ground (`ContraptionGround` keeps that true on a
+  moving contraption), inside a moving translating contraption (pulley, piston, gantry; not trains or carts), is drawn on
+  the lift floor nearest the drawn feet (a block top with two clear blocks above, searched 12 blocks up and down) at the
+  lift's drawn height; at most 12 blocks of correction. Log: `[lift floors]`. Test (traintest `run_pair.py --elevator`
+  with `server/trainprobe-elevator-ride`, the watcher in the cabin turned to Tester2 once; `RiderView.elevatorDrawn` adds
+  `FloorDraw.shift` to the drawn gap): before, on `--latency 50,30,5000,250` the up ride drew Tester2 down to 11.3 blocks
+  under the floor (82 jumps over 0.15 a frame), the server had it on the floor; after (a 4-block search first still sank
+  to 8.8: the floor was out of reach), 3 runs (2 on that line, 1 localhost) gap -2.000 in every moving frame, 0 jumps.
+- `mixin/RailsPhantomSpriteMixin` (client; `railways`; `@WrapOperation` on the `railways$uploadFrame` call in
+  `PhantomSpriteManager.renderTick`): Steam 'n' Rails 0.2.1 re-uploads every phantom track sprite it holds a weak
+  reference to when phantom visibility changes; a sprite of an atlas a resource reload replaced reads mip levels it never
+  had ("Index 1 out of bounds for length 1" in `SpriteContents.upload`), a crash at game start (traintest rig, 2 of about
+  150 starts, 2026-11-25, with hotbar 1.6.1 and 1.7.0). That upload is skipped and logged once (`[phantom tracks]`); not
+  reproducible on demand, so the test is that the mixin applies (no `Mixin apply` failure) and phantom tracks still show.
 - `mixin/ZeroMoveCollideMixin` (`immersive_portals_core`; HEAD of `Entity.collide`, priority 500, before IP's own hook):
   a zero movement returns at once. A seated player runs `move` with a zero vector every tick, and IP's portal-aware
   collision (`PortalCollisionHandler.handleOtherSideMove`) next to a train portal in a wall took over 100 ms of render

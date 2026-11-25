@@ -39,6 +39,8 @@
     "ZeroMoveCollideMixin"
   ],
   "client": [
+    "RailsPhantomSpriteMixin",
+    "SeatDrawMixin",
     "FancyMenuScaleMixin",
     "PortalStencilHoldMixin",
     "PortalDepthCopyMixin",
