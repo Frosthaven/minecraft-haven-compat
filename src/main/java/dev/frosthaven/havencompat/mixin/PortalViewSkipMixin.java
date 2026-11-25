@@ -10,9 +10,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Immersive Portal Rendering Disabled: Immersive Portals renders no portal view. Fast: a portal that Immersive Portals
- * would draw inside another portal's view gets no view (the decision is taken after its own tests, so a portal it
- * skips anyway, like the back of the portal being looked through, is not counted). See {@link PortalView}.
+ * Immersive Portal Rendering Disabled: Immersive Portals renders no portal view. Performance mode: a portal that Immersive
+ * Portals would draw inside another portal's view, or in the player's own view farther away than the set distance, gets
+ * no view (the decision is taken after its own tests, so a portal it skips anyway, like the back of the portal being
+ * looked through, is not counted). See {@link PortalView}.
  */
 @Mixin(targets = "qouteall.imm_ptl.core.render.renderer.PortalRenderer", remap = false)
 public abstract class PortalViewSkipMixin {
@@ -23,8 +24,11 @@ public abstract class PortalViewSkipMixin {
 
     @Inject(method = "shouldSkipRenderingPortal", at = @At("RETURN"), cancellable = true)
     private static void haven_compat$skipNested(@Coerce Entity portal, Supplier<?> frustum, CallbackInfoReturnable<Boolean> cir) {
-        if (!cir.getReturnValueZ() && PortalView.nestedNow()) {
+        if (cir.getReturnValueZ()) return;
+        if (PortalView.nestedNow()) {
             PortalView.lostView(portal);
+            cir.setReturnValue(true);
+        } else if (PortalView.farNow(portal)) {
             cir.setReturnValue(true);
         }
     }

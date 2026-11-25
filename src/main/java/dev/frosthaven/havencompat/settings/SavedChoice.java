@@ -18,6 +18,7 @@ public final class SavedChoice<E extends Enum<E>> {
     private final String label;
     private final Log log;
     private volatile E value;
+    private java.util.Map<String, E> renamed = java.util.Map.of();
 
     public SavedChoice(Class<E> type, E fallback, String file, String key, String label, Log log) {
         this.type = type;
@@ -30,13 +31,20 @@ public final class SavedChoice<E extends Enum<E>> {
 
     public E get() { return value; }
 
+    /** Saved names of values that were renamed since, mapped to the value each is now. */
+    public SavedChoice<E> renamed(java.util.Map<String, E> old) {
+        renamed = old;
+        return this;
+    }
+
     /** Reads the saved choice; call it once at mod construction. */
     public void load() {
         Path path = path();
         if (!Files.exists(path)) return;
         try {
             JsonObject json = JsonParser.parseString(Files.readString(path)).getAsJsonObject();
-            value = Enum.valueOf(type, json.get(key).getAsString());
+            String saved = json.get(key).getAsString();
+            value = renamed.containsKey(saved) ? renamed.get(saved) : Enum.valueOf(type, saved);
             log.info("{}: {}", label, value);
         } catch (Exception e) {
             log.error("read", "could not read the setting, " + value + " is used", e);

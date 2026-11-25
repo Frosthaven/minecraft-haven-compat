@@ -82,6 +82,7 @@ public final class HavenCompat {
         dev.frosthaven.havencompat.binder.BinderFix.register(NeoForge.EVENT_BUS);
         dev.frosthaven.havencompat.signs.SignEditorLayout.register(NeoForge.EVENT_BUS);
         dev.frosthaven.havencompat.portals.PortalView.SETTING.load();
+        dev.frosthaven.havencompat.portals.PortalView.DISTANCE.load();
         dev.frosthaven.havencompat.animations.PlayerAnimationData.SETTING.load();
         container.registerExtensionPoint(net.neoforged.neoforge.client.gui.IConfigScreenFactory.class, (mod, parent) -> new dev.frosthaven.havencompat.settings.HavenSettingsScreen(parent));
         ShaderOptions.apply();   // before Iris loads its pack

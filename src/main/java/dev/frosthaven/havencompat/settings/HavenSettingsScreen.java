@@ -26,23 +26,66 @@ public final class HavenSettingsScreen extends Screen {
     protected void init() {
         int x = width / 2 - 125, y = height / 2 - 20;
         if (ModList.get().isLoaded("immersive_portals_core")) {
-            addRenderableWidget(row(PortalView.SETTING, PortalView.Level.values(), "portal_view", x, y));
-            y += ROW;
+            DistanceSlider distance = new DistanceSlider(x, y + ROW, PortalView.DISTANCE);
+            addRenderableWidget(row(PortalView.SETTING, PortalView.Level.values(), "portal_view", x, y,
+                    chosen -> distance.visible = chosen == PortalView.Level.PERFORMANCE));
+            distance.visible = PortalView.SETTING.get() == PortalView.Level.PERFORMANCE;
+            addRenderableWidget(distance);
+            y += 2 * ROW;
         }
         if (ModList.get().isLoaded("entity_texture_features")) {
-            addRenderableWidget(row(PlayerAnimationData.SETTING, PlayerAnimationData.Level.values(), "player_animation_data", x, y));
+            addRenderableWidget(row(PlayerAnimationData.SETTING, PlayerAnimationData.Level.values(), "player_animation_data", x, y, chosen -> {}));
         }
         addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> onClose()).bounds(x, height - 40, 250, 20).build());
     }
 
     /** A cycle button for a setting; lang keys haven_compat.settings.<key>, .<key>.<value> and .<key>.<value>.tip. */
-    private static <E extends Enum<E>> CycleButton<E> row(SavedChoice<E> setting, E[] values, String key, int x, int y) {
+    private static <E extends Enum<E>> CycleButton<E> row(SavedChoice<E> setting, E[] values, String key, int x, int y,
+                                                         java.util.function.Consumer<E> after) {
         String base = "haven_compat.settings." + key;
         return CycleButton.<E>builder(v -> Component.translatable(base + "." + v.name().toLowerCase(Locale.ROOT)))
                 .withValues(values)
                 .withInitialValue(setting.get())
                 .withTooltip(v -> Tooltip.create(Component.translatable(base + "." + v.name().toLowerCase(Locale.ROOT) + ".tip")))
-                .create(x, y, 250, 20, Component.translatable(base), (button, chosen) -> setting.choose(chosen));
+                .create(x, y, 250, 20, Component.translatable(base), (button, chosen) -> {
+                    setting.choose(chosen);
+                    after.accept(chosen);
+                });
+    }
+
+    /** The Performance mode distance, saved when the slider is let go. */
+    private static final class DistanceSlider extends net.minecraft.client.gui.components.AbstractSliderButton {
+        private final SavedNumber setting;
+
+        DistanceSlider(int x, int y, SavedNumber setting) {
+            super(x, y, 250, 20, Component.empty(), (double) (setting.get() - setting.min) / (setting.max - setting.min));
+            this.setting = setting;
+            setTooltip(Tooltip.create(Component.translatable("haven_compat.settings.portal_distance.tip")));
+            updateMessage();
+        }
+
+        @Override
+        protected void updateMessage() {
+            setMessage(Component.translatable("haven_compat.settings.portal_distance", setting.get()));
+        }
+
+        @Override
+        protected void applyValue() {
+            setting.set(setting.min + (int) Math.round(value * (setting.max - setting.min)));
+        }
+
+        @Override
+        public void onRelease(double mouseX, double mouseY) {
+            super.onRelease(mouseX, mouseY);
+            setting.save();
+        }
+
+        @Override
+        public boolean keyPressed(int key, int scan, int modifiers) {
+            boolean used = super.keyPressed(key, scan, modifiers);
+            if (used) setting.save();
+            return used;
+        }
     }
 
     @Override

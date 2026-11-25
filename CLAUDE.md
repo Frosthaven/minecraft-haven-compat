@@ -679,13 +679,21 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   vanilla click with a stale state still runs, on the moved slots), and stops after 3 tries of the same order.
 - `signs/SignEditorLayout` (client; `bigsignwriter`, `unlocked_typing`): moves Unlocked Typing's row up one row and
   hides an inactive Done under Big Sign Writer's font list.
-- `portals/PortalView` (setting in `config/haven-compat-portal-view.json`, volatile, Fast (the default since 0.35.0) on any read
-  error; levels Normal, Fast, Disabled) + `PortalViewSkipMixin` (Disabled: IP skips every portal view at the HEAD of
-  `PortalRenderer.shouldSkipRenderingPortal`; Fast: at its RETURN, a portal IP would draw while
-  `PortalRendering.isRendering()` loses its view and is noted in `PortalView.lostView`) + `PortalViewPlaneMixin` ->
-  `PortalPlane` (the portal entity's renderer draws a purple tile per block for Disabled and for a portal that lost
-  its view in the last 250 ms; shape getters cached per class in a `ClassValue`; a tile is left out when the blocks on
-  both sides of the plane are solid). The RETURN hook matters: a HEAD hook also catches the back of the portal being
+- `portals/PortalView` (setting in `config/haven-compat-portal-view.json`, volatile, Performance mode (the default) on
+  any read error; levels Fully immersive (`IMMERSIVE`), Performance mode (`PERFORMANCE`), Disabled; 0.43.0 renamed
+  Normal and Fast, `SavedChoice.renamed` loads a saved `NORMAL`/`FAST` as the new level; the distance slider is
+  `PortalView.DISTANCE`, a `SavedNumber` in `config/haven-compat-portal-distance.json`, default 16, 8 to 64, shown only
+  in Performance mode, saved when let go) + `PortalViewSkipMixin` (Disabled: IP skips every portal view at the HEAD of
+  `PortalRenderer.shouldSkipRenderingPortal`; Performance mode at its RETURN: a portal IP would draw while
+  `PortalRendering.isRendering()` loses its view and is noted in `PortalView.lostView`, and in the player's own view a
+  portal whose `getDistanceToNearestPointInPortal(camera)` is over the distance loses its view) + `PortalViewPlaneMixin`
+  -> `PortalPlane` (the portal entity's renderer draws a purple tile per block, vanilla's animated nether portal
+  sprite: Disabled; Performance mode in the own view by the distance alone, whoever dropped the view (IP's
+  `reducedPortalRendering`, on for a few hours in haven.319, cuts at a hard 16 blocks first: a plane tied to this
+  mod's own skip never drew there); inside a view for a portal that lost its view in the last 250 ms; shape getters
+  cached per class in a `ClassValue`; a tile is left out when the blocks on both sides of the plane are solid). Test
+  (2026-11-25): the rig's `--approach` run steps toward the station portal (48 to 5 blocks): purple at 17, the
+  Nether at 15. From a train seat the carriage ahead hides the portal near the switch. The RETURN hook matters: a HEAD hook also catches the back of the portal being
   looked through and its plane covers the whole view (tested). Same effect as IP's `maxPortalLayer: 1` (black
   rectangles there), per player and switchable in play. `HavenSettingsScreen`: Mods > Haven Compat > Config.
 - `portals/PortalVisibility` + `PortalVisibilityMixin` / `PortalVisibilityEntryMixin` / `PortalQueryMixin` (client,
