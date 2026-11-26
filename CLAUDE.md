@@ -632,6 +632,14 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   open pull 213 (FoundryMC/Veil, not in 4.5.2); drop these when the pack's Sable bundles a Veil with it. Related upstream
   report: Iris issue 3164 (Sable objects drawn wrong with shadows on). Test: the rig trip with Unbound (no `Mixin apply`
   failure, `[veil shadows]` in latest.log, normal screenshots); the box itself only on the player's NVIDIA card.
+- `mixin/ShadowPassScreenGuardMixin` (client; `iris`; 0.43.1; HEAD of `RenderTarget.bindWrite`): 0.43.0 left the
+  Unbound box on the player's RTX 5080, now behind the minimap (gone with Real-Time Shadows OFF). Veil's
+  `AdvancedFbo.unbind()` is `getMainRenderTarget().bindWrite(true)` (screen image plus screen viewport); callers include
+  `VeilFirstPersonRenderer`, `PipelineLevelRendererMixin`, `VeilLevelPerspectiveRenderer`, `FramebufferStack`. During
+  the shadow pass (`ShadowRenderer.ACTIVE`) a `bindWrite` on the main target is refused unless the first caller outside
+  `RenderTarget` is Iris (Iris binds the main target near the end of `renderShadows` before clearing `ACTIVE`); each
+  refused caller is logged once (`[shadow pass] refused ... asked by <class>`): ask the player for that line. The rig
+  (RTX 4090, not AMD: an earlier note here and in chat said AMD wrongly) never refuses anything and never shows the box.
 - `mixin/ZeroMoveCollideMixin` (`immersive_portals_core`; HEAD of `Entity.collide`, priority 500, before IP's own hook):
   a zero movement returns at once. A seated player runs `move` with a zero vector every tick, and IP's portal-aware
   collision (`PortalCollisionHandler.handleOtherSideMove`) next to a train portal in a wall took over 100 ms of render

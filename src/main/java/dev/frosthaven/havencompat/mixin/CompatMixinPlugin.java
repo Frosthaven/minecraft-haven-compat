@@ -23,6 +23,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("DeepSeasUpdateCheckMixin", List.of("create_submarine")),
             Map.entry("IrisPipelinePrewarmMixin", List.of("iris")),
             Map.entry("VeilIrisBindMixin", List.of("veil", "iris")),
+            Map.entry("ShadowPassScreenGuardMixin", List.of("iris")),
             Map.entry("VeilIrisClearMixin", List.of("veil", "iris")),
             Map.entry("IrisKeepPipelinesMixin", List.of("iris")),
             Map.entry("IrisCurrentDimensionMixin", List.of("iris")),
