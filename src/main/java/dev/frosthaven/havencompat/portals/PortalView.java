@@ -14,8 +14,8 @@ import net.minecraft.world.phys.Vec3;
 /**
  * The player's Immersive Portal Rendering setting (Experimental Optimizations), saved on this computer.
  * <ul>
- * <li>Fully immersive: Immersive Portals as configured.</li>
- * <li>Performance mode (the default): the view through a portal within {@link #DISTANCE} blocks of the camera; a portal
+ * <li>Fully immersive (the default since 0.43.1, Shane 2026-11-25): Immersive Portals as configured.</li>
+ * <li>Performance mode (the default in 0.43.0 only): the view through a portal within {@link #DISTANCE} blocks of the camera; a portal
  *     farther away, and a portal seen through another portal ({@link #nestedNow}), draws {@link PortalPlane} (vanilla's
  *     animated nether portal texture) instead. Immersive Portals' own reduced rendering cuts at a fixed 16 blocks and
  *     draws nothing past it (the pack had it on for a few hours, haven.319, and players saw the frame's back wall).</li>
@@ -26,7 +26,7 @@ import net.minecraft.world.phys.Vec3;
 public final class PortalView {
     public enum Level { IMMERSIVE, PERFORMANCE, DISABLED }
 
-    public static final SavedChoice<Level> SETTING = new SavedChoice<>(Level.class, Level.PERFORMANCE,
+    public static final SavedChoice<Level> SETTING = new SavedChoice<>(Level.class, Level.IMMERSIVE,
             "haven-compat-portal-view.json", "portalView", "Immersive Portal Rendering", new Log("[portal view] "))
             .renamed(Map.of("NORMAL", Level.IMMERSIVE, "FAST", Level.PERFORMANCE));
 

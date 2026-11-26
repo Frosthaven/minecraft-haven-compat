@@ -687,7 +687,7 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   vanilla click with a stale state still runs, on the moved slots), and stops after 3 tries of the same order.
 - `signs/SignEditorLayout` (client; `bigsignwriter`, `unlocked_typing`): moves Unlocked Typing's row up one row and
   hides an inactive Done under Big Sign Writer's font list.
-- `portals/PortalView` (setting in `config/haven-compat-portal-view.json`, volatile, Performance mode (the default) on
+- `portals/PortalView` (setting in `config/haven-compat-portal-view.json`, volatile, Fully immersive (the default since 0.43.1; Performance mode in 0.43.0) on
   any read error; levels Fully immersive (`IMMERSIVE`), Performance mode (`PERFORMANCE`), Disabled; 0.43.0 renamed
   Normal and Fast, `SavedChoice.renamed` loads a saved `NORMAL`/`FAST` as the new level; the distance slider is
   `PortalView.DISTANCE`, a `SavedNumber` in `config/haven-compat-portal-distance.json`, default 24 (Shane, 2026-11-25), 8 to 64, shown only
