@@ -91,6 +91,9 @@
     {
       "id": "railways:track_haven_backports_poplar_wide",
       "required": false
-    }
+    },
+    "haven_compat:brass_waystone",
+    "haven_compat:steel_waystone",
+    "haven_compat:copper_waystone"
   ]
 }

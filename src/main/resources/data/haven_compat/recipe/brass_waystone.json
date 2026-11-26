@@ -1,0 +1,30 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "S": {
+      "item": "create:brass_casing"
+    },
+    "W": {
+      "item": "waystones:warp_stone"
+    }
+  },
+  "pattern": [
+    " S ",
+    "SWS",
+    "OOO"
+  ],
+  "result": {
+    "count": 1,
+    "id": "haven_compat:brass_waystone"
+  }
+}

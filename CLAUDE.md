@@ -388,6 +388,25 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   vanilla copper asks (Mekanism Tools' paxels are no AxeItem). Test (2026-11-19, `just smoke --serve` with this jar, the
   pinned one set to client side for the run): a powered Deployer in USE mode holding `mekanismtools:diamond_paxel`
   facing `create:copper_casing`: exposed -> unaffected; waxed weathered -> unwaxed weathered -> exposed; 3 damage.
+- `oxidation/MoreOxidation` + `mixin/Oxidation*Mixin` (0.44.0, `createoxidized`): Create: Oxidation ages the copper
+  blocks of other mods that Shane picked (`haven_compat/oxidation/blocks.txt`, 180 ids, and the block tag
+  `createoxidized:oxidizable_create_blocks`). Its properties go by block id, never by class (plain `Block` and shared
+  brass/andesite classes): the id NeoForge's `RegisterEvent.register(key, id, supplier)` or Registrate's
+  `Registration.register` is registering while the block is built. A `DeferredRegister` registers through the helper
+  form, which these hooks do not see (More Beautiful Torches, Advanced Stands and Macaw's chain stayed out for that;
+  Shane chose to leave them out, 2026-11-26); our own DeferredRegister blocks call `MoreOxidation.enter(id)` in their
+  supplier. Client: the model swap for those ids and the aged textures this mod ships under
+  `createoxidized:block/<stage>/compat/<mod>/` (`textures.txt`; made by `tools/oxidation/age_textures.py`, each one
+  approved by Shane in the browser review). `report()` runs at common setup on both sides (`[more oxidation]`).
+- `waystones/CreateWaystones` (0.44.0, both sides, `waystones`): Brass, Steel and Copper Waystones (Shane, 2026-11-26),
+  Waystones' own `WaystoneBlock` (the mod's block entity type takes them through `BlockEntityTypeAddBlocksEvent`; every
+  waystone is the generic `waystones:waystone` type), recipes like every waystone with the casing in the stone's place
+  (Brass Casing, TFMG Steel Casing, Copper Casing; each recipe needs its mod), Waystones' tags and loot table, in the
+  Waystones tab after Mud Bricks. Textures cut from the casings in the Fresh Waystones model shape (the pack's resource
+  pack); item icons in Fresh's flat style. The copper one ages with Create: Oxidation; `CreateWaystoneBlock.updateShape`
+  copies the stage and wax to the other half, so aging, an axe, a spray or honeycomb on either half changes both.
+  Rig test: traintest `--oxidation` with `haven_compat:copper_waystone` first (pairs, the waystone block entity, every
+  action with "both halves agree").
 - `hud/HudPoseGuard` (client, any mods): the HUD frame's starting pose is recorded at `RenderGuiEvent.Pre` (highest); when a
   HUD layer (`RenderGuiLayerEvent.Pre`, lowest, not cancelled) or the open screen (`ScreenEvent.Render.Pre`, lowest) is about
   to draw from a moved pose (x, y, rotation, scale; z grows per layer on purpose and is kept), a pose of its own is pushed

@@ -5,6 +5,9 @@
   "plugin": "dev.frosthaven.havencompat.mixin.CompatMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "OxidationRegisterIdMixin",
+    "OxidationRegistrateIdMixin",
+    "OxidationPropertiesMixin",
     "MekanismChunkTrackingMixin",
     "RefusedCrossingMixin",
     "AeBlockTurnMixin",
@@ -42,6 +45,7 @@
     "RailsPhantomSpriteMixin",
     "VeilIrisBindMixin",
     "ShadowPassScreenGuardMixin",
+    "OxidationTexturesMixin",
     "VeilIrisClearMixin",
     "SeatDrawMixin",
     "FancyMenuScaleMixin",

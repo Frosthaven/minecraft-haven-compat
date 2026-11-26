@@ -1,0 +1,725 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "ad_astra:fluid_pipe_duct",
+      "required": false
+    },
+    {
+      "id": "ae2:crystal_resonance_generator",
+      "required": false
+    },
+    {
+      "id": "ae2:energy_acceptor",
+      "required": false
+    },
+    {
+      "id": "aeroworks:control_stand",
+      "required": false
+    },
+    {
+      "id": "bellsandwhistles:copper_bogie_steps",
+      "required": false
+    },
+    {
+      "id": "bellsandwhistles:copper_door_step",
+      "required": false
+    },
+    {
+      "id": "bellsandwhistles:copper_grab_rails",
+      "required": false
+    },
+    {
+      "id": "bellsandwhistles:copper_pilot",
+      "required": false
+    },
+    {
+      "id": "create:copper_backtank",
+      "required": false
+    },
+    {
+      "id": "create_bic_bit:mechanical_fryer",
+      "required": false
+    },
+    {
+      "id": "create_dragons_plus:fluid_hatch",
+      "required": false
+    },
+    {
+      "id": "create_dragons_plus:fragile_fluid_tank",
+      "required": false
+    },
+    {
+      "id": "create_enchantment_industry:experience_lantern",
+      "required": false
+    },
+    {
+      "id": "create_furnitures:copper_chair",
+      "required": false
+    },
+    {
+      "id": "create_furnitures:copper_table",
+      "required": false
+    },
+    {
+      "id": "create_furnitures:copper_tall_seat",
+      "required": false
+    },
+    {
+      "id": "create_mf:copper_casing_slab",
+      "required": false
+    },
+    {
+      "id": "create_mf:copper_casing_stairs",
+      "required": false
+    },
+    {
+      "id": "create_mf:copper_plating",
+      "required": false
+    },
+    {
+      "id": "create_mf:pipe_table",
+      "required": false
+    },
+    {
+      "id": "create_new_age:advanced_motor_extension",
+      "required": false
+    },
+    {
+      "id": "create_new_age:basic_motor_extension",
+      "required": false
+    },
+    {
+      "id": "create_new_age:copper_wire_block",
+      "required": false
+    },
+    {
+      "id": "create_new_age:electrical_connector",
+      "required": false
+    },
+    {
+      "id": "create_new_age:heat_pipe",
+      "required": false
+    },
+    {
+      "id": "create_new_age:reinforced_energiser",
+      "required": false
+    },
+    {
+      "id": "create_new_age:stirling_engine",
+      "required": false
+    },
+    {
+      "id": "create_submarine:ballast_vent",
+      "required": false
+    },
+    {
+      "id": "create_submarine:copper_pressurizer",
+      "required": false
+    },
+    {
+      "id": "create_submarine:electrolyzer",
+      "required": false
+    },
+    {
+      "id": "create_submarine:pump_controller",
+      "required": false
+    },
+    {
+      "id": "create_submarine:water_thruster",
+      "required": false
+    },
+    {
+      "id": "create_things_and_misc:copper_casing_trapdoor",
+      "required": false
+    },
+    {
+      "id": "create_things_and_misc:sprinkler",
+      "required": false
+    },
+    {
+      "id": "create_things_and_misc:sticky_launcher",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_adjustable_chain_gearshift",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_automatic_clutch",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_chain_conveyor",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_clutch",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_configurable_gearbox",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_deployer",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_depot",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_acacia_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_acacia_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_acacia_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_andesite_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_andesite_fluid_pipe",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_andesite_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_bamboo_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_bamboo_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_bamboo_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_birch_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_birch_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_birch_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_brass_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_brass_fluid_pipe",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_brass_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_brass_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_chain_drive",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_cherry_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_cherry_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_cherry_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_copper_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_copper_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_copper_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_crimson_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_crimson_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_crimson_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_dark_oak_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_dark_oak_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_dark_oak_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_fan",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_glass_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_jungle_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_jungle_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_jungle_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_mangrove_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_mangrove_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_mangrove_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_mldeg_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_oak_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_oak_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_oak_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_spruce_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_warped_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_warped_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_warped_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_zinc_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_zinc_fluid_pipe",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_zinc_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_encased_zinc_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_gearbox",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_gearshift",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_mechanical_drill",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_mechanical_harvester",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_mechanical_plough",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_mechanical_roller",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_mechanical_saw",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_mixer",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_portable_storage_interface",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_press",
+      "required": false
+    },
+    {
+      "id": "createcasing:copper_shaft",
+      "required": false
+    },
+    {
+      "id": "createframed:copper_window",
+      "required": false
+    },
+    {
+      "id": "createframed:copper_window_pane",
+      "required": false
+    },
+    {
+      "id": "createoreexcavation:drilling_machine",
+      "required": false
+    },
+    {
+      "id": "createpropulsion:liquid_burner",
+      "required": false
+    },
+    {
+      "id": "createpropulsion:liquid_vector_thruster",
+      "required": false
+    },
+    {
+      "id": "createpropulsion:solid_burner",
+      "required": false
+    },
+    {
+      "id": "createpropulsion:solid_fuel_thruster",
+      "required": false
+    },
+    {
+      "id": "createpropulsion:stirling_engine",
+      "required": false
+    },
+    {
+      "id": "createpropulsion:thruster",
+      "required": false
+    },
+    {
+      "id": "creatingspace:clamps",
+      "required": false
+    },
+    {
+      "id": "creatingspace:flow_meter",
+      "required": false
+    },
+    {
+      "id": "creatingspace:oxygen_sealer",
+      "required": false
+    },
+    {
+      "id": "dndecor:copper_floor",
+      "required": false
+    },
+    {
+      "id": "electroenergetics:alternator_rotor",
+      "required": false
+    },
+    {
+      "id": "electroenergetics:bulb",
+      "required": false
+    },
+    {
+      "id": "electroenergetics:cut_off_switch",
+      "required": false
+    },
+    {
+      "id": "electroenergetics:ground_rod",
+      "required": false
+    },
+    {
+      "id": "electroenergetics:inductor",
+      "required": false
+    },
+    {
+      "id": "mcwlights:copper_candle_holder",
+      "required": false
+    },
+    {
+      "id": "mcwlights:copper_chandelier",
+      "required": false
+    },
+    {
+      "id": "mcwlights:copper_double_candle_holder",
+      "required": false
+    },
+    {
+      "id": "mcwlights:copper_low_candle_holder",
+      "required": false
+    },
+    {
+      "id": "mcwlights:copper_small_chandelier",
+      "required": false
+    },
+    {
+      "id": "mcwlights:copper_triple_candle_holder",
+      "required": false
+    },
+    {
+      "id": "mcwlights:copper_wall_candle_holder",
+      "required": false
+    },
+    {
+      "id": "new_slab_variants:copper_block_slab",
+      "required": false
+    },
+    {
+      "id": "powergrid:copper_plating",
+      "required": false
+    },
+    {
+      "id": "powergrid:copper_plating_slab",
+      "required": false
+    },
+    {
+      "id": "powergrid:copper_plating_stairs",
+      "required": false
+    },
+    {
+      "id": "powergrid:crt",
+      "required": false
+    },
+    {
+      "id": "powergrid:device_connector",
+      "required": false
+    },
+    {
+      "id": "powergrid:electromagnet",
+      "required": false
+    },
+    {
+      "id": "powergrid:fe_inverter",
+      "required": false
+    },
+    {
+      "id": "powergrid:generator_commutator",
+      "required": false
+    },
+    {
+      "id": "powergrid:generator_housing",
+      "required": false
+    },
+    {
+      "id": "powergrid:generator_induction_rotor",
+      "required": false
+    },
+    {
+      "id": "powergrid:generator_large_induction_rotor",
+      "required": false
+    },
+    {
+      "id": "powergrid:grounding_rod",
+      "required": false
+    },
+    {
+      "id": "powergrid:hv_breaker",
+      "required": false
+    },
+    {
+      "id": "powergrid:mv_switch",
+      "required": false
+    },
+    {
+      "id": "powergrid:solar_panel",
+      "required": false
+    },
+    {
+      "id": "powergrid:variac",
+      "required": false
+    },
+    {
+      "id": "powergrid:voltage_gauge",
+      "required": false
+    },
+    {
+      "id": "powergrid:wire_connector",
+      "required": false
+    },
+    {
+      "id": "railways:black_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:blue_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:brown_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:cyan_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:gray_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:green_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:light_blue_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:light_gray_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:lime_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:magenta_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:orange_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:pink_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:purple_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:red_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:white_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "railways:yellow_copper_wrapped_locometal",
+      "required": false
+    },
+    {
+      "id": "securitycraft:reinforced_chiseled_copper",
+      "required": false
+    },
+    {
+      "id": "securitycraft:reinforced_copper_bulb",
+      "required": false
+    },
+    {
+      "id": "securitycraft:reinforced_copper_grate",
+      "required": false
+    },
+    {
+      "id": "securitycraft:reinforced_cut_copper",
+      "required": false
+    },
+    {
+      "id": "securitycraft:reinforced_cut_copper_slab",
+      "required": false
+    },
+    {
+      "id": "securitycraft:reinforced_cut_copper_stairs",
+      "required": false
+    },
+    {
+      "id": "sliceanddice:sprinkler",
+      "required": false
+    },
+    {
+      "id": "super_ore_block:super_copper_block",
+      "required": false
+    },
+    {
+      "id": "tfmg:copper_cable_hub",
+      "required": false
+    },
+    {
+      "id": "tfmg:copper_frame",
+      "required": false
+    },
+    {
+      "id": "tfmg:copper_truss",
+      "required": false
+    },
+    {
+      "id": "haven_compat:copper_waystone",
+      "required": false
+    }
+  ]
+}

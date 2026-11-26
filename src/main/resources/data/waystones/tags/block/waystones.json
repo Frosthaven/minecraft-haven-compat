@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "haven_compat:brass_waystone",
+    "haven_compat:steel_waystone",
+    "haven_compat:copper_waystone"
+  ]
+}

@@ -126,6 +126,9 @@ dependencies {
     compileOnly('maven.modrinth:sophisticated-storage:f7c8aEld') { transitive = false }
     compileOnly('info.journeymap:journeymap-api-neoforge:2.0.0-1.21.1-SNAPSHOT') { transitive = false }   // megatorch/: the API JourneyMap 6.0.2 bundles (published only as a snapshot)   // repository/: Sophisticated Storage 1.6.2.2159 (storage block entities)
 
+    compileOnly('curse.maven:waystones-245755:8969751') { transitive = false }   // waystones/: Waystones 21.1.46 (the waystone block and its block entity type)
+    compileOnly('curse.maven:balm-531761:8645517') { transitive = false }   // waystones/: Balm, the DeferredObject behind Waystones' block entity types
+
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'com.google.code.gson:gson:2.11.0'   // the version Minecraft 1.21.1 ships

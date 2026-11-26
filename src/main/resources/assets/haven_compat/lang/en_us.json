@@ -67,5 +67,8 @@
   "item.haven_compat.repository_upgrade.tooltip": "The storage works as an Ars Nouveau Repository\nPlace it so it touches a Repository Catalog, a Repository or another storage with this upgrade",
   "haven_compat.megatorch_map.on": "Hide Mega Torch areas",
   "key.haven_compat.open_map": "Show / Hide Fullscreen Map (second key)",
-  "haven_compat.megatorch_map.off": "Show Mega Torch areas"
+  "haven_compat.megatorch_map.off": "Show Mega Torch areas",
+  "block.haven_compat.brass_waystone": "Brass Waystone",
+  "block.haven_compat.steel_waystone": "Steel Waystone",
+  "block.haven_compat.copper_waystone": "Copper Waystone"
 }

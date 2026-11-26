@@ -37,6 +37,11 @@ public final class HavenCompatCommon {
                 dev.frosthaven.havencompat.bleach.BleachCatalyst.register(modBus);
             }
         }
+        if (ModList.get().isLoaded("waystones")) {
+            dev.frosthaven.havencompat.waystones.CreateWaystones.register(modBus);
+        }
+        if (ModList.get().isLoaded("createoxidized"))   /* the extra copper blocks that got Create: Oxidation's properties (both sides) */
+            modBus.addListener(net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent.class, e -> dev.frosthaven.havencompat.oxidation.MoreOxidation.report());
         if (ModList.get().isLoaded("sophisticatedstorage") && ModList.get().isLoaded("haven_backports")) {
             dev.frosthaven.havencompat.copperchest.CopperLook.register(modBus);
         }
