@@ -18,6 +18,7 @@
     "MagnetCoilTurnMixin",
     "RsDirectionTurnMixin",
     "ContraptionSpawnPositionMixin",
+    "RiderSpawnPositionMixin",
     "ElephantPhysicsMixin",
     "BackpackNameMixin",
     "TrashSlotOversizeMixin",
@@ -44,6 +45,7 @@
     "ZeroMoveCollideMixin"
   ],
   "client": [
+    "CarriageSnapMixin",
     "RailsPhantomSpriteMixin",
     "VeilIrisBindMixin",
     "ShadowPassScreenGuardMixin",

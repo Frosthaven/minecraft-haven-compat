@@ -785,6 +785,22 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   `-e wall -t --filter <render thread tid>`. Dead ends, do not repeat: an empty shadow pass for portal views (the
   Nether has none; in the overworld an empty shadow map lights rooms like open ground), and a scissor rectangle
   around the portal for the portal view's passes (Complementary has passes that need the whole frame: washed-out view).
+- Train riders after a portal (0.46.0, `create`; Shane, 2026-11-27: a train's drekki driver missing for players watching the
+  train arrive at a station, and for a player riding it from the Nether, until someone sat on that carriage). Three parts,
+  each seen on the traintest rig (`run_pair.py --courier --conductor --drekkicond`, the watcher at the coal drill):
+  - `mixin/CarriageSnapMixin` (client list; `CarriageSyncData.apply` HEAD, `ContraptionSpawn.snap`): a carriage entity new in
+    this game (first 20 ticks) takes its synced place at once. Create's client slides a carriage from where it last had its
+    wheels; a carriage that left the overworld at one portal and came back at another stayed at the first portal (454
+    blocks off) with its riders. `[contraptions] train carriages new in this game take their synced place at once`.
+  - `contraptions/RiderResend` (server): a non-player rider seated on a contraption in that contraption's first 5 seconds
+    (riders put back out of a portal or into loaded ground) is taken off the chunk map and added back 2 s later, so every
+    game gets it seated; a watcher's game had dropped the driver while its seat was still in the portal. Players never
+    (removing one from the chunk map drops it from player tracking). `[contraptions] ... sent again to every player`.
+  - `mixin/RiderSpawnPositionMixin` (server, `ServerEntity.sendPairingData`, `ContraptionSpawn.rider`): a contraption
+    rider's spawn packet carries its position now (vanilla: the last one sent, never sent for a seated rider; a player rider
+    was 1841 blocks off). `[contraptions] ... sent at its seat`.
+  - `portals/SeatFacing` (client): a seated player keeps facing the same way against the carriage through a portal (a forward
+    seat turned a quarter turn from the coal drill into the Nether; not reproduced on the rig). `[seat facing]`.
 - `contraptions/ContraptionSpawn` + `mixin/ContraptionSpawnPositionMixin` (server, `mixins` list; `create`): `@Pseudo`, the mixin
   extends `Entity` and adds `getAddEntityPacket(ServerEntity)` to Create's `CarriageContraptionEntity` and
   `ControlledContraptionEntity` (siblings; neither they nor `AbstractContraptionEntity` override it): a `ClientboundAddEntityPacket` with the entity's own position, not

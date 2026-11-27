@@ -41,4 +41,50 @@ public final class ContraptionSpawn {
         return new ClientboundAddEntityPacket(contraption.getId(), contraption.getUUID(), contraption.getX(), contraption.getY(), contraption.getZ(),
                 contraption.getXRot(), contraption.getYRot(), contraption.getType(), 0, contraption.getDeltaMovement(), contraption.getYHeadRot());
     }
+
+    /**
+     * A rider of a contraption (a mob on a train seat): its spawn packet at its position now. The vanilla packet carries
+     * the position the server last sent for it, and a seated rider's position is never sent (the client places it on its
+     * seat). Create adds a carriage's riders again from their saved data when the carriage comes into loaded ground or out
+     * of a portal, at the spot they were saved at, then seats them; a player at the station got the rider there, in a
+     * chunk that player's game did not have. A game draws and ticks only entities in its loaded chunks, and a rider moves
+     * to its seat only when ticked, so it stayed attached to the seat but unseen: a train's drekki driver was missing for
+     * players who watched the train arrive and for players riding it out of the Nether (Shane, 2026-11-27; traintest rig:
+     * the watcher's game listed the drekki on the carriage, did not draw it, and drew the chicken beside it).
+     */
+    public static Packet<ClientGamePacketListener> rider(Entity e, Packet<ClientGamePacketListener> packet) {
+        if (!(packet instanceof ClientboundAddEntityPacket add) || e.getVehicle() == null) return packet;
+        String v = e.getRootVehicle().getClass().getName();
+        if (!v.equals(CARRIAGE) && !v.equals(CONTROLLED) && !isContraption(e.getRootVehicle())) return packet;
+        if (Math.abs(add.getX() - e.getX()) < 1 && Math.abs(add.getY() - e.getY()) < 1 && Math.abs(add.getZ() - e.getZ()) < 1) return packet;
+        LOG.info("{} on a {} spawned on a client {} blocks from its seat: sent at its seat", e.getName().getString(), e.getRootVehicle().getType().toShortString(),
+            Math.round(Math.sqrt(e.distanceToSqr(add.getX(), add.getY(), add.getZ()))));
+        return new ClientboundAddEntityPacket(e.getId(), e.getUUID(), e.getX(), e.getY(), e.getZ(), add.getXRot(), add.getYRot(), e.getType(), add.getData(),
+            e.getDeltaMovement(), add.getYHeadRot());
+    }
+
+    private static boolean isContraption(Entity v) {
+        for (Class<?> c = v.getClass(); c != null; c = c.getSuperclass())
+            if (c.getName().equals("com.simibubi.create.content.contraptions.AbstractContraptionEntity")) return true;
+        return false;
+    }
+
+    /**
+     * Client. A train carriage new in this game (its first second) takes the place in its synced data at once.
+     * <p>
+     * Create's client moves a carriage from where it last had its wheels on the track graph toward the synced place, along
+     * the track. A carriage that left the overworld at one portal and came back at another (L&S into the Nether, out at
+     * the coal drill) still had its wheels at the first portal in this game, with no way along the track between them in
+     * the overworld: the new carriage entity stayed at the L&S portal, 454 blocks away, with its riders. Players at the
+     * coal drill saw no train, or a train without its drekki driver; a player riding it saw no driver (Shane,
+     * 2026-11-27; traintest rig runs D to E2: the watcher's game held the carriage at -834 72 1651, the server at the coal
+     * drill).
+     */
+    public static void snap(Entity entity, com.simibubi.create.content.trains.entity.Carriage carriage) {
+        if (!entity.level().isClientSide || entity.tickCount > 20 || carriage == null) return;
+        var dce = carriage.getDimensional(entity.level());
+        if (dce == null || !dce.pointsInitialised) return;
+        dce.pointsInitialised = false;
+        LOG.once("snap", "train carriages new in this game take their synced place at once (not slid from an old portal)");
+    }
 }

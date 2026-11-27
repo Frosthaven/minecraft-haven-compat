@@ -89,6 +89,8 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("PortalViewPlaneMixin", List.of("immersive_portals_core")),
             Map.entry("PlayerAnimationDataMixin", List.of("entity_texture_features")),
             Map.entry("ContraptionSpawnPositionMixin", List.of("create")),
+            Map.entry("RiderSpawnPositionMixin", List.of("create")),
+            Map.entry("CarriageSnapMixin", List.of("create")),
             Map.entry("CarriedRidersMixin", List.of("create", "immersive_portals_core")),
             Map.entry("SeatsAtPortalsMixin", List.of("create", "immersive_portals_core")),
             Map.entry("PortalWallRidersMixin", List.of("create", "immersive_portals_core")),

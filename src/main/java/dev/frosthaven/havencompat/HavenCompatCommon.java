@@ -34,6 +34,7 @@ public final class HavenCompatCommon {
         if (ModList.get().isLoaded("create")) {
             dev.frosthaven.havencompat.bleach.Bleach.register(modBus);
             dev.frosthaven.havencompat.contraptions.ElevatorFloors.register();   /* a new watcher gets an elevator's floors ("No Floors") */
+            dev.frosthaven.havencompat.contraptions.RiderResend.register();   /* riders seated after a carriage loads are sent again once it is out */
             if (ModList.get().isLoaded("immersive_portals_core"))   /* train riders put down at a portal are seated again (CarriedRiders) */
                 net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.tick.ServerTickEvent.Post.class,
                         e -> dev.frosthaven.havencompat.portals.CarriedRiders.tick(e.getServer()));
