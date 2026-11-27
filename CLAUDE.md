@@ -389,7 +389,8 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   pinned one set to client side for the run): a powered Deployer in USE mode holding `mekanismtools:diamond_paxel`
   facing `create:copper_casing`: exposed -> unaffected; waxed weathered -> unwaxed weathered -> exposed; 3 damage.
 - `oxidation/MoreOxidation` + `mixin/Oxidation*Mixin` (0.44.0, `createoxidized`): Create: Oxidation ages the copper
-  blocks of other mods that Shane picked (`haven_compat/oxidation/blocks.txt`, 180 ids, and the block tag
+  blocks of other mods that Shane picked (`haven_compat/oxidation/blocks.txt`, 207 ids since 0.45.1: the 27 copper shafts and
+  cogwheels in non-copper casings joined so their copper part ages, and the block tag
   `createoxidized:oxidizable_create_blocks`). Its properties go by block id, never by class (plain `Block` and shared
   brass/andesite classes): the id NeoForge's `RegisterEvent.register(key, id, supplier)` or Registrate's
   `Registration.register` is registering while the block is built. A `DeferredRegister` registers through the helper
@@ -645,8 +646,9 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   builds it again on every block state change) the state is kept, and `Models.partial` takes the aged copy of a partial
   listed in `haven_compat/oxidation/partials.txt`. Copies: `haven_compat:block/oxidation/<stage>/<ns>/<path>`, made by
   `tools/oxidation/aged_partials.py <extracted assets> src/main/resources` (aged textures from `textures.txt`). A new
-  copper block in `blocks.txt` with a spinning part: add its partial there. Log `[aged parts]`. Test: traintest
-  `--oxidation` with the three Create Casing ids (oxi-shafts-3).
+  copper block in `blocks.txt` with a spinning part: add its partial there. 0.45.1 added the copper drill head and
+  roller frame. Still fresh (no aged texture yet): the copper mixer head, chain conveyor and belt cover. Log
+  `[aged parts]`. Test: traintest `--oxidation` with the three Create Casing ids (oxi-shafts-3), encased ones (oxi-encased-1).
 - `contraptions/SeatDraw` + `mixin/SeatDrawMixin` (client; `create`; `@WrapMethod` on `EntityRenderDispatcher.render`, so
   every pass: world, Iris shadow, Immersive Portals views): other players saw a seated rider on a train drift behind its
   seat and snap back (live server, 2026-11-25; the position was right, only the drawing). Vanilla draws the carriage at

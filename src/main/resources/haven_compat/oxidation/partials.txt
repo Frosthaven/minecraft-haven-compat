@@ -5,3 +5,5 @@ createcasing:block/cogwheel/copper
 createcasing:block/cogwheel_shaftless/copper
 createcasing:block/large_cogwheel/copper
 createcasing:block/large_cogwheel_shaftless/copper
+createcasing:block/mechanical_drill/copper/head
+createcasing:block/mechanical_roller/copper/frame

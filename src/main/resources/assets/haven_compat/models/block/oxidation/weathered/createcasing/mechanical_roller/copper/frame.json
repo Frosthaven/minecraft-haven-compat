@@ -1,0 +1,7 @@
+{
+  "parent": "create:block/mechanical_roller/frame",
+  "textures": {
+    "1": "createoxidized:block/weathered/compat/createcasing/roller_metal/copper",
+    "particle": "createoxidized:block/weathered/compat/createcasing/roller_casing/copper"
+  }
+}

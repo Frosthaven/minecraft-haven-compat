@@ -142,6 +142,30 @@
       "required": false
     },
     {
+      "id": "createcasing:andesite_encased_copper_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:andesite_encased_copper_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:andesite_encased_copper_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:brass_encased_copper_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:brass_encased_copper_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:brass_encased_copper_shaft",
+      "required": false
+    },
+    {
       "id": "createcasing:copper_adjustable_chain_gearshift",
       "required": false
     },
@@ -430,6 +454,90 @@
       "required": false
     },
     {
+      "id": "createcasing:creative_encased_copper_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:creative_encased_copper_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:creative_encased_copper_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:industrial_iron_encased_copper_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:industrial_iron_encased_copper_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:industrial_iron_encased_copper_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:railway_encased_copper_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:railway_encased_copper_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:railway_encased_copper_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:refined_radiance_encased_copper_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:refined_radiance_encased_copper_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:refined_radiance_encased_copper_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:shadow_steel_encased_copper_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:shadow_steel_encased_copper_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:shadow_steel_encased_copper_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:weathered_iron_encased_copper_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:weathered_iron_encased_copper_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:weathered_iron_encased_copper_shaft",
+      "required": false
+    },
+    {
+      "id": "createcasing:zinc_encased_copper_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:zinc_encased_copper_large_cogwheel",
+      "required": false
+    },
+    {
+      "id": "createcasing:zinc_encased_copper_shaft",
+      "required": false
+    },
+    {
       "id": "createframed:copper_window",
       "required": false
     },
@@ -499,6 +607,10 @@
     },
     {
       "id": "electroenergetics:inductor",
+      "required": false
+    },
+    {
+      "id": "haven_compat:copper_waystone",
       "required": false
     },
     {
@@ -715,10 +827,6 @@
     },
     {
       "id": "tfmg:copper_truss",
-      "required": false
-    },
-    {
-      "id": "haven_compat:copper_waystone",
       "required": false
     }
   ]

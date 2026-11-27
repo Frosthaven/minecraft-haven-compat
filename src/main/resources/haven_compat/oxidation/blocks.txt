@@ -1,4 +1,5 @@
 # Blocks Create: Oxidation ages through haven-compat (MoreOxidation); picked by Shane in the copper picker, 2026-11-25
+# 2026-11-27: the copper shafts and cogwheels in other casings (Shane: "including ones in ... encasings"); only the copper part ages
 ad_astra:fluid_pipe_duct
 ae2:crystal_resonance_generator
 ae2:energy_acceptor
@@ -34,6 +35,12 @@ create_submarine:water_thruster
 create_things_and_misc:copper_casing_trapdoor
 create_things_and_misc:sprinkler
 create_things_and_misc:sticky_launcher
+createcasing:andesite_encased_copper_cogwheel
+createcasing:andesite_encased_copper_large_cogwheel
+createcasing:andesite_encased_copper_shaft
+createcasing:brass_encased_copper_cogwheel
+createcasing:brass_encased_copper_large_cogwheel
+createcasing:brass_encased_copper_shaft
 createcasing:copper_adjustable_chain_gearshift
 createcasing:copper_automatic_clutch
 createcasing:copper_chain_conveyor
@@ -106,6 +113,27 @@ createcasing:copper_mixer
 createcasing:copper_portable_storage_interface
 createcasing:copper_press
 createcasing:copper_shaft
+createcasing:creative_encased_copper_cogwheel
+createcasing:creative_encased_copper_large_cogwheel
+createcasing:creative_encased_copper_shaft
+createcasing:industrial_iron_encased_copper_cogwheel
+createcasing:industrial_iron_encased_copper_large_cogwheel
+createcasing:industrial_iron_encased_copper_shaft
+createcasing:railway_encased_copper_cogwheel
+createcasing:railway_encased_copper_large_cogwheel
+createcasing:railway_encased_copper_shaft
+createcasing:refined_radiance_encased_copper_cogwheel
+createcasing:refined_radiance_encased_copper_large_cogwheel
+createcasing:refined_radiance_encased_copper_shaft
+createcasing:shadow_steel_encased_copper_cogwheel
+createcasing:shadow_steel_encased_copper_large_cogwheel
+createcasing:shadow_steel_encased_copper_shaft
+createcasing:weathered_iron_encased_copper_cogwheel
+createcasing:weathered_iron_encased_copper_large_cogwheel
+createcasing:weathered_iron_encased_copper_shaft
+createcasing:zinc_encased_copper_cogwheel
+createcasing:zinc_encased_copper_large_cogwheel
+createcasing:zinc_encased_copper_shaft
 createframed:copper_window
 createframed:copper_window_pane
 createoreexcavation:drilling_machine
@@ -124,6 +152,7 @@ electroenergetics:bulb
 electroenergetics:cut_off_switch
 electroenergetics:ground_rod
 electroenergetics:inductor
+haven_compat:copper_waystone
 mcwlights:copper_candle_holder
 mcwlights:copper_chandelier
 mcwlights:copper_double_candle_holder
@@ -178,4 +207,3 @@ super_ore_block:super_copper_block
 tfmg:copper_cable_hub
 tfmg:copper_frame
 tfmg:copper_truss
-haven_compat:copper_waystone
