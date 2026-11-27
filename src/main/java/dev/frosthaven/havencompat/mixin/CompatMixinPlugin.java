@@ -38,6 +38,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
             Map.entry("LatePassengersMixin", List.of()),
             Map.entry("PortalEyeMixin", List.of("immersive_portals_core", "create")),
             Map.entry("SeatDrawMixin", List.of("create")),
+            Map.entry("SeatTurnMixin", List.of("create")),
             Map.entry("PortalLookAroundMixin", List.of("immersive_portals_core")),
             Map.entry("MissingResourceMixin", List.of()),
             Map.entry("AnimalTrimCacheMixin", List.of("animal_armor_trims")),

@@ -799,12 +799,14 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   - `mixin/RiderSpawnPositionMixin` (server, `ServerEntity.sendPairingData`, `ContraptionSpawn.rider`): a contraption
     rider's spawn packet carries its position now (vanilla: the last one sent, never sent for a seated rider; a player rider
     was 1841 blocks off). `[contraptions] ... sent at its seat`.
-  - `portals/SeatFacing` (client; 0.47.0): a seated player keeps facing the same way against the train through a portal. Measured
-    as Create turns a seated player (`ContraptionPlayerPassengerRotation`: the carriage's `getViewYRot`, aligned at -view - 90;
-    Create starts over on a new carriage entity, with no turn for the step between the two). On a new carriage, while riding or
-    within 3 s, a turn of over 45 degrees in the first 10 ticks is put back. Shane's quarter turn (coal drill into the Nether,
-    facing backwards on a reversing two-carriage train) is not reproduced on the rig; a backwards rider kept -180 through both
-    crossings with no false correction. `[seat facing]` names the angle when it acts.
+  - `portals/SeatTurn` + `mixin/SeatTurnMixin` (client, 0.47.1): Create turns a seated player by each frame's step of the
+    carriage's view yaw (`ContraptionPlayerPassengerRotation.frame`). After a portal the client's carriage first shows a
+    wrong yaw, then swings 90-180 degrees within a tick or two, and Create copied that onto the player (Shane: a quarter
+    turn riding the L&S Courier Line from the coal drill into the Nether, 2026-11-27). A step over 45 degrees per tick of
+    elapsed time (+5) is not passed on; `[seat turn]` logs it. Test: a copy of the live world (Create's `create_tracks.dat`
+    and the regions), riders seated on the real train by the probe's `trainprobe-realride`; the rider on George's carriage
+    turned 90-180 degrees at most crossings before. The 0.46.0/0.47.0 `SeatFacing` guard is gone: it measured against the
+    same unsettled yaw and turned players itself (`[seat facing] ... turned back`, then a 90 or 180 jump).
   - `contraptions/StorageMenus` + `mixin/MountedStorageMenuMixin` (server, 0.47.0): a storage menu opened on a contraption
     (`MountedItemStorage.handleInteraction`) stays valid only on the carriage entity it was opened on, alive, in the player's
     level; Create checks only alive and 8 blocks, and a train keeps its contraption across portals and unloads with a new entity.
