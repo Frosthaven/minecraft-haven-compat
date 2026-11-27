@@ -799,8 +799,17 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   - `mixin/RiderSpawnPositionMixin` (server, `ServerEntity.sendPairingData`, `ContraptionSpawn.rider`): a contraption
     rider's spawn packet carries its position now (vanilla: the last one sent, never sent for a seated rider; a player rider
     was 1841 blocks off). `[contraptions] ... sent at its seat`.
-  - `portals/SeatFacing` (client): a seated player keeps facing the same way against the carriage through a portal (a forward
-    seat turned a quarter turn from the coal drill into the Nether; not reproduced on the rig). `[seat facing]`.
+  - `portals/SeatFacing` (client; 0.47.0): a seated player keeps facing the same way against the train through a portal. Measured
+    as Create turns a seated player (`ContraptionPlayerPassengerRotation`: the carriage's `getViewYRot`, aligned at -view - 90;
+    Create starts over on a new carriage entity, with no turn for the step between the two). On a new carriage, while riding or
+    within 3 s, a turn of over 45 degrees in the first 10 ticks is put back. Shane's quarter turn (coal drill into the Nether,
+    facing backwards on a reversing two-carriage train) is not reproduced on the rig; a backwards rider kept -180 through both
+    crossings with no false correction. `[seat facing]` names the angle when it acts.
+  - `contraptions/StorageMenus` + `mixin/MountedStorageMenuMixin` (server, 0.47.0): a storage menu opened on a contraption
+    (`MountedItemStorage.handleInteraction`) stays valid only on the carriage entity it was opened on, alive, in the player's
+    level; Create checks only alive and 8 blocks, and a train keeps its contraption across portals and unloads with a new entity.
+    Rig: a rider's barrel menu closed at the crossing (Create's own check did it there; this rule did not need to); Shane's case
+    (coal shown that the chest no longer held) is not reproduced yet. Only these menus: inventory, backpacks and others untouched.
 - `contraptions/ContraptionSpawn` + `mixin/ContraptionSpawnPositionMixin` (server, `mixins` list; `create`): `@Pseudo`, the mixin
   extends `Entity` and adds `getAddEntityPacket(ServerEntity)` to Create's `CarriageContraptionEntity` and
   `ControlledContraptionEntity` (siblings; neither they nor `AbstractContraptionEntity` override it): a `ClientboundAddEntityPacket` with the entity's own position, not

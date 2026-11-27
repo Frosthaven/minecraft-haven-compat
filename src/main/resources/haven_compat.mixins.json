@@ -18,6 +18,7 @@
     "MagnetCoilTurnMixin",
     "RsDirectionTurnMixin",
     "ContraptionSpawnPositionMixin",
+    "MountedStorageMenuMixin",
     "RiderSpawnPositionMixin",
     "ElephantPhysicsMixin",
     "BackpackNameMixin",
