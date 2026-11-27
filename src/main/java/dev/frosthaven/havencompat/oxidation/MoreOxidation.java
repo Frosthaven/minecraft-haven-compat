@@ -32,7 +32,7 @@ public final class MoreOxidation {
 
     private MoreOxidation() {}
 
-    private static Set<String> read(String path) {
+    static Set<String> read(String path) {
         Set<String> out = new LinkedHashSet<>();
         try (InputStream in = MoreOxidation.class.getResourceAsStream(path)) {
             if (in == null) { LOG.warnOnce("read", "missing {}", path); return out; }

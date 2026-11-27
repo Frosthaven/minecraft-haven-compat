@@ -1,0 +1,7 @@
+# Moving parts (Flywheel partial models) of the blocks in blocks.txt that show copper: their aged copies
+# (haven_compat:block/oxidation/<stage>/...) are made by tools/oxidation/aged_partials.py and picked by AgedParts.
+createcasing:block/shaft/copper
+createcasing:block/cogwheel/copper
+createcasing:block/cogwheel_shaftless/copper
+createcasing:block/large_cogwheel/copper
+createcasing:block/large_cogwheel_shaftless/copper

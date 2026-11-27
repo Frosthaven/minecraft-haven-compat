@@ -59,6 +59,9 @@ public final class HavenCompat {
         if (net.neoforged.fml.ModList.get().isLoaded("create")) {
             dev.frosthaven.havencompat.bleach.BleachClient.register(modBus);
         }
+        if (net.neoforged.fml.ModList.get().isLoaded("create") && net.neoforged.fml.ModList.get().isLoaded("createoxidized")) {
+            dev.frosthaven.havencompat.oxidation.AgedParts.init();   // aged moving parts of the extra copper blocks
+        }
         if (net.neoforged.fml.ModList.get().isLoaded("create") && net.neoforged.fml.ModList.get().isLoaded("create_connected")
                 && net.neoforged.fml.ModList.get().isLoaded("create_dragons_plus")) {
             dev.frosthaven.havencompat.dyeing.NozzleValueBox.register(NeoForge.EVENT_BUS);

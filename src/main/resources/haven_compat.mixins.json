@@ -39,6 +39,8 @@
     "OxidationScrapeToolMixin",
     "CarriedRidersMixin",
     "SeatsAtPortalsMixin",
+    "PortalWallRidersMixin",
+    "CarrySlotMixin",
     "ZeroMoveCollideMixin"
   ],
   "client": [
@@ -46,6 +48,8 @@
     "VeilIrisBindMixin",
     "ShadowPassScreenGuardMixin",
     "OxidationTexturesMixin",
+    "AgedPartsStorageMixin",
+    "AgedPartsModelsMixin",
     "VeilIrisClearMixin",
     "SeatDrawMixin",
     "FancyMenuScaleMixin",

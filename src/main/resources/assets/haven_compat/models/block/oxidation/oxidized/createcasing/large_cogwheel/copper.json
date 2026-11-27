@@ -1,0 +1,7 @@
+{
+  "parent": "create:block/large_cogwheel",
+  "textures": {
+    "4": "createoxidized:block/oxidized/compat/createcasing/large_cogwheel/copper",
+    "particle": "createoxidized:block/oxidized/compat/createcasing/shaft/copper"
+  }
+}

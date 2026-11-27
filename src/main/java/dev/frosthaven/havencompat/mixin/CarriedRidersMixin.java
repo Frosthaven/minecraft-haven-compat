@@ -14,7 +14,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class CarriedRidersMixin {
     @Inject(method = "dismountPlayer", at = @At("RETURN"))
     private void haven$leftBehind(ServerLevel level, ServerPlayer player, Integer seat, boolean capture, CallbackInfo ci) {
-        CarriedRiders.dismounted(level, player, capture);
+        CarriedRiders.dismounted((Carriage.DimensionalCarriageEntity) (Object) this, level, player, seat, capture);
+    }
+
+    @Inject(method = "updatePassengerLoadout", at = @At("RETURN"))
+    private void haven$handOverMobs(CallbackInfo ci) {
+        CarriedRiders.handOver((Carriage.DimensionalCarriageEntity) (Object) this);
     }
 
     @Inject(method = "updatePassengerLoadout", at = @At("HEAD"))

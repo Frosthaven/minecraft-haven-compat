@@ -605,6 +605,48 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   (the seat fix kept the rider first): it is the fallback for a rider who still gets off before the far copy exists, and
   has not run in a real crossing yet. With 50 ms each way on both players' connections (the probe's `Latency`, run_pair
   `--latency 50`): 0.41.1 lost the passenger at the drill return again (rider-lat-1), 0.42.0 lost none (rider-lat-fix-1).
+- 0.45.0, train riders at portals (Shane's two-carriage L&S Courier Line with a drekki conductor, 2026-11-26: on a rear
+  seat he was put down at the Overworld side of the -835 portal and stayed there; "[IPTrainRider] moved ... (left
+  carriage ...)" and no seat). Three changes, all server:
+  - `CarriedRiders` also files every player Create's `dismountPlayer(..., true)` hands over (train, carriage index, seat);
+    a server tick seats one still not riding 100 ms later on that seat of the carriage's copy in its own dimension (free
+    seat, within 16 blocks: the train runs on meanwhile). Log `[carried riders] ... seated again`.
+  - `CarriedRiders.handOver` (RETURN of `updatePassengerLoadout`): when a copy filed a mob rider, the copies in other
+    dimensions load their passengers at once (as Immersive Portals does for players). Gain is small (watcher saw the
+    conductor 0.26 s -> 0.2 s after the empty carriage); the rest is Create's cutoff.
+  - `SeatsAtPortals.notInWall` + `mixin/PortalWallRidersMixin` (HEAD of `Entity.isInWall`): a contraption rider within 4
+    blocks of a portal is not "in a wall". Kept on its seat by the seat fix, the rider's head passed through the blocks
+    behind the plane and took suffocation damage on most crossings; a train stopped across the drill portal killed the
+    rider in that seat.
+  Test: traintest `--courier --conductor` (probe `CourierBuild`: the rig train taken apart with `Train.disassemble`, the
+  Courier built at the home station, front bogey on the marker, a conductor chicken or `--drekkicond` an employed drekki,
+  a "Drill Probe" station placed at the drill line's end, Tester watching there) at 100 ms each way. A forced drop that
+  also deletes Create's seat record (the live failure) was seated again in 100 to 142 ms (courier-conductor-fix-2,
+  render-1, drekki-1); 0 suffocation hits against two chicken deaths before; Tester2 through every portal seated.
+- `contraptions/ElevatorFloors` (0.45.0, server; `create`; NeoForge `PlayerEvent.StartTracking`): a player who starts
+  seeing an elevator cabin gets its floor list (Create's `ElevatorFloorListPacket`). Create sends floors only when a
+  game's cabin attaches to the pulley or when the list changes, so a cabin that came into view later held none and its
+  Contraption Controls said "No Floors" (Shane's elevator at -665, 1660, twice on 2026-11-26). Test: traintest
+  `--elevator`, Tester2 sent 1000 blocks away and back at the bottom: 0.44.0 came back with 0 floors and the cabin then
+  left without Tester2 (elevator-floors-control-2, elevator-watch-1); 0.45.0 sent the 2 floors at once and Tester2 rode
+  up (elevator-watch-fix). Log `[elevator floors]`.
+- `carryon/CarrySlot` + `mixin/CarrySlotMixin` (0.45.0, client; `carryon`; redirect of the `Inventory.selected` write in
+  `ClientboundSyncCarryDataPacket.handle`): Carry On sets the hotbar selection from its carry data on every sync, and
+  syncs on every dimension change: after a portal the selection jumped to slot 0 (Shane, 2026-11-26). The write is kept
+  only while the carry data says the player carries something (the slot lock Carry On means it for). Found with a JDWP
+  field watch on `Inventory.selected` in the traintest client (`--jvm "-agentlib:jdwp=..."`; arm the watch only once
+  the walk starts, from the start it slowed the game past the runner's timeout). Test: traintest `--slots` (probe
+  `ProbeClient.slots`: a new slot every 10 ticks during the walk, "SLOT JUMP" when it changes otherwise): 6 jumps in 13
+  crossings before, 0 in 11 after (slots-1, slots-fix-1). Log `[carry slot]`.
+- `oxidation/AgedParts` + `mixin/AgedPartsStorageMixin` + `mixin/AgedPartsModelsMixin` (0.45.0, client; `createoxidized`,
+  `create`): moving parts are Flywheel partial models picked by name (Create Casing's copper shaft and cogwheels:
+  `EncasedPartialModels` maps), so Create: Oxidation's block model swap never reached them: they aged, waxed and scraped
+  but looked new (Shane, 2026-11-27). While Flywheel builds a block entity's visual (`BlockEntityStorage.createRaw`; it
+  builds it again on every block state change) the state is kept, and `Models.partial` takes the aged copy of a partial
+  listed in `haven_compat/oxidation/partials.txt`. Copies: `haven_compat:block/oxidation/<stage>/<ns>/<path>`, made by
+  `tools/oxidation/aged_partials.py <extracted assets> src/main/resources` (aged textures from `textures.txt`). A new
+  copper block in `blocks.txt` with a spinning part: add its partial there. Log `[aged parts]`. Test: traintest
+  `--oxidation` with the three Create Casing ids (oxi-shafts-3).
 - `contraptions/SeatDraw` + `mixin/SeatDrawMixin` (client; `create`; `@WrapMethod` on `EntityRenderDispatcher.render`, so
   every pass: world, Iris shadow, Immersive Portals views): other players saw a seated rider on a train drift behind its
   seat and snap back (live server, 2026-11-25; the position was right, only the drawing). Vanilla draws the carriage at

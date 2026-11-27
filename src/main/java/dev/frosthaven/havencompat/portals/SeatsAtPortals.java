@@ -51,6 +51,15 @@ public final class SeatsAtPortals {
     }
 
     static final double NEAR = 4;
+    private static int wallLogged;
+
+    /** From the mixin, at the head of {@code Entity.isInWall}: true when the entity rides a contraption near a portal. */
+    public static boolean notInWall(net.minecraft.world.entity.Entity e) {
+        if (!(e.getVehicle() instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity)) return false;
+        if (!nearPortal(e.level(), e.blockPosition())) return false;
+        if (wallLogged++ < 20 && !e.level().isClientSide()) LOG.info("{} rides through the wall behind a portal at {}: no suffocation", e.getName().getString(), e.blockPosition().toShortString());
+        return true;
+    }
     private static Class<?> portalClass;
 
     /** An Immersive Portals portal (its entity) within NEAR blocks of the block. */
