@@ -639,7 +639,7 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   the walk starts, from the start it slowed the game past the runner's timeout). Test: traintest `--slots` (probe
   `ProbeClient.slots`: a new slot every 10 ticks during the walk, "SLOT JUMP" when it changes otherwise): 6 jumps in 13
   crossings before, 0 in 11 after (slots-1, slots-fix-1). Log `[carry slot]`.
-- `oxidation/AgedParts` + `mixin/AgedPartsStorageMixin` + `mixin/AgedPartsModelsMixin` (0.45.0, client; `createoxidized`,
+- `oxidation/AgedParts` + `mixin/AgedPartsStorageMixin` + `mixin/AgedPartsContraptionMixin` + `mixin/AgedPartsModelsMixin` (0.45.0, client; `createoxidized`,
   `create`): moving parts are Flywheel partial models picked by name (Create Casing's copper shaft and cogwheels:
   `EncasedPartialModels` maps), so Create: Oxidation's block model swap never reached them: they aged, waxed and scraped
   but looked new (Shane, 2026-11-27). While Flywheel builds a block entity's visual (`BlockEntityStorage.createRaw`; it
@@ -649,6 +649,20 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
   copper block in `blocks.txt` with a spinning part: add its partial there. 0.45.1 added the copper drill head and
   roller frame. Still fresh (no aged texture yet): the copper mixer head, chain conveyor and belt cover. Log
   `[aged parts]`. Test: traintest `--oxidation` with the three Create Casing ids (oxi-shafts-3), encased ones (oxi-encased-1).
+  0.48.0: a contraption's block entities get their visuals from Create's `ContraptionVisual.setupVisualizer`, not Flywheel's
+  storage; `AgedPartsContraptionMixin` keeps the state there too (an aged shaft on a train drew its part new; rig shots
+  age8, 2026-11-28: weathered core teal after the fix, new copper before).
+- `oxidation/ContraptionAging` + `mixin/ContraptionAgingMixin` (server, 0.48.0, `create`): copper carried by a contraption
+  ages (blocks of a contraption get no random ticks; Shane, 2026-11-28). Every 1200 ticks of game time per carriage (or
+  per contraption entity) each copper block gets the random ticks it missed (randomTickSpeed rate, Poisson, at most 20
+  intervals) and ages by the world's rule: Create: Oxidation's (`isOxidizable`: its tag, so not every block of a class
+  that carries its properties) for its blocks and ours (MoreOxidation), vanilla's for WeatheringCopper; neighbours are
+  the contraption's own blocks; waxed stays. Changes go out through `AbstractContraptionEntity.setBlock` (Create's packet,
+  the client rebuilds the contraption once per pass). A carriage in two levels ages in one copy (`anyAvailableEntity`) and
+  sends the change to all. Time per carriage, not per entity: a train through portals every few seconds never reached a
+  pass on its entities' ticks. Rig: `--courier` with flag `trainprobe-aging` (copper casing, waxed casing, copper block,
+  waxed copper, brass encased copper shaft on the rear carriage; randomTickSpeed 100), probe `Aging` logs every block's
+  stage on the server and in Tester2's game, and shots of the shaft. `[contraption aging]`.
 - `contraptions/SeatDraw` + `mixin/SeatDrawMixin` (client; `create`; `@WrapMethod` on `EntityRenderDispatcher.render`, so
   every pass: world, Iris shadow, Immersive Portals views): other players saw a seated rider on a train drift behind its
   seat and snap back (live server, 2026-11-25; the position was right, only the drawing). Vanilla draws the carriage at
@@ -807,11 +821,23 @@ cannot apply logs it and leaves the game as it was, never a crash of its own.
     and the regions), riders seated on the real train by the probe's `trainprobe-realride`; the rider on George's carriage
     turned 90-180 degrees at most crossings before. The 0.46.0/0.47.0 `SeatFacing` guard is gone: it measured against the
     same unsettled yaw and turned players itself (`[seat facing] ... turned back`, then a 90 or 180 jump).
-  - `contraptions/StorageMenus` + `mixin/MountedStorageMenuMixin` (server, 0.47.0): a storage menu opened on a contraption
-    (`MountedItemStorage.handleInteraction`) stays valid only on the carriage entity it was opened on, alive, in the player's
-    level; Create checks only alive and 8 blocks, and a train keeps its contraption across portals and unloads with a new entity.
-    Rig: a rider's barrel menu closed at the crossing (Create's own check did it there; this rule did not need to); Shane's case
-    (coal shown that the chest no longer held) is not reproduced yet. Only these menus: inventory, backpacks and others untouched.
+  - `contraptions/StorageMenus` + `mixin/ContraptionMenuMixin` (server, 0.48.0; replaces 0.47.0's MountedStorageMenuMixin): any
+    menu on storage an entity carries closes when that entity is removed or replaced, is in another level, or the player
+    changed level. Which menus: one a contraption click opened (`AbstractContraptionEntity.handlePlayerInteraction`, every
+    mod's mounted storage) and every Sophisticated menu that names its entity (`getEntity()`: mounted chests, barrels and
+    backpacks, their settings, Storage In Motion). 0.47.0 hooked Create's own `MountedItemStorage` menu only; Shane's
+    Sophisticated chest on the L&S Courier Line never went through it (2026-11-27). Rig (`--courier`, probe `Passenger`
+    DUPE TEST): a Sophisticated chest and a backpack menu close at a crossing on 0.47.1 and 0.48.0; a station-style unload
+    with the chest open (Contraption.getStorage().getAllItems(), as a PSI) empties the screen, a real shift-click takes
+    nothing. Shane's case (items taken from a chest a station had emptied) is still not reproduced. `[contraptions] ... closed`.
+  - `contraptions/CarriageCopies` + `mixin/CarriageCopyMixin` (server, 0.48.0): right before Create builds a carriage's
+    entity in another level (`Carriage.manageEntities` -> `createEntity`), the live carriage is saved into the carriage's
+    snapshot (`serialize`, as Create's world save does). Before, the copy came from the last save: block changes since
+    (aged copper) were missing on the far side and that copy's snapshot carried them off. Storage is not affected
+    (Create shares a carriage's storage between copies; rig: an emptied chest stayed empty through crossings).
+  - `mixin/ContraptionAxisMixin` (server, 0.48.0): Create 6.0.10's `ContinuousOBBCollider.collideMany` reads an unset
+    separation axis (two boxes with coinciding centres) and crashes the server tick ("mf.axis is null"; the rig crashed
+    once, 2026-11-28; Create issues 10278, 10344). An unset axis reads as zero: no push that tick. `[contraption collision]`.
 - `contraptions/ContraptionSpawn` + `mixin/ContraptionSpawnPositionMixin` (server, `mixins` list; `create`): `@Pseudo`, the mixin
   extends `Entity` and adds `getAddEntityPacket(ServerEntity)` to Create's `CarriageContraptionEntity` and
   `ControlledContraptionEntity` (siblings; neither they nor `AbstractContraptionEntity` override it): a `ClientboundAddEntityPacket` with the entity's own position, not
